@@ -1,0 +1,1 @@
+<h2><a href="${pageContext.request.contextPath}/module/simplelabentry/index.htm"><spring:message code="simplelabentry.title" /></a></h2>

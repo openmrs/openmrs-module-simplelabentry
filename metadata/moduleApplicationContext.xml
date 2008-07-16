@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- Beans to add to the current Application context definition -->
+  
+<beans>
+	
+    <bean id="simpleLabEntryUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    	<property name="mappings">
+            <props>
+	           <prop key="module/@MODULE_ID@/simpleLabEntry.form">simpleLabEntryFormController</prop>
+	           <prop key="**/@MODULE_ID@/labEntry.portlet">simpleLabEntryPortletController</prop>
+	    	</props>
+		</property>
+    </bean>
+	
+    <!-- Controllers -->
+    
+    <bean id="simpleLabEntryPortletController" class="org.openmrs.module.simplelabentry.web.controller.LabEntryPortletController" />
+      
+    <bean id="simpleLabEntryFormController" class="@MODULE_PACKAGE@.web.controller.SimpleLabEntryFormController">
+		<property name="commandName"><value>command</value></property>
+		<property name="formView"><value>/module/@MODULE_ID@/simpleLabEntryForm</value></property>
+		<property name="successView"><value>simpleLabEntry.form</value></property>
+    </bean>
+	
+    <!-- /Controllers -->
+</beans>
