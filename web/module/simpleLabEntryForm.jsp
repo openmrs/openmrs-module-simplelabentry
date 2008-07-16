@@ -16,7 +16,7 @@
 	<select name="orderConcept">
 		<option value=""></option>
 		<c:forEach items="${testTypes}" var="testType" varStatus="testTypeStatus">
-			<option value="${testType.conceptId}" <c:if test="${param.orderType == testType.conceptId}">selected</c:if>>
+			<option value="${testType.conceptId}" <c:if test="${param.orderConcept == testType.conceptId}">selected</c:if>>
 				${empty testType.name.shortName ? testType.name.name : testType.name.shortName}
 			</option>
 		</c:forEach>
