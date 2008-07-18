@@ -6,10 +6,11 @@
 <beans>
 	
     <bean id="simpleLabEntryUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    	<property name="order"><value>50</value></property>
     	<property name="mappings">
             <props>
 	           <prop key="module/@MODULE_ID@/simpleLabEntry.form">simpleLabEntryFormController</prop>
-	           <prop key="**/@MODULE_ID@/labEntry.portlet">simpleLabEntryPortletController</prop>
+	           <prop key="**/labEntry.portlet">simpleLabEntryPortletController</prop>
 	    	</props>
 		</property>
     </bean>

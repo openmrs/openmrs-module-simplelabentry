@@ -68,7 +68,7 @@ public class SimpleLabEntryFormController extends SimpleFormController {
     	String testProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.labSetConcepts");
     	if (testProp != null) {
     		for (String s : testProp.split(",")) {
-    			testTypes.add(Context.getConceptService().getConceptByIdOrName(s));
+    			testTypes.add(Context.getConceptService().getConcept(Integer.valueOf(s)));
     		}
     	}
     	map.put("testTypes", testTypes);
