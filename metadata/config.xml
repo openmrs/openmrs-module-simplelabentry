@@ -45,6 +45,7 @@
 			<create creator="new" javascript="DWRSimpleLabEntryService">
 				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService"/>
 				<include method="getPatientByIdentifier"/>
+				<include method="createPatient"/>
 			</create>
 		</allow>
 	</dwr>

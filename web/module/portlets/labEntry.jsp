@@ -8,12 +8,12 @@
 <openmrs:htmlInclude file="/scripts/dojo/dojo.js" />
 <openmrs:htmlInclude file="/scripts/easyAjax.js" />
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
-<openmrs:htmlInclude file="/moduleResources/simplelabentry/thickbox/thickbox-compressed.js" />
-<openmrs:htmlInclude file="/moduleResources/simplelabentry/thickbox/thickbox.css" />
 
 <openmrs:globalProperty key="simplelabentry.patientIdentifierType" var="patientIdType" />
 
 <script type="text/javascript">
+
+	var $j = jQuery.noConflict();
 
 	dojo.require("dojo.widget.openmrs.PatientSearch");
 
@@ -46,44 +46,6 @@
 		changeClassProperty("description", "display", "none");
 	});
 
-	function focusOnPatientSearch() {
-		dojo.widget.manager.getWidgetById("pSearch").inputNode.select();
-		dojo.widget.manager.getWidgetById("pSearch").inputNode.focus();
-	}
-
-	function hideNameMatchSections() {
-		document.getElementById('nameFoundSection').style.display = 'none';
-		document.getElementById('noNameFoundSection').style.display = 'none';
-		_selectedPatientId = null;
-	}
-
-	function findPatient() {
-		hideNameMatchSections();
-
-		DWRPatientService.findPatients(null, false, function(matches) {
-			if (matches.length == 1) {
-				var currentPatient = matches[0];
-				_selectedPatientId = currentPatient.patientId;
-				DWRUtil.setValues( {
-					'nameMatchedIdentifier': currentPatient.identifier,
-					'nameMatchedName': currentPatient.personName,
-					'nameMatchedAge': currentPatient.age,
-					'nameMatchedGender': currentPatient.gender
-				} );
-				showDiv('nameFoundSection');
-			} else {
-				showDiv('noNameFoundSection');
-			}
-		});
-	}
-	
-	function findNewPatient() {
-		hideNameMatchSections();
-		showDiv('nameMatchSection');
-		showDiv('patientSearchBox');
-		focusOnPatientSearch();
-	}
-
 	function clearPatientSearchFields() {
 		hideDiv('idMatchSection');
 		hideDiv('nameMatchSection');
@@ -91,56 +53,144 @@
 		hideNameMatchSections();
 	}
 
+	function hideNameMatchSections() {
+		hideDiv('nameFoundSection');
+		hideDiv('noNameFoundSection');
+		_selectedPatientId = null;
+	}
+
 	function showCreatePatient() {
 		clearPatientSearchFields();
 		showDiv('createPatientSection');
 		_selectedPatientId = null;
 	}
+
+	$j(document).ready(function(){
 	
-	function matchPatientById(patIdType, patId) {
-		clearPatientSearchFields();
-		DWRSimpleLabEntryService.getPatientByIdentifier(patIdType, patId, function(patient) {
-				if (patient.patientId == null) {
-					showDiv('nameMatchSection');
-					showDiv('patientSearchBox');
+		function findPatient() {
+			hideNameMatchSections();
+	
+			DWRPatientService.findPatients(null, false, function(matches) {
+				if (matches.length == 1) {
+					var currentPatient = matches[0];
+					_selectedPatientId = currentPatient.patientId;
+					DWRUtil.setValues( {
+						'nameMatchedIdentifier': currentPatient.identifier,
+						'nameMatchedName': currentPatient.personName,
+						'nameMatchedAge': currentPatient.age,
+						'nameMatchedGender': currentPatient.gender
+					} );
+					showDiv('nameFoundSection');
+				} else {
+					showDiv('noNameFoundSection');
 				}
-				else {
-					_selectedPatientId = patient.patientId;
-					$('idMatchSection').style.display = '';
-					$('idMatchedIdentifier').innerHTML = patId;
-					$('idMatchedName').innerHTML = patient.givenName + ' ' + patient.familyName;
-					$('idMatchedGender').innerHTML = patient.gender;
-					$('idMatchedAge').innerHTML = patient.age;
-					$('idMatchedDistrict').innerHTML = patient.countyDistrict;
-					$('idMatchedSector').innerHTML = patient.cityVillage;
-					$('idMatchedCell').innerHTML = patient.neighborhoodCell;
-					$('idMatchedAddress1').innerHTML = patient.address1;
-				}
-				$('newPatientIdentifier').innerHTML = patId;
 			});
-	}
+		}
+		
+		function findNewPatient() {
+			hideNameMatchSections();
+			showDiv('nameMatchSection');
+			showDiv('patientSearchBox');
+			dojo.widget.manager.getWidgetById("pSearch").inputNode.select();
+			dojo.widget.manager.getWidgetById("pSearch").inputNode.focus();
+		}
+		
+		function matchPatientById(patIdType, patId) {
+			clearPatientSearchFields();
+			DWRSimpleLabEntryService.getPatientByIdentifier(patIdType, patId, function(patient) {
+					if (patient.patientId == null) {
+						showDiv('nameMatchSection');
+						showDiv('patientSearchBox');
+					}
+					else {
+						_selectedPatientId = patient.patientId;
+						$('idMatchSection').style.display = '';
+						$('idMatchedIdentifier').innerHTML = patId;
+						$('idMatchedName').innerHTML = patient.givenName + ' ' + patient.familyName;
+						$('idMatchedGender').innerHTML = patient.gender;
+						$('idMatchedAge').innerHTML = patient.age;
+						$('idMatchedDistrict').innerHTML = patient.countyDistrict;
+						$('idMatchedSector').innerHTML = patient.cityVillage;
+						$('idMatchedCell').innerHTML = patient.neighborhoodCell;
+						$('idMatchedAddress1').innerHTML = patient.address1;
+					}
+					$('newPatientIdentifier').innerHTML = patId;
+				});
+		}
+	
+		function createPatientAndOrder() {
+			createPatient();
+			createOrder();
+		}
+	
+		function createPatient() {
+			var newIdent = $j('#newPatientIdentifier').text();
+			var newIdentType = '${patientIdType}';
+			var newIdentLoc = '${param.orderLocation}';
+			var newFirstName = $('newFirstName').value;
+			var newLastName = $('newLastName').value;
+			var newGender = $j("input[@name='newGender']:checked").val();
+			var newAge = $('newAge').value;
+			var newCountyDistrict = $('newCountyDistrict').value;
+			var newCityVillage = $('newCityVillage').value;
+			var newNeighborhoodCell = $('newNeighborhoodCell').value;
+			var newAddress1 = $('newAddress1').value;
+			DWRSimpleLabEntryService.createPatient(	newFirstName, newLastName, newGender, newAge, newIdent, newIdentType, newIdentLoc, 
+												   	newCountyDistrict, newCityVillage, newNeighborhoodCell, newAddress1, 
+												   	{ 	callback:function(patient) {
+													   		alert(patient.patientId + '; ' + patient.personId + '; ' + patient.gender);
+													   		_selectedPatientId = patient.patientId;
+														},
+														errorHandler:function(errorString, exception) {
+															alert(errorString);
+														}
+												   	}
+			);
+		}
+	
+		function createOrder() {
 
-	function createPatientAndOrder() {
-		createPatient();
-		createOrder();
-	}
+			
+			alert('Creating order for patient ' + _selectedPatientId + ', concept ${param.orderConcept}, location, ${param.orderLocation}, date ${param.orderDate}');
+			clearPatientSearchFields();
+		}
 
-	function createPatient() {
-		var newIdent = $('newPatientIdentifier').innerHtml;
-		var newFirstName = $('newFirstName').value;
-		var newLastName = $('newLastName').value;
-		var newGender = $('newGender').value;
-		var newAge = $('newAge').value;
-		var newCountyDistrict = $('newCountyDistrict').value;
-		var newCityVillage = $('newCityVillage').value;
-		var newNeighborhoodCell = $('newNeighborhoodCell').value;
-		var newAddress1 = $('newAddress1').value;
-		_selectedPatientId = '';
-	}
+		$j("#SearchByIdButton").click( function() { 
+			matchPatientById('${patientIdType}',$('patientIdentifier').value); 
+		});
+		
+		$j("#ClearSearchButton").click( function() {
+			$('patientIdentifier').value = '';
+			clearPatientSearchFields();
+		});
+		$j("#ClearSearchButton2").click( function() {
+			clearPatientSearchFields();
+		});
+		$j("#ClearPatientResultsButton").click( function() {
+			 clearPatientSearchFields();
+		});
 
-	function createOrder() {
-		alert('Creating order for patient ' + _selectedPatientId + ', concept ${param.orderConcept}, location, ${param.orderLocation}, date ${param.orderDate}');
-	}
+		$j("#ShowCreatePatientButton").click( function() {
+			showCreatePatient();
+		});
+
+		$j("#CreateOrderFromIdButton").click( function() {
+			createOrder();
+		});
+		$j("#CreateOrderFromNameButton").click( function() {
+			createOrder();
+		});
+		$j("#CreatePatientAndOrderButton").click( function() {
+			createPatientAndOrder();
+		});
+
+		$j("#FindNewPatientButton").click( function() {
+			findNewPatient();
+		});
+		$j("#FindNewPatientButton2").click( function() {
+			findNewPatient();
+		});
+	});
 </script>
 
 <style>
@@ -183,10 +233,9 @@
 <b class="boxHeader">Add New Order</b>
 <div id="findPatientSection" style="align:left";" class="box" >
 	1. Enter IMB ID (Long ID): 
-	<input type="hidden" id="patientIdentifierType" name="patientIdentifierType" value="" />
 	<input type="text" id="patientIdentifier" name="patientIdentifier" />
-	<input type="button" value="Search" onclick="matchPatientById('${patientIdType}',$('patientIdentifier').value);" />
-	<input type="button" value="Clear" onclick="$('patientIdentifier').value = ''; clearPatientSearchFields();" />
+	<input type="button" value="Search" id="SearchByIdButton" />
+	<input type="button" value="Clear" id="ClearSearchButton" />
 	<br/><br/>
 	
 	<div id="idMatchSection" class="searchSection" style="display:none;">
@@ -213,8 +262,8 @@
 				<td id="idMatchedAddress1"></td>
 			</tr>
 		</table>
-		<input type="button" value="Create Order for this Patient" onclick="createOrder();">
-		<input type="button" value="Cancel, this is incorrect" onclick="clearPatientSearchFields();">
+		<input type="button" id="CreateOrderFromIdButton" value="Create Order for this Patient" />
+		<input type="button" id="ClearPatientResultsButton" value="Cancel, this is incorrect" />
 	</div>
 	
 	<div id="nameMatchSection" class="searchSection" style="display:none;">
@@ -243,8 +292,8 @@
 			</div>
 			<div style="padding:5px;">
 				<form name="patientFoundForm">
-					<input type="button" value="Create Order for this Patient" onclick="javascript:createOrder();" />
-					<input type="button" value="Return to Search" onclick="javascript:findNewPatient();" />
+					<input type="button" value="Create Order for this Patient" id="CreateOrderFromNameButton" />
+					<input type="button" value="Return to Search" id="FindNewPatientButton" />
 				</form>
 			</div>
 		</div>
@@ -253,8 +302,8 @@
 			<span style="border-bottom: 1px solid black; font-weight:bold;">No matching patients were found.</span>
 			&nbsp;&nbsp;
 			<form name="noPatientFoundForm">
-				<input type="button" value="Search Again" onclick="javascript:findNewPatient();" />
-				<input type="button" value="Create New Patient" onclick="showCreatePatient()" />
+				<input type="button" value="Search Again" id="FindNewPatientButton2" />
+				<input type="button" value="Create New Patient" id="ShowCreatePatientButton" />
 			</form>
 		</div>
 
@@ -280,7 +329,7 @@
 				<td><input type="text" id="newLastName" name="newLastName" size="10" /></td>
 				<td>
 					<openmrs:forEachRecord name="gender">
-						<input type="radio" name="gender" id="${record.key}" value="${record.key}" <c:if test="${record.key == status.value}">checked</c:if> />
+						<input type="radio" name="newGender" id="newGender${record.key}" value="${record.key}" <c:if test="${record.key == status.value}">checked</c:if> />
 						<label for="${record.key}"> <spring:message code="simplelabentry.gender.${record.value}"/> </label>
 					</openmrs:forEachRecord>
 				</td>
@@ -290,8 +339,8 @@
 				<td><input type="text" id="newNeighborhoodCell" name="newNeighborhoodCell" size="10" /></td>
 				<td><input type="text" id="newAddress1" name="newAddress1" size="10" /></td>
 				<td>
-					<input type="button" value="Create" onclick="createPatientAndOrder();">
-					<input type="button" value="Cancel" onclick="clearPatientSearchFields();">
+					<input type="button" value="Create" id="CreatePatientAndOrderButton" />
+					<input type="button" value="Cancel" id="ClearSearchButton2">
 				</td>
 			</tr>
 		</table>
