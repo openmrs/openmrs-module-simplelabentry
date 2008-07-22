@@ -53,6 +53,11 @@
 		hideNameMatchSections();
 	}
 
+	function clearFormFields() {
+		$j(".orderField").val('');
+		dojo.widget.manager.getWidgetById("pSearch").clearSearch();
+	}
+
 	function hideNameMatchSections() {
 		hideDiv('nameFoundSection');
 		hideDiv('noNameFoundSection');
@@ -65,28 +70,18 @@
 		_selectedPatientId = null;
 	}
 
+	function deleteOrder(orderId, reason) {
+		if (confirm("Are you sure you want to delete this order?")) {
+			DWRSimpleLabEntryService.deleteLabOrderAndEncounter(orderId, reason, { 
+				callback:function() {location.reload();},
+				errorHandler:function(errorString, exception) { alert(errorString); }
+	   		});
+	   		location.reload();
+		}
+	}
+
 	$j(document).ready(function(){
 	
-		function findPatient() {
-			hideNameMatchSections();
-	
-			DWRPatientService.findPatients(null, false, function(matches) {
-				if (matches.length == 1) {
-					var currentPatient = matches[0];
-					_selectedPatientId = currentPatient.patientId;
-					DWRUtil.setValues( {
-						'nameMatchedIdentifier': currentPatient.identifier,
-						'nameMatchedName': currentPatient.personName,
-						'nameMatchedAge': currentPatient.age,
-						'nameMatchedGender': currentPatient.gender
-					} );
-					showDiv('nameFoundSection');
-				} else {
-					showDiv('noNameFoundSection');
-				}
-			});
-		}
-		
 		function findNewPatient() {
 			hideNameMatchSections();
 			showDiv('nameMatchSection');
@@ -113,14 +108,11 @@
 						$('idMatchedSector').innerHTML = patient.cityVillage;
 						$('idMatchedCell').innerHTML = patient.neighborhoodCell;
 						$('idMatchedAddress1').innerHTML = patient.address1;
+						hideDiv('createdPatientText');
+						showDiv('idMatchText');
 					}
 					$('newPatientIdentifier').innerHTML = patId;
 				});
-		}
-	
-		function createPatientAndOrder() {
-			createPatient();
-			createOrder();
 		}
 	
 		function createPatient() {
@@ -137,9 +129,20 @@
 			var newAddress1 = $('newAddress1').value;
 			DWRSimpleLabEntryService.createPatient(	newFirstName, newLastName, newGender, newAge, newIdent, newIdentType, newIdentLoc, 
 												   	newCountyDistrict, newCityVillage, newNeighborhoodCell, newAddress1, 
-												   	{ 	callback:function(patient) {
-													   		alert(patient.patientId + '; ' + patient.personId + '; ' + patient.gender);
-													   		_selectedPatientId = patient.patientId;
+												   	{ 	callback:function(createdPatient) {
+													   		_selectedPatientId = createdPatient.patientId;
+															$j("#idMatchedIdentifier").text(newIdent);
+															$j("#idMatchedName").text(createdPatient.givenName + ' ' + createdPatient.familyName);
+															$j("#idMatchedGender").text(createdPatient.gender);
+															$j("#idMatchedAge").text(createdPatient.age);
+															$j("#idMatchedDistrict").text(createdPatient.countyDistrict);
+															$j("#idMatchedSector").text(createdPatient.cityVillage);
+															$j("#idMatchedCell").text(createdPatient.neighborhoodCell);
+															$j("#idMatchedAddress1").text(createdPatient.address1);
+															showDiv('idMatchSection');
+															showDiv('createdPatientText');
+															hideDiv('idMatchText');
+													   		hideDiv('createPatientSection');
 														},
 														errorHandler:function(errorString, exception) {
 															alert(errorString);
@@ -149,9 +152,15 @@
 		}
 	
 		function createOrder() {
-
-			
-			alert('Creating order for patient ' + _selectedPatientId + ', concept ${param.orderConcept}, location, ${param.orderLocation}, date ${param.orderDate}');
+			DWRSimpleLabEntryService.createLabOrder(_selectedPatientId, '${param.orderConcept}', '${param.orderLocation}', '${param.orderDate}', '', 
+												   	{ 	callback:function(createdOrder) {
+			   												location.reload();
+														},
+														errorHandler:function(errorString, exception) {
+															alert(errorString);
+														}
+												   	}
+			);
 			clearPatientSearchFields();
 		}
 
@@ -160,14 +169,16 @@
 		});
 		
 		$j("#ClearSearchButton").click( function() {
-			$('patientIdentifier').value = '';
+			clearFormFields();
 			clearPatientSearchFields();
 		});
 		$j("#ClearSearchButton2").click( function() {
+			clearFormFields();
 			clearPatientSearchFields();
 		});
 		$j("#ClearPatientResultsButton").click( function() {
-			 clearPatientSearchFields();
+			clearFormFields();
+			clearPatientSearchFields();
 		});
 
 		$j("#ShowCreatePatientButton").click( function() {
@@ -180,8 +191,8 @@
 		$j("#CreateOrderFromNameButton").click( function() {
 			createOrder();
 		});
-		$j("#CreatePatientAndOrderButton").click( function() {
-			createPatientAndOrder();
+		$j("#CreatePatientButton").click( function() {
+			createPatient();
 		});
 
 		$j("#FindNewPatientButton").click( function() {
@@ -198,48 +209,17 @@
 	.searchSection {padding:5px; border: 1px solid grey; background-color: whitesmoke;}
 </style>
 
-<table style="width:100%; border: 1px solid black;">
-	<tr>
-		<th>&nbsp;</th>
-		<th>Long ID</th>
-		<th>Name / Surname</th>
-		<th>&nbsp;</th>
-		<th>Age</th>
-		<th>District</th>
-		<th>Sector</th>
-		<th>Cellule</th>
-		<th>Umudugudu</th>
-	</tr>
-	<c:forEach items="${model.labOrders}" var="order" varStatus="orderStatus">
-		<c:if test="${!empty order.orderId}">
-			<tr>
-				<td><a href="#">Edit</a></td>
-				<td>${order.patient.patientIdentifier}</td>
-				<td>${order.patient.personName.givenName} ${order.patient.personName.familyName}</td>
-				<td>${order.patient.gender}</td>
-				<td>${order.patient.age}</td>
-				<c:if test="${!empty order.patient.personAddress}">
-					<td>${order.patient.personAddress.countyDistrict}</td>
-					<td>${order.patient.personAddress.cityVillage}</td>
-					<td>${order.patient.personAddress.neighborhoodCell}</td>
-					<td>${order.patient.personAddress.address1}</td>
-				</c:if>
-			</tr>
-		</c:if>
-	</c:forEach>
-</table>
-<br/>
-
 <b class="boxHeader">Add New Order</b>
-<div id="findPatientSection" style="align:left";" class="box" >
+<div id="findPatientSection" style="align:left;" class="box" >
 	1. Enter IMB ID (Long ID): 
-	<input type="text" id="patientIdentifier" name="patientIdentifier" />
+	<input type="text" id="patientIdentifier" class="orderField" name="patientIdentifier" />
 	<input type="button" value="Search" id="SearchByIdButton" />
 	<input type="button" value="Clear" id="ClearSearchButton" />
 	<br/><br/>
 	
 	<div id="idMatchSection" class="searchSection" style="display:none;">
-		<span>The following patient matches this ID.  Please confirm the patient details are correct.</span> 
+		<span style="color:red; display:none;" id="idMatchText">The following patient matches this ID.  Please confirm the patient details are correct.</span> 
+		<span style="color:red; display:none;" id="createdPatientText">The following patient has been created.  Do you wish to create an order?</span> 
 		<table>
 			<tr>
 				<th>Long ID</th>
@@ -325,24 +305,66 @@
 			</tr>
 			<tr>
 				<td id="newPatientIdentifier"></td>
-				<td><input type="text" id="newFirstName" name="newFirstName" size="10" /></td>
-				<td><input type="text" id="newLastName" name="newLastName" size="10" /></td>
+				<td><input type="text" class="orderField" id="newFirstName" name="newFirstName" size="10" /></td>
+				<td><input type="text" class="orderField" id="newLastName" name="newLastName" size="10" /></td>
 				<td>
 					<openmrs:forEachRecord name="gender">
-						<input type="radio" name="newGender" id="newGender${record.key}" value="${record.key}" <c:if test="${record.key == status.value}">checked</c:if> />
+						<input type="radio" class="orderField" name="newGender" id="newGender${record.key}" value="${record.key}" <c:if test="${record.key == status.value}">checked</c:if> />
 						<label for="${record.key}"> <spring:message code="simplelabentry.gender.${record.value}"/> </label>
 					</openmrs:forEachRecord>
 				</td>
-				<td><input type="text" id="newAge" name="newAge" size="3" /></td>
-				<td><input type="text" id="newCountyDistrict" name="newCountyDistrict" size="10" /></td>
-				<td><input type="text" id="newCityVillage" name="newCityVillage" size="10" /></td>
-				<td><input type="text" id="newNeighborhoodCell" name="newNeighborhoodCell" size="10" /></td>
-				<td><input type="text" id="newAddress1" name="newAddress1" size="10" /></td>
+				<td><input type="text" class="orderField" id="newAge" name="newAge" size="3" /></td>
+				<td><input type="text" class="orderField" id="newCountyDistrict" name="newCountyDistrict" size="10" /></td>
+				<td><input type="text" class="orderField" id="newCityVillage" name="newCityVillage" size="10" /></td>
+				<td><input type="text" class="orderField" id="newNeighborhoodCell" name="newNeighborhoodCell" size="10" /></td>
+				<td><input type="text" class="orderField" id="newAddress1" name="newAddress1" size="10" /></td>
 				<td>
-					<input type="button" value="Create" id="CreatePatientAndOrderButton" />
+					<input type="button" value="Create Patient" id="CreatePatientButton" />
 					<input type="button" value="Cancel" id="ClearSearchButton2">
 				</td>
 			</tr>
 		</table>
 	</div>
+</div>
+<br/>
+<b class="boxHeader">Existing Orders</b>
+<div class="box">
+	<table style="width:100%;">
+		<tr style="background-color:#CCCCCC;">
+			<th>Long ID</th>
+			<th>Name / Surname</th>
+			<th>Sex</th>
+			<th>Age</th>
+			<th>District</th>
+			<th>Sector</th>
+			<th>Cellule</th>
+			<th>Umudugudu</th>
+			<th></th>
+		</tr>
+		<c:if test="${fn:length(model.labOrders) == 1}"><tr><td>No Orders</td></tr></c:if>
+		<c:forEach items="${model.labOrders}" var="order" varStatus="orderStatus">
+			<c:if test="${!empty order.orderId}">
+				<tr>
+					<td>${order.patient.patientIdentifier}</td>
+					<td>
+						<a href="${pageContext.request.contextPath}/admin/patients/newPatient.form?patientId=${order.patient.patientId}">
+							${order.patient.personName.givenName} ${order.patient.personName.familyName}
+						</a>
+					</td>
+					<td>${order.patient.gender}</td>
+					<td>${order.patient.age}</td>
+					<c:choose>
+						<c:when test="${!empty order.patient.personAddress}">
+							<td>${order.patient.personAddress.countyDistrict}</td>
+							<td>${order.patient.personAddress.cityVillage}</td>
+							<td>${order.patient.personAddress.neighborhoodCell}</td>
+							<td>${order.patient.personAddress.address1}</td>
+						</c:when>
+						<c:otherwise><td colspan=4">&nbsp;</td></c:otherwise>
+					</c:choose>
+					<td><a href="javascript:deleteOrder('${order.orderId}', '');">[X]</a></td>
+				</tr>
+			</c:if>
+		</c:forEach>
+	</table>
 </div>

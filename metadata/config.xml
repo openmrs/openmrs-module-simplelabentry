@@ -33,11 +33,16 @@
 		<description>The ID of the OrderType that represents a Lab Test Order</description>
 	</globalProperty>
 	<globalProperty>
+		<property>@MODULE_ID@.labTestEncounterType</property>
+		<defaultValue>9</defaultValue>
+		<description>The ID of the Encounter Type that represents a Lab Test Encounter</description>
+	</globalProperty>	
+	<globalProperty>
 		<property>@MODULE_ID@.patientIdentifierType</property>
 		<defaultValue>5</defaultValue>
 		<description>The Identifier Type to use when searching for / creating patients</description>
 	</globalProperty>	
-	
+
 	<!-- /Required Global Properties -->
 	<!-- DWR -->
 	<dwr>
@@ -46,6 +51,8 @@
 				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService"/>
 				<include method="getPatientByIdentifier"/>
 				<include method="createPatient"/>
+				<include method="createLabOrder"/>
+				<include method="deleteLabOrderAndEncounter"/>
 			</create>
 		</allow>
 	</dwr>

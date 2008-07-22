@@ -46,10 +46,12 @@ public class LabEntryPortletController extends PortletController {
 				Encounter e = o.getEncounter();
 				if (o.getOrderType().getOrderTypeId().equals(orderTypeId)) {
 					log.debug("Found lab order: " + o + " for encounter: " + e);
-					if (e.getLocation() != null && e.getLocation().getLocationId().equals(orderLocationId)) {
-						if (e.getEncounterDatetime() != null && Context.getDateFormat().format(e.getEncounterDatetime()).equals(orderDateStr)) {
-							log.debug("Adding lab order: " + o);
-							labOrders.put(e.getDateCreated(), o);
+					if (o.getConcept().getConceptId().equals(orderSetConceptId)) {
+						if (e.getLocation() != null && e.getLocation().getLocationId().equals(orderLocationId)) {
+							if (e.getEncounterDatetime() != null && Context.getDateFormat().format(e.getEncounterDatetime()).equals(orderDateStr)) {
+								log.debug("Adding lab order: " + o);
+								labOrders.put(e.getDateCreated(), o);
+							}
 						}
 					}
 				}
