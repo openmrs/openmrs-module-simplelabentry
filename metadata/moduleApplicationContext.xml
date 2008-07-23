@@ -10,7 +10,7 @@
     	<property name="mappings">
             <props>
 	           <prop key="module/@MODULE_ID@/simpleLabEntry.form">simpleLabEntryFormController</prop>
-	           <prop key="**/labEntry.portlet">simpleLabEntryPortletController</prop>
+	           <prop key="**/labOrders.portlet">simpleLabEntryPortletController</prop>
 	    	</props>
 		</property>
     </bean>
