@@ -25,16 +25,24 @@
 		dojo.event.topic.subscribe("pSearch/select", 
 			function(msg) {
 				if (msg.objs[0].patientId) {
-					var currentPatient = msg.objs[0];
-					_selectedPatientId = currentPatient.patientId;
-					DWRUtil.setValues( {
-						'nameMatchedIdentifier': currentPatient.identifier,
-						'nameMatchedName': currentPatient.personName,
-						'nameMatchedAge': currentPatient.age,
-						'nameMatchedGender': currentPatient.gender
-					} );
-					showDiv('nameFoundSection');
+					var patient = msg.objs[0];
+					_selectedPatientId = patient.patientId;
+					$j("#otherIdentifier").val($j("#patientIdentifier").val());
+					DWRSimpleLabEntryService.getPatient(patient.patientId, function(labPatient) {
+						$('matchedIdentifier').innerHTML = patient.identifier;
+						$('matchedName').innerHTML = labPatient.givenName + ' ' + labPatient.familyName;
+						$('matchedGender').innerHTML = labPatient.gender;
+						$('matchedAge').innerHTML = labPatient.age;
+						$('matchedDistrict').innerHTML = labPatient.countyDistrict;
+						$('matchedSector').innerHTML = labPatient.cityVillage;
+						$('matchedCell').innerHTML = labPatient.neighborhoodCell;
+						$('matchedAddress1').innerHTML = labPatient.address1;
+					});
+					showDiv('createOrderSection');
 					hideDiv('patientSearchBox');
+					$j(".idMatch").hide();
+					$j(".nameMatch").show();
+					$j(".createdPatientMatch").hide();
 					dojo.widget.manager.getWidgetById("pSearch").clearSearch();
 				} else if (msg.objs[0].href)
 					document.location = msg.objs[0].href;
@@ -47,21 +55,15 @@
 	});
 
 	function clearPatientSearchFields() {
-		hideDiv('idMatchSection');
+		hideDiv('createOrderSection');
 		hideDiv('nameMatchSection');
 		hideDiv('createPatientSection');
-		hideNameMatchSections();
+		_selectedPatientId = null;
 	}
 
 	function clearFormFields() {
 		$j(".orderField").val('');
 		dojo.widget.manager.getWidgetById("pSearch").clearSearch();
-	}
-
-	function hideNameMatchSections() {
-		hideDiv('nameFoundSection');
-		hideDiv('noNameFoundSection');
-		_selectedPatientId = null;
 	}
 
 	function showCreatePatient() {
@@ -83,7 +85,7 @@
 	$j(document).ready(function(){
 	
 		function findNewPatient() {
-			hideNameMatchSections();
+			_selectedPatientId = null;
 			showDiv('nameMatchSection');
 			showDiv('patientSearchBox');
 			dojo.widget.manager.getWidgetById("pSearch").inputNode.select();
@@ -99,17 +101,18 @@
 					}
 					else {
 						_selectedPatientId = patient.patientId;
-						$('idMatchSection').style.display = '';
-						$('idMatchedIdentifier').innerHTML = patId;
-						$('idMatchedName').innerHTML = patient.givenName + ' ' + patient.familyName;
-						$('idMatchedGender').innerHTML = patient.gender;
-						$('idMatchedAge').innerHTML = patient.age;
-						$('idMatchedDistrict').innerHTML = patient.countyDistrict;
-						$('idMatchedSector').innerHTML = patient.cityVillage;
-						$('idMatchedCell').innerHTML = patient.neighborhoodCell;
-						$('idMatchedAddress1').innerHTML = patient.address1;
-						hideDiv('createdPatientText');
-						showDiv('idMatchText');
+						$('createOrderSection').style.display = '';
+						$('matchedIdentifier').innerHTML = patId;
+						$('matchedName').innerHTML = patient.givenName + ' ' + patient.familyName;
+						$('matchedGender').innerHTML = patient.gender;
+						$('matchedAge').innerHTML = patient.age;
+						$('matchedDistrict').innerHTML = patient.countyDistrict;
+						$('matchedSector').innerHTML = patient.cityVillage;
+						$('matchedCell').innerHTML = patient.neighborhoodCell;
+						$('matchedAddress1').innerHTML = patient.address1;
+						$j(".idMatch").show();
+						$j(".nameMatch").hide();
+						$j(".createdPatientMatch").hide();
 					}
 					$('newPatientIdentifier').innerHTML = patId;
 				});
@@ -131,18 +134,19 @@
 												   	newCountyDistrict, newCityVillage, newNeighborhoodCell, newAddress1, 
 												   	{ 	callback:function(createdPatient) {
 													   		_selectedPatientId = createdPatient.patientId;
-															$j("#idMatchedIdentifier").text(newIdent);
-															$j("#idMatchedName").text(createdPatient.givenName + ' ' + createdPatient.familyName);
-															$j("#idMatchedGender").text(createdPatient.gender);
-															$j("#idMatchedAge").text(createdPatient.age);
-															$j("#idMatchedDistrict").text(createdPatient.countyDistrict);
-															$j("#idMatchedSector").text(createdPatient.cityVillage);
-															$j("#idMatchedCell").text(createdPatient.neighborhoodCell);
-															$j("#idMatchedAddress1").text(createdPatient.address1);
-															showDiv('idMatchSection');
-															showDiv('createdPatientText');
-															hideDiv('idMatchText');
+															$j("#matchedIdentifier").text(newIdent);
+															$j("#matchedName").text(createdPatient.givenName + ' ' + createdPatient.familyName);
+															$j("#matchedGender").text(createdPatient.gender);
+															$j("#matchedAge").text(createdPatient.age);
+															$j("#matchedDistrict").text(createdPatient.countyDistrict);
+															$j("#matchedSector").text(createdPatient.cityVillage);
+															$j("#matchedCell").text(createdPatient.neighborhoodCell);
+															$j("#matchedAddress1").text(createdPatient.address1);
+															showDiv('createOrderSection');
 													   		hideDiv('createPatientSection');
+															$j(".idMatch").hide();
+															$j(".nameMatch").hide();
+															$j(".createdPatientMatch").show();
 														},
 														errorHandler:function(errorString, exception) {
 															alert(errorString);
@@ -152,16 +156,21 @@
 		}
 	
 		function createOrder() {
-			DWRSimpleLabEntryService.createLabOrder(_selectedPatientId, '${param.orderConcept}', '${param.orderLocation}', '${param.orderDate}', '', 
-												   	{ 	callback:function(createdOrder) {
-			   												location.reload();
-														},
-														errorHandler:function(errorString, exception) {
-															alert(errorString);
-														}
-												   	}
+			var otherIdent = $j("#otherIdentifier").val();
+			var otherIdentType = '${patientIdType}';
+			var orderLoc = $j("#matchedOrderLocation").val();
+			var orderConcept = $j("#matchedOrderConcept").val();
+			var orderDate = $j("#matchedOrderDate").val();
+			var accessionNum = $j("#matchedShortId").val();
+			DWRSimpleLabEntryService.createLabOrder(_selectedPatientId, otherIdent, otherIdentType, orderConcept, orderLoc, orderDate, accessionNum, 
+					{ 	callback:function(createdOrder) {
+							location.reload();
+						},
+						errorHandler:function(errorString, exception) {
+							alert(errorString);
+						}
+					}
 			);
-			clearPatientSearchFields();
 		}
 
 		$j("#SearchByIdButton").click( function() { 
@@ -217,12 +226,15 @@
 	<input type="button" value="Clear" id="ClearSearchButton" />
 	<br/><br/>
 	
-	<div id="idMatchSection" class="searchSection" style="display:none;">
-		<span style="color:red; display:none;" id="idMatchText">The following patient matches this ID.  Please confirm the patient details are correct.</span> 
-		<span style="color:red; display:none;" id="createdPatientText">The following patient has been created.  Do you wish to create an order?</span> 
+	<div id="createOrderSection" class="searchSection" style="display:none;">
+		<span style="color:red; display:none;" class="idMatch">The following patient matches this ID.</span> 
+		<span style="color:red; display:none;" class="nameMatch">You have selected the following patient. </span> 
+		<span style="color:red; display:none;" class="createdPatientMatch">The following patient has been created.</span> 
+		<span style="color:red;">Please review the fields below for accuracy before submitting Order.</span> 
 		<table>
 			<tr>
 				<th>Long ID</th>
+				<th class="nameMatch">Alternative ID</th>
 				<th>Name / Surname</th>
 				<th>Sex</th>
 				<th>Age</th>
@@ -232,61 +244,51 @@
 				<th>Umudugudu</th>
 			</tr>
 			<tr>
-				<td id="idMatchedIdentifier"></td>
-				<td id="idMatchedName"></td>
-				<td id="idMatchedGender"></td>
-				<td id="idMatchedAge"></td>
-				<td id="idMatchedDistrict"></td>
-				<td id="idMatchedSector"></td>
-				<td id="idMatchedCell"></td>
-				<td id="idMatchedAddress1"></td>
+				<td id="matchedIdentifier"></td>
+				<td class="nameMatch"><input type="text" id="otherIdentifier" name="otherIdentifier" /></td>
+				<td id="matchedName"></td>
+				<td id="matchedGender"></td>
+				<td id="matchedAge"></td>
+				<td id="matchedDistrict"></td>
+				<td id="matchedSector"></td>
+				<td id="matchedCell"></td>
+				<td id="matchedAddress1"></td>
 			</tr>
 		</table>
+		<br/>
+		<table>
+			<tr><th colspan="4">Order Details</td></tr>
+			<tr>
+				<th>Short ID:</th>
+				<td><input type="text" id="matchedShortId" name="matchedShortId" /></td>
+				<th><spring:message code="simplelabentry.orderLocation" />:</td>
+				<td><openmrs_tag:locationField formFieldName="matchedOrderLocation" initialValue="${param.orderLocation}"/></td>
+				<th><spring:message code="simplelabentry.orderType" />:</td>
+				<td>
+					<select id="matchedOrderConcept" name="matchedOrderConcept">
+						<option value=""></option>
+						<c:forEach items="${testTypes}" var="testType" varStatus="testTypeStatus">
+							<option value="${testType.conceptId}" <c:if test="${param.orderConcept == testType.conceptId}">selected</c:if>>
+								${empty testType.name.shortName ? testType.name.name : testType.name.shortName}
+							</option>
+						</c:forEach>
+					</select>
+				</td>
+				<th><spring:message code="simplelabentry.orderDate" />: </td>
+				<td><input type="text" id="matchedOrderDate" name="matchedOrderDate" size="10" value="${param.orderDate}" onFocus="showCalendar(this)" /></td>
+			</tr>
+		</table>	
+		<br/>
 		<input type="button" id="CreateOrderFromIdButton" value="Create Order for this Patient" />
 		<input type="button" id="ClearPatientResultsButton" value="Cancel, this is incorrect" />
 	</div>
 	
-	<div id="nameMatchSection" class="searchSection" style="display:none;">
-		
+	<div id="nameMatchSection" class="searchSection" style="display:none;">		
 		<div id="patientSearchBox" style="padding:10px;">
 			<span style="font-weight:bold;">No patients match this ID.  Please use the search field below to try to match the correct patient</span>
 			<br/><br/>
 			<div dojoType="PatientSearch" widgetId="pSearch" searchLabel="<spring:message code="Patient.searchBox" htmlEscape="true"/>" showVerboseListing="true"></div>
 		</div>
-		<div id="nameFoundSection" style="display:none; padding-top:5px;">
-			<div style="border-bottom: 1px solid black; padding:5px;">
-				<table>
-					<tr>
-						<th>Long ID</th>
-						<th>Name / Surname</th>
-						<th>Sex</th>
-						<th>Age</th>
-					</tr>
-					<tr>
-						<td id="nameMatchedIdentifier"></td>
-						<td id="nameMatchedName"></td>
-						<td id="nameMatchedGender"></td>
-						<td id="nameMatchedAge"></td>
-					</tr>
-				</table>
-			</div>
-			<div style="padding:5px;">
-				<form name="patientFoundForm">
-					<input type="button" value="Create Order for this Patient" id="CreateOrderFromNameButton" />
-					<input type="button" value="Return to Search" id="FindNewPatientButton" />
-				</form>
-			</div>
-		</div>
-
-		<div id="noNameFoundSection" style="display:none; padding-top:5px;">
-			<span style="border-bottom: 1px solid black; font-weight:bold;">No matching patients were found.</span>
-			&nbsp;&nbsp;
-			<form name="noPatientFoundForm">
-				<input type="button" value="Search Again" id="FindNewPatientButton2" />
-				<input type="button" value="Create New Patient" id="ShowCreatePatientButton" />
-			</form>
-		</div>
-
 	</div>
 
 	<div id="createPatientSection" style="display:none;">
@@ -331,6 +333,8 @@
 <div class="box">
 	<table style="width:100%;">
 		<tr style="background-color:#CCCCCC;">
+			<th></th>
+			<th>Short ID</th>
 			<th>Long ID</th>
 			<th>Name / Surname</th>
 			<th>Sex</th>
@@ -345,6 +349,8 @@
 		<c:forEach items="${model.labOrders}" var="order" varStatus="orderStatus">
 			<c:if test="${!empty order.orderId}">
 				<tr>
+					<td><a href="javascript:editOrder('${order.orderId}', '');"><small>Edit</small></a></td>
+					<td>${order.accessionNumber}</td>
 					<td>${order.patient.patientIdentifier}</td>
 					<td>
 						<a href="${pageContext.request.contextPath}/admin/patients/newPatient.form?patientId=${order.patient.patientId}">
@@ -362,7 +368,7 @@
 						</c:when>
 						<c:otherwise><td colspan=4">&nbsp;</td></c:otherwise>
 					</c:choose>
-					<td><a href="javascript:deleteOrder('${order.orderId}', '');">[X]</a></td>
+					<td align="right"><a href="javascript:deleteOrder('${order.orderId}', '');"><small>[X]</small></a></td>
 				</tr>
 			</c:if>
 		</c:forEach>
