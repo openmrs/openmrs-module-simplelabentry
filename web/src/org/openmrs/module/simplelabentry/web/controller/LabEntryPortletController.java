@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Order;
 import org.openmrs.api.context.Context;
@@ -35,6 +36,15 @@ public class LabEntryPortletController extends PortletController {
 		// Retrieve global properties
 		String orderTypeId = Context.getAdministrationService().getGlobalProperty("simplelabentry.labOrderType");
 		model.put("orderTypeId", orderTypeId);
+    	
+		List<Concept> supportedLabSets = new ArrayList<Concept>();
+		String testProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.labSetConcepts");
+    	if (testProp != null) {
+    		for (String s : testProp.split(",")) {
+    			supportedLabSets.add(Context.getConceptService().getConcept(Integer.valueOf(s)));
+    		}
+    	}
+    	model.put("labSets", supportedLabSets);
 		
 		log.debug("Retrieving orders for: location="+orderLocationId+",concept="+orderSetConceptId+",date="+orderDateStr+",type="+orderTypeId+",showOpen="+showOpen+",showClosed="+showClosed);
 		

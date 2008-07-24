@@ -11,6 +11,7 @@
             <props>
 	           <prop key="module/@MODULE_ID@/simpleLabEntry.form">simpleLabEntryFormController</prop>
 	           <prop key="**/labOrders.portlet">simpleLabEntryPortletController</prop>
+	           <prop key="**/orderEntry.portlet">simpleLabEntryPortletController</prop>
 	    	</props>
 		</property>
     </bean>
