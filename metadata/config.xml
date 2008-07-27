@@ -23,9 +23,9 @@
 
 	<!-- Required Global Properties -->
 	<globalProperty>
-		<property>@MODULE_ID@.labSetConcepts</property>
+		<property>@MODULE_ID@.supportedTests</property>
 		<defaultValue>1019,657</defaultValue>
-		<description>Defines the Concept IDs of the possible Lab Test Types (labSets) that may be entered using this module</description>
+		<description>Defines the Concept IDs of the possible Lab Test Types (ConceptClass=LabSet or Test) that may be entered using this module</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.labOrderType</property>

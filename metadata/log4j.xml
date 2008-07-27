@@ -6,5 +6,9 @@
 	<logger name="org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService">
 		<level value="DEBUG" />
 	</logger>
+	
+	<logger name="org.openmrs.module.simplelabentry.web.controller.ResultEntryFormController">
+		<level value="DEBUG" />
+	</logger>
 
 </log4j:configuration>

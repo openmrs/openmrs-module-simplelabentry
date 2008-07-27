@@ -16,35 +16,37 @@
 
 	var $j = jQuery.noConflict();
 
-	dojo.require("dojo.widget.openmrs.PatientSearch");
-
-	_selectedPatientId = null;
-	_selectedOrderId = null;
+	<c:if test="${model.allowAdd == 'true'}">
+		dojo.require("dojo.widget.openmrs.PatientSearch");
 	
-	dojo.addOnLoad( function() {
-		searchWidget = dojo.widget.manager.getWidgetById("pSearch");
+		_selectedPatientId = null;
+		_selectedOrderId = null;
 		
-		dojo.event.topic.subscribe("pSearch/select", 
-			function(msg) {
-				if (msg.objs[0].patientId) {
-					var patient = msg.objs[0];
-
-					DWRSimpleLabEntryService.getPatient(patient.patientId, function(labPatient) { loadPatient(labPatient) });
-					clearPatientAndSearchFields();
-					_selectedPatientId = patient.patientId;
-					$j("#otherIdentifier").text($j("#patientIdentifier").val());
-					$j("#matchedPatientSection").show();
-					$j(".nameMatch").show();
-					
-				} else if (msg.objs[0].href)
-					document.location = msg.objs[0].href;
-			}
-		);
-		
-		searchWidget.addPatientLink = '<a href="javascript:showCreatePatient();">Create New Patient</a>';
-		searchWidget.inputNode.select();
-		changeClassProperty("description", "display", "none");
-	});
+		dojo.addOnLoad( function() {
+			searchWidget = dojo.widget.manager.getWidgetById("pSearch");
+			
+			dojo.event.topic.subscribe("pSearch/select", 
+				function(msg) {
+					if (msg.objs[0].patientId) {
+						var patient = msg.objs[0];
+	
+						DWRSimpleLabEntryService.getPatient(patient.patientId, function(labPatient) { loadPatient(labPatient) });
+						clearPatientAndSearchFields();
+						_selectedPatientId = patient.patientId;
+						$j("#otherIdentifier").text($j("#patientIdentifier").val());
+						$j("#matchedPatientSection").show();
+						$j(".nameMatch").show();
+						
+					} else if (msg.objs[0].href)
+						document.location = msg.objs[0].href;
+				}
+			);
+			
+			searchWidget.addPatientLink = '<a href="javascript:showCreatePatient();">Create New Patient</a>';
+			searchWidget.inputNode.select();
+			changeClassProperty("description", "display", "none");
+		});
+	</c:if>
 
 	function loadPatient(labPatient) {
 		$('matchedIdentifier').innerHTML = labPatient.identifier + (labPatient.otherIdentifiers == '' ? '' : '<br/><small>(' + labPatient.otherIdentifiers + ')</small>');
@@ -73,7 +75,9 @@
 		$j(".orderDetailSection").remove().removeClass("orderDetailSection");
 		$j(".existingOrderRow").show();
 		_selectedOrderId = null;
-		dojo.widget.manager.getWidgetById("pSearch").clearSearch();
+		<c:if test="${model.allowAdd == 'true'}">
+			dojo.widget.manager.getWidgetById("pSearch").clearSearch();
+		</c:if>
 	}
 
 	function clearFormFields() {
@@ -423,8 +427,8 @@
 			<td>
 				<select name="concept">
 					<option value=""></option>
-					<c:forEach items="${model.labSets}" var="labSet" varStatus="labSetStatus">
-						<option value="${labSet.conceptId}">${empty labSet.name.shortName ? labSet.name.name : labSet.name.shortName}</option>
+					<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
+						<option value="${labConcept.conceptId}">${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}</option>
 					</c:forEach>
 				</select>
 			</td>
@@ -436,21 +440,38 @@
 	<div class="labResultSection" style="display:none;">
 		<b style="padding-bottom:10px;">Results</b>
 
-		<c:forEach items="${model.labSets}" var="labSet" varStatus="labSetStatus">
-			<div class="labResultSection${labSet.conceptId}" style="display:none;">
+		<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
+			<div class="labResultSection${labConcept.conceptId}" style="display:none;">
 				<table>
 					<tr>
-						<openmrs:forEachRecord name="conceptSet" conceptSet="${labSet.conceptId}">
-							<th>${empty record.name.shortName ? record.name.name : record.name.shortName}</th>
-						</openmrs:forEachRecord>
+						<c:choose>
+							<c:when test="${labConcept.set}">
+								<openmrs:forEachRecord name="conceptSet" conceptSet="${labConcept.conceptId}">
+									<th>${empty record.name.shortName ? record.name.name : record.name.shortName}</th>
+								</openmrs:forEachRecord>
+							</c:when>
+							<c:otherwise>
+								${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}
+							</c:otherwise>
+						</c:choose>
 					</tr>
 					<tr>
-						<openmrs:forEachRecord name="conceptSet" conceptSet="${labSet.conceptId}">
-							<td class="labResultTemplateCell">
-								<span class="labResultTemplateConcept" style="display:none;">${record.conceptId}</span>
-								<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${record.conceptId}" size="5" />
-							</td>
-						</openmrs:forEachRecord>
+						<c:choose>
+							<c:when test="${labConcept.set}">
+								<openmrs:forEachRecord name="conceptSet" conceptSet="${labConcept.conceptId}">
+									<td class="labResultTemplateCell">
+										<span class="labResultTemplateConcept" style="display:none;">${record.conceptId}</span>
+										<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${record.conceptId}" size="5" />
+									</td>
+								</openmrs:forEachRecord>
+							</c:when>
+							<c:otherwise>
+								<td class="labResultTemplateCell">
+									<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}</span>
+									<openmrs_tag:obsValueField conceptId="${labConcept.conceptId}" formFieldName="resultValue.${labConcept.conceptId}" size="5" />
+								</td>
+							</c:otherwise>
+						</c:choose>
 					</tr>
 				</table>
 			</div>

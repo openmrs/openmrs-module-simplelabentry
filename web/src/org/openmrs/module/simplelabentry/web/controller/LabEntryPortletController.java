@@ -4,17 +4,20 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Date;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
-import org.openmrs.Encounter;
+import org.openmrs.Location;
 import org.openmrs.Order;
+import org.openmrs.Patient;
+import org.openmrs.api.OrderService.ORDER_STATUS;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.simplelabentry.SimpleLabEntryService;
 import org.openmrs.web.controller.PortletController;
+import org.springframework.util.StringUtils;
 
 public class LabEntryPortletController extends PortletController {
 	
@@ -22,61 +25,40 @@ public class LabEntryPortletController extends PortletController {
 
 	@SuppressWarnings("unchecked")
 	protected void populateModel(HttpServletRequest request, Map model) {
-
-		Map<Date, Order> labOrders = new TreeMap<Date, Order>();
+    	
+		SimpleLabEntryService ls = (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
 		
-		// Parse parameters
+		// Supported LabTest Sets
+    	model.put("labTestConcepts", ls.getLabTestConcepts());
+		
+		// Retrieve Orders that Match Input Parameters
 		Integer patientId = (Integer) model.get("patientId");
 		String orderLocationId = (String)model.get("orderLocation");
 		String orderSetConceptId = (String)model.get("orderConcept");
 		String orderDateStr = (String)model.get("orderDate");
-		boolean showOpen = !"closed".equals(model.get("limit"));
-		boolean showClosed = !"open".equals(model.get("limit"));
-
+		String limit = (String)model.get("limit");
+		
 		// Retrieve global properties
 		String orderTypeId = Context.getAdministrationService().getGlobalProperty("simplelabentry.labOrderType");
 		model.put("orderTypeId", orderTypeId);
-    	
-		List<Concept> supportedLabSets = new ArrayList<Concept>();
-		String testProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.labSetConcepts");
-    	if (testProp != null) {
-    		for (String s : testProp.split(",")) {
-    			supportedLabSets.add(Context.getConceptService().getConcept(Integer.valueOf(s)));
-    		}
-    	}
-    	model.put("labSets", supportedLabSets);
 		
-		log.debug("Retrieving orders for: location="+orderLocationId+",concept="+orderSetConceptId+",date="+orderDateStr+",type="+orderTypeId+",showOpen="+showOpen+",showClosed="+showClosed);
-		
-		// Retrieve matching orders
-		for (Order o : Context.getOrderService().getOrders(Order.class, null, null, null, null, null, null)) {
-			Encounter e = o.getEncounter();
-			
-			if (patientId != null && !patientId.equals(o.getPatient().getPatientId())) {
-				continue;  // Order is not for Patient
-			}
-			if (!o.getOrderType().getOrderTypeId().toString().equals(orderTypeId)) {
-				continue; // Order Type Does Not Match
-			}
-			if (orderSetConceptId != null && !o.getConcept().getConceptId().toString().equals(orderSetConceptId)) {
-				continue; // Order Concept Does Not Match
-			}
-			if (! ( (showOpen && showClosed) || (showOpen && o.isCurrent()) || (showClosed && o.isDiscontinued()) ) ) {
-				continue; // Order Current / Discontinued does not Match
-			}
-			if (orderLocationId != null && (e.getLocation() == null || !e.getLocation().getLocationId().toString().equals(orderLocationId))) {
-				continue; // Order Location Does Not Match
-			}
-			if (orderDateStr != null && (e.getEncounterDatetime() == null || !Context.getDateFormat().format(e.getEncounterDatetime()).equals(orderDateStr))) {
-				continue; // Order Date Does Not match
-			}
-			log.debug("Adding lab order: " + o);
-			labOrders.put(e.getDateCreated(), o);
-		}
-		
+		log.debug("Retrieving orders for: location="+orderLocationId+",concept="+orderSetConceptId+"," +"date="+orderDateStr+",type="+orderTypeId+",limit="+limit);
+
 		List<Order> labOrderList = new ArrayList<Order>();
-		labOrderList.addAll(labOrders.values());
-		labOrderList.add(new Order());
+		try {
+			Concept concept = StringUtils.hasText(orderSetConceptId) ? Context.getConceptService().getConcept(Integer.parseInt(orderSetConceptId)) : null;
+			Location location = StringUtils.hasText(orderLocationId) ? Context.getLocationService().getLocation(Integer.parseInt(orderLocationId)) : null;
+			Date orderDate = StringUtils.hasText(orderDateStr) ? Context.getDateFormat().parse(orderDateStr) : null;
+			ORDER_STATUS status = "open".equals(limit) ? ORDER_STATUS.CURRENT : "closed".equals(limit) ? ORDER_STATUS.COMPLETE : ORDER_STATUS.ANY;
+			Patient patient = patientId != null ? Context.getPatientService().getPatient(patientId) : null;
+			
+			// Retrieve matching orders
+			labOrderList = ls.getLabOrders(concept, location, orderDate, status, patient);
+			labOrderList.add(new Order());
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Server Error: Unable to load order list.", e);
+		}
 		model.put("labOrders", labOrderList);
 	}
 }

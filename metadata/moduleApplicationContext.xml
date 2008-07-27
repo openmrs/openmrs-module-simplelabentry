@@ -10,11 +10,34 @@
     	<property name="mappings">
             <props>
 	           <prop key="module/@MODULE_ID@/simpleLabEntry.form">simpleLabEntryFormController</prop>
+	           <prop key="module/@MODULE_ID@/resultEntry.form">resultEntryFormController</prop>
 	           <prop key="**/labOrders.portlet">simpleLabEntryPortletController</prop>
 	           <prop key="**/orderEntry.portlet">simpleLabEntryPortletController</prop>
 	    	</props>
 		</property>
     </bean>
+    
+    <bean parent="serviceContext">
+		<property name="moduleService">
+			<list>
+				<value>org.openmrs.module.simplelabentry.SimpleLabEntryService</value> 
+				<bean class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+					<property name="transactionManager"><ref bean="transactionManager"/></property>
+					<property name="target">
+						<bean class="org.openmrs.module.simplelabentry.impl.SimpleLabEntryServiceImpl" />
+					</property>
+					<property name="preInterceptors">
+						<list>
+							<ref bean="authorizationInterceptor"/>
+						</list>
+					</property>
+					<property name="transactionAttributeSource">
+						<bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
 	
     <!-- Controllers -->
     
@@ -24,6 +47,12 @@
 		<property name="commandName"><value>command</value></property>
 		<property name="formView"><value>/module/@MODULE_ID@/simpleLabEntryForm</value></property>
 		<property name="successView"><value>simpleLabEntry.form</value></property>
+    </bean>
+
+    <bean id="resultEntryFormController" class="@MODULE_PACKAGE@.web.controller.ResultEntryFormController">
+		<property name="commandName"><value>command</value></property>
+		<property name="formView"><value>/module/@MODULE_ID@/resultEntryForm</value></property>
+		<property name="successView"><value>resultEntry.form</value></property>
     </bean>
 	
     <!-- /Controllers -->
