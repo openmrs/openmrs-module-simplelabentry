@@ -5,9 +5,9 @@
 
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 <br/>
-<div style="text-align:center;">
-	<h3>Lab Order Entry Form</h3><br/>
+<div>
 	<form action="orderEntry.htm" method="get">
+		<b>Choose what Orders you want to enter:</b>
 		<spring:message code="simplelabentry.orderLocation" />: 
 		<openmrs_tag:locationField formFieldName="orderLocation" initialValue="${param.orderLocation}"/>
 		<spring:message code="simplelabentry.orderType" />:
@@ -17,7 +17,9 @@
 		<input type="submit" value="<spring:message code="general.submit" />" />
 	</form>
 	<br/><hr/><br/>
-	<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="allowAdd=true|allowDelete=nonResults|orderLocation=${param.orderLocation}|orderConcept=${param.orderConcept}|orderDate=${param.orderDate}" />
+	<c:if test="${!empty param.orderLocation && !empty param.orderConcept && !empty param.orderDate }">
+		<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="allowAdd=true|allowDelete=nonResults|orderLocation=${param.orderLocation}|orderConcept=${param.orderConcept}|orderDate=${param.orderDate}" />
+	</c:if>
 </div>
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>

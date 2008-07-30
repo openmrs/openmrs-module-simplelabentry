@@ -67,10 +67,14 @@ public class LabEntryPortletController extends PortletController {
 				if (patient == null) {
 					check = false;
 				}
+				log.debug("Found: " + patient + " for patientId=" + patientId);
 			}
-			// Retrieve matching orders
-			if (check && (concept != null || location != null || orderDate != null)) {
-				labOrderList = ls.getLabOrders(concept, location, orderDate, status, patient);
+			if (check) {
+				// Retrieve matching orders
+				if (patient != null || concept != null || location != null || orderDate != null) {
+					labOrderList = ls.getLabOrders(concept, location, orderDate, status, patient);
+					log.debug("Found: " + labOrderList.size() + " LabOrders");
+				}
 			}
 		}
 		catch (Exception e) {

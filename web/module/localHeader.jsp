@@ -1,15 +1,32 @@
 <%@ taglib prefix="simplelabentry" uri="/WEB-INF/view/module/simplelabentry/resources/simplelabentry.tld" %>
-<br/>
-<style>
-	.headerLink {padding-left:10px; padding-right:10px;}
-</style>
-<div style="width:100%; text-align:center;">
-	<h2>Lab Result Tracking</h2><br/>
-	<span class="headerLink"><a href="index.htm">Home</a></span>
-	<span class="headerLink">|</a></span>
-	<span class="headerLink"><a href="orderEntry.htm">Enter Orders</a></span>
-	<span class="headerLink">|</a></span>
-	<span class="headerLink"><a href="resultEntry.htm">Enter Results</a></span>
-	<span class="headerLink">|</a></span>
-	<span class="headerLink"><a href="existingOrders.htm">Manage Orders</a></span>
+
+<div style="border-bottom: 1px solid black;">
+	<ul id="menu">
+		<li class="first">
+			<a href="index.htm" style="font-size:large; font-weight:bold; text-decoration:none;">Lab Entry System</a>
+		</li>
+		<openmrs:hasPrivilege privilege="Add Orders">
+			<li <c:if test="<%= request.getRequestURI().contains("orderEntry") %>">class="active"</c:if>>
+				<a href="orderEntry.htm">Enter Orders</a>
+			</li>
+		</openmrs:hasPrivilege>
+		<openmrs:hasPrivilege privilege="Edit Orders">
+			<li <c:if test="<%= request.getRequestURI().contains("resultEntry") %>">class="active"</c:if>>
+				<a href="resultEntry.htm">Enter Results</a>
+			</li>
+		</openmrs:hasPrivilege>
+		<openmrs:hasPrivilege privilege="Edit Orders">
+			<li <c:if test="<%= request.getRequestURI().contains("existingOrders") %>">class="active"</c:if>>
+				<a href="existingOrders.htm">Manage Orders</a>
+			</li>
+		</openmrs:hasPrivilege>
+	
+		<openmrs:extensionPoint pointId="org.openmrs.module.simplelabentry.localHeader" type="html">
+				<c:forEach items="${extension.links}" var="link">
+					<li <c:if test="${fn:endsWith(pageContext.request.requestURI, link.key)}">class="active"</c:if> >
+						<a href="${pageContext.request.contextPath}/${link.key}"><spring:message code="${link.value}"/></a>
+					</li>
+				</c:forEach>
+		</openmrs:extensionPoint>
+	</ul>
 </div>

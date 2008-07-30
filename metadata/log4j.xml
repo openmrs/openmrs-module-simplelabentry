@@ -4,15 +4,15 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
 	<logger name="org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService">
-		<level value="DEBUG" />
+		<level value="INFO" />
 	</logger>
 	
 	<logger name="org.openmrs.module.simplelabentry.web.controller.ResultEntryFormController">
-		<level value="DEBUG" />
+		<level value="INFO" />
 	</logger>
 	
-	<logger name="org.openmrs.module.simplelabentry.web.taglib.OpenOrderTag">
-		<level value="DEBUG" />
+	<logger name="org.openmrs.module.simplelabentry.web.controller.LabEntryPortletController">
+		<level value="INFO" />
 	</logger>
 	
 </log4j:configuration>

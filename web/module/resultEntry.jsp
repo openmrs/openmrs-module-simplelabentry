@@ -4,13 +4,15 @@
 <openmrs:require privilege="View Orders" otherwise="/login.htm" redirect="/module/simplelabentry/simpleLabEntry.form" />
 
 <br/>
-<div style="text-align:center;">
-	<h3>Result Entry Form</h3><br/>
+<div>
 	<form action="resultEntry.htm" method="get">
+		<b>Choose which results you want to enter:</b>
 		<simplelabentry:groupedOrderTag name="groupKey" limit="open" defaultValue="${param.groupKey}" javascript="onchange='this.form.submit();'" />
 	</form>
 	<br/><hr/><br/>
-	<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="limit=open|groupKey=${param.groupKey}" />
+	<c:if test="${!empty param.groupKey}">
+		<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="limit=open|groupKey=${param.groupKey}" />
+	</c:if>
 </div>
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>
