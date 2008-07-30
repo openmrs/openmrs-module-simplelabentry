@@ -73,6 +73,7 @@
 		$j(".createdPatientMatch").hide();
 		$j("#createPatientSection").hide();
 		$j(".orderDetailSection").remove().removeClass("orderDetailSection");
+		$j(".labResultSection").hide();
 		$j(".existingOrderRow").show();
 		_selectedOrderId = null;
 		<c:if test="${model.allowAdd == 'true'}">
@@ -101,9 +102,6 @@
 	function showNewOrder() {
 		$j("#newIdentifierAddSection").hide();
 		$j(".orderDetailTemplate").clone().removeClass("orderDetailTemplate").appendTo($j("#newOrderSection")).addClass("orderDetailSection").show();
-
-		$j(".orderDetailSection .labResultTemplateCell").removeClass("labResultTemplateCell").addClass("labResultCell");
-		$j(".orderDetailSection .labResultTemplateConcept").removeClass("labResultTemplateConcept").addClass("labResultConcept");
 		
 		$j(".orderDetailSection input[name='startDate']").val('${model.orderDate}');
 		$j(".orderDetailSection select[name='location']").val('${model.orderLocation}');
@@ -382,7 +380,7 @@
 			<th>Umudugudu</th>
 			<th></th>
 		</tr>
-		<c:if test="${fn:length(model.labOrders) == 1}"><tr><td>No Orders</td></tr></c:if>
+		<c:if test="${fn:length(model.labOrders) == 0}"><tr><td>No Orders</td></tr></c:if>
 		<c:forEach items="${model.labOrders}" var="order" varStatus="orderStatus">
 			<c:if test="${!empty order.orderId}">
 				<tr id="viewOrderRow${order.orderId}" class="existingOrderRow">
@@ -406,7 +404,13 @@
 						</c:when>
 						<c:otherwise><td colspan=4">&nbsp;</td></c:otherwise>
 					</c:choose>
-					<td align="right"><a href="javascript:deleteOrder('${order.orderId}', '');"><small>[X]</small></a></td>
+					<td align="right">
+						<c:choose>
+							<c:when test="${model.allowDelete == 'false'}">&nbsp;</c:when>
+							<c:when test="${model.allowDelete == 'nonResults' && !empty order.encounter.obs}">&nbsp;</c:when>
+							<c:otherwise><a href="javascript:deleteOrder('${order.orderId}', '');"><small>[X]</small></a></c:otherwise>
+						</c:choose>
+					</td>
 				</tr>
 				<tr><td colspan="12" class="editOrderRow" style="display:none; background-color:#CCCCCC; border:2px solid blue;" id="editOrderRow${order.orderId}"></td></tr>
 			</c:if>

@@ -13,7 +13,7 @@
 	<activator>@MODULE_PACKAGE@.SimpleLabEntryActivator</activator>
 	<!-- /Base Module Properties -->
 	
-	<require_version>1.3.0.01.4914</require_version>
+	<require_version>1.4.0.01.5076</require_version>
 	
 	<!-- Extensions -->
 	<extension>

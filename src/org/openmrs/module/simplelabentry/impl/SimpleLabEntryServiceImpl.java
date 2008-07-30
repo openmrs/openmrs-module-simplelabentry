@@ -59,6 +59,9 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		List<Patient> patientList = patient == null ? null : Arrays.asList(patient);
 		List<Concept> conceptList = concept == null ? null : Arrays.asList(concept);
 		
+		if (status == null) {
+			status = ORDER_STATUS.NOTVOIDED;
+		}
 		
 		// Retrieve matching orders
 		List<Order> ordersMatch = Context.getOrderService().getOrders(Order.class, patientList, conceptList, status, null, null, Arrays.asList(orderType));

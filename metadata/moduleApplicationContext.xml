@@ -9,8 +9,6 @@
     	<property name="order"><value>50</value></property>
     	<property name="mappings">
             <props>
-	           <prop key="module/@MODULE_ID@/simpleLabEntry.form">simpleLabEntryFormController</prop>
-	           <prop key="module/@MODULE_ID@/resultEntry.form">resultEntryFormController</prop>
 	           <prop key="**/labOrders.portlet">simpleLabEntryPortletController</prop>
 	           <prop key="**/orderEntry.portlet">simpleLabEntryPortletController</prop>
 	    	</props>
@@ -42,18 +40,6 @@
     <!-- Controllers -->
     
     <bean id="simpleLabEntryPortletController" class="org.openmrs.module.simplelabentry.web.controller.LabEntryPortletController" />
-      
-    <bean id="simpleLabEntryFormController" class="@MODULE_PACKAGE@.web.controller.SimpleLabEntryFormController">
-		<property name="commandName"><value>command</value></property>
-		<property name="formView"><value>/module/@MODULE_ID@/simpleLabEntryForm</value></property>
-		<property name="successView"><value>simpleLabEntry.form</value></property>
-    </bean>
-
-    <bean id="resultEntryFormController" class="@MODULE_PACKAGE@.web.controller.ResultEntryFormController">
-		<property name="commandName"><value>command</value></property>
-		<property name="formView"><value>/module/@MODULE_ID@/resultEntryForm</value></property>
-		<property name="successView"><value>resultEntry.form</value></property>
-    </bean>
 	
     <!-- /Controllers -->
 </beans>

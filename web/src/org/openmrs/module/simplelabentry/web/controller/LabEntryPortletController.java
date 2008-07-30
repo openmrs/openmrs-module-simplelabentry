@@ -32,10 +32,19 @@ public class LabEntryPortletController extends PortletController {
     	model.put("labTestConcepts", ls.getLabTestConcepts());
 		
 		// Retrieve Orders that Match Input Parameters
-		Integer patientId = (Integer) model.get("patientId");
+		Object patientId = model.get("patientId");
 		String orderLocationId = (String)model.get("orderLocation");
 		String orderSetConceptId = (String)model.get("orderConcept");
 		String orderDateStr = (String)model.get("orderDate");
+		
+    	String currentGroupVal = request.getParameter("groupKey");
+    	if (currentGroupVal != null) {
+	    	String[] split = currentGroupVal.split("\\.");
+	    	orderLocationId = split.length >= 1 ? split[0] : "";
+	    	orderDateStr = split.length >= 2 ? split[1] : "";
+	    	orderSetConceptId = split.length >= 3 ? split[2] : "";
+    	}
+		
 		String limit = (String)model.get("limit");
 		
 		// Retrieve global properties
@@ -49,12 +58,20 @@ public class LabEntryPortletController extends PortletController {
 			Concept concept = StringUtils.hasText(orderSetConceptId) ? Context.getConceptService().getConcept(Integer.parseInt(orderSetConceptId)) : null;
 			Location location = StringUtils.hasText(orderLocationId) ? Context.getLocationService().getLocation(Integer.parseInt(orderLocationId)) : null;
 			Date orderDate = StringUtils.hasText(orderDateStr) ? Context.getDateFormat().parse(orderDateStr) : null;
-			ORDER_STATUS status = "open".equals(limit) ? ORDER_STATUS.CURRENT : "closed".equals(limit) ? ORDER_STATUS.COMPLETE : ORDER_STATUS.ANY;
-			Patient patient = patientId != null ? Context.getPatientService().getPatient(patientId) : null;
+			ORDER_STATUS status = "open".equals(limit) ? ORDER_STATUS.CURRENT : "closed".equals(limit) ? ORDER_STATUS.COMPLETE : ORDER_STATUS.NOTVOIDED;
+			Patient patient = null;
+			boolean check = true;
 			
+			if (patientId != null && !"".equals(patientId)) {
+				patient = Context.getPatientService().getPatient(Integer.valueOf(patientId.toString()));
+				if (patient == null) {
+					check = false;
+				}
+			}
 			// Retrieve matching orders
-			labOrderList = ls.getLabOrders(concept, location, orderDate, status, patient);
-			labOrderList.add(new Order());
+			if (check && (concept != null || location != null || orderDate != null)) {
+				labOrderList = ls.getLabOrders(concept, location, orderDate, status, patient);
+			}
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Server Error: Unable to load order list.", e);
