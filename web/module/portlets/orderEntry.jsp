@@ -31,11 +31,10 @@
 						var patient = msg.objs[0];
 	
 						DWRSimpleLabEntryService.getPatient(patient.patientId, function(labPatient) { loadPatient(labPatient) });
-						clearPatientAndSearchFields();
+						clearPatientAndSearchFields(false);
 						_selectedPatientId = patient.patientId;
 						$j("#otherIdentifier").text($j("#patientIdentifier").val());
-						$j("#matchedPatientSection").show();
-						$j(".nameMatch").show();
+						showMatchedPatientSection();
 						
 					} else if (msg.objs[0].href)
 						document.location = msg.objs[0].href;
@@ -48,6 +47,11 @@
 		});
 	</c:if>
 
+	function showMatchedPatientSection() {
+		$j("#matchedPatientSection").show();
+		$j(".nameMatch").show();
+	}
+
 	function loadPatient(labPatient) {
 		$('matchedIdentifier').innerHTML = labPatient.identifier + (labPatient.otherIdentifiers == '' ? '' : '<br/><small>(' + labPatient.otherIdentifiers + ')</small>');
 		$('matchedName').innerHTML = labPatient.givenName + ' ' + labPatient.familyName;
@@ -59,12 +63,12 @@
 		$('matchedAddress1').innerHTML = labPatient.address1;
 	}
 
-	function clearPatientAndSearchFields() {
+	function clearPatientAndSearchFields(includeNameSearch) {
 		_selectedPatientId = null;
-		clearSearchFields();
+		clearSearchFields(includeNameSearch);
 	}
 
-	function clearSearchFields() {
+	function clearSearchFields(includeNameSearch) {
 		$j("#otherIdentifier").text('');
 		$j("#nameMatchSection").hide();
 		$j("#matchedPatientSection").hide();
@@ -76,25 +80,32 @@
 		$j(".labResultSection").hide();
 		$j(".existingOrderRow").show();
 		_selectedOrderId = null;
-		<c:if test="${model.allowAdd == 'true'}">
-			dojo.widget.manager.getWidgetById("pSearch").clearSearch();
-		</c:if>
+		if (includeNameSearch) {
+			<c:if test="${model.allowAdd == 'true'}">
+				dojo.widget.manager.getWidgetById("pSearch").clearSearch();
+			</c:if>
+		}
+	}
+
+	function returnToSearch() {
+		clearPatientAndSearchFields(false);
+		$j("#nameMatchSection").show();
 	}
 
 	function clearFormFields() {
 		$j(".orderField").val('');
 		$j(".existingOrderRow").css("background-color","white");
 		$j(".editOrderRow").hide();
- 		clearPatientAndSearchFields();
+ 		clearPatientAndSearchFields(true);
 	}
 
 	function showCreatePatient() {
-		clearSearchFields();
+		clearSearchFields(true);
 		$j("#createPatientSection").show();
 	}
 
 	function findNewPatient() {
-		clearPatientAndSearchFields();
+		clearPatientAndSearchFields(true);
 		dojo.widget.manager.getWidgetById("pSearch").inputNode.select();
 		dojo.widget.manager.getWidgetById("pSearch").inputNode.focus();
 	}
@@ -127,7 +138,7 @@
 			$j(".orderDetailSection select[name='location']").val(order.locationId);
 			$j(".orderDetailSection select[name='concept']").val(order.conceptId);
 			$j(".orderDetailSection input[name='accessionNumber']").val(order.accessionNumber);
-			$j(".labResultDetail input[name='discontinuedDate']").val(order.discontinuedDate);
+			$j(".labResultDetail input[name='discontinuedDate']").val(order.discontinuedDateString);
 			for (i=0; i<order.labResults.length; i++) {
 				$j(".labResultCell input[name='resultValue."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
 			}
@@ -137,10 +148,18 @@
 	}
 
 	function matchPatientById(patIdType, patId) {
-		clearPatientAndSearchFields();
+		clearPatientAndSearchFields(false);
 		DWRSimpleLabEntryService.getPatientByIdentifier(patIdType, patId, function(patient) {
 			if (patient.patientId == null) {
-				$j("#nameMatchSection").show();
+				DWRSimpleLabEntryService.checkPatientIdentifier(patIdType, patId, { 
+					callback:function(createdOrder) {
+						$j("#nameMatchSection").show();
+						$('newPatientIdentifier').innerHTML = patId;
+					},
+					errorHandler:function(errorString, exception) {
+						alert(errorString);
+					}
+				});
 			}
 			else {
 				_selectedPatientId = patient.patientId;
@@ -149,8 +168,8 @@
 				$j("#matchedPatientSection").show();
 				$j("#newOrderSection").show();
 				showNewOrder();
-			}
-			$('newPatientIdentifier').innerHTML = patId;
+				$('newPatientIdentifier').innerHTML = patId;
+			}	
 		});
 	}
 
@@ -169,7 +188,7 @@
 		DWRSimpleLabEntryService.createPatient(	newFirstName, newLastName, newGender, newAge, newIdent, newIdentType, newIdentLoc, 
 											   	newCountyDistrict, newCityVillage, newNeighborhoodCell, newAddress1, 
 											   	{ 	callback:function(createdPatient) {
-														clearPatientAndSearchFields();
+														clearPatientAndSearchFields(true);
 												   		_selectedPatientId = createdPatient.patientId;
 														$j("#matchedIdentifier").text(newIdent);
 														$j("#matchedName").text(createdPatient.givenName + ' ' + createdPatient.familyName);
@@ -264,7 +283,7 @@
 	<b class="boxHeader">Add New Order</b>
 	<div style="align:left;" class="box" >
 	
-		Enter IMB ID (Long ID): 
+		Enter IMB ID: 
 		<input type="text" id="patientIdentifier" class="orderField" name="patientIdentifier" />
 		<input type="button" value="Search" id="SearchByIdButton" onclick="matchPatientById('${patientIdType}',$('patientIdentifier').value);" />
 		<input type="button" value="Clear" onclick="clearFormFields();" />
@@ -278,7 +297,7 @@
 			</span>
 			<table id="matchedPatientTable">
 				<tr>
-					<th>Long ID</th>
+					<th>IMB ID</th>
 					<th>Name / Surname</th>
 					<th>Sex</th>
 					<th>Age</th>
@@ -300,10 +319,11 @@
 			</table>
 			<b class="nameMatch" id="newIdentifierAddSection">
 				<br/>
-				Do you wish to associate identifier <span style="color:blue;" id="otherIdentifier"></span> with this patient?<br/><br/>
-				<input type="button" id="AddIdentifierButton" value="Yes, add identifier and continue to Order" />
-				<input type="button" id="NoIdentifierYesOrderButton" value="No, but proceed to Order" onclick="showNewOrder();" />
-				<input type="button" id="NoIdentifierCancelButton" value="No, Cancel" onclick="clearSearchFields();" />
+				Are you certain that this is the same person who had the lab test ordered?<br/>
+				Adding ID '<span style="color:blue;" id="otherIdentifier"></span>' to the wrong patient's file will cause serious problems.
+				<br/><br/>
+				<input type="button" id="AddIdentifierButton" value="Yes, this is the same person - add ID and continue order" />
+				<input type="button" id="NoIdentifierCancelButton" value="No, return to search" onclick="returnToSearch();" />
 				<br/>
 			</b>
 			<br/>
@@ -322,7 +342,7 @@
 			<span>Enter new Patient Details Below</span> 
 			<table cellspacing="0" cellpadding="3">
 				<tr>
-					<th>Long ID</th>
+					<th>IMB ID</th>
 					<th>Given Name</th>
 					<th>Family Name</th>
 					<th>Sex</th>
@@ -369,8 +389,8 @@
 		<tr style="background-color:#CCCCCC;">
 			<th></th>
 			<th>Date</th>
-			<th>Short ID</th>
-			<th>Long ID</th>
+			<th>Lab ID</th>
+			<th>IMB ID</th>
 			<th>Name / Surname</th>
 			<th>Sex</th>
 			<th>Age</th>
@@ -423,7 +443,7 @@
 	<input type="hidden" name="orderId" value="" />
 	<table>
 		<tr>
-			<th>Short ID:</th>
+			<th>Lab ID:</th>
 			<td><input type="text" class="accessionNumber" name="accessionNumber" /></td>
 			<th><spring:message code="simplelabentry.orderLocation" />:</td>
 			<td><openmrs_tag:locationField formFieldName="location" /></td>
@@ -481,7 +501,7 @@
 			</div>
 		</c:forEach>
  		<div class="labResultDetailTemplate">
-			<b style="padding-left:10px;">Order Completion Date:</b> <input type="text" name="discontinuedDate" size="10" onFocus="showCalendar(this);" />
+			<b style="padding-left:10px;">Date of Result:</b> <input type="text" name="discontinuedDate" size="10" onFocus="showCalendar(this);" />
 		</div>
 	</div>
 	<br/>

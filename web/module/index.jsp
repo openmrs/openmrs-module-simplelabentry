@@ -32,7 +32,7 @@
 		<form action="existingOrders.htm" method="get">
 			Choose From Existing Orders by Category: <simplelabentry:groupedOrderTag name="groupKey" defaultValue="" javascript="" />
 			<span> OR </span>
-			Patient ID: <input type="text" name="patientId" size="10" />
+			Patient Identifier: <input type="text" name="identifier" size="10" />
 			<input type="submit" value="Submit" />
 		</form>
 	</div>

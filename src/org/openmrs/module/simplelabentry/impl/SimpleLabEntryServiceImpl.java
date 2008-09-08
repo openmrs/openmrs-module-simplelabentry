@@ -35,9 +35,9 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 	protected final Log log = LogFactory.getLog(getClass());
 	
 	/**
-     * @see org.openmrs.module.simplelabentry.SimpleLabEntryService#getOrders(OrderType, Concept, Location, Date, ORDER_STATUS, Patient)
+     * @see org.openmrs.module.simplelabentry.SimpleLabEntryService#getOrders(OrderType, Concept, Location, Date, ORDER_STATUS, List<Patient>)
      */
-	public List<Order> getLabOrders(Concept concept, Location location, Date orderDate, ORDER_STATUS status, Patient patient) {
+	public List<Order> getLabOrders(Concept concept, Location location, Date orderDate, ORDER_STATUS status, List<Patient> patients) {
 		
 		Map<Date, Order> orders = new TreeMap<Date, Order>();
 		
@@ -54,9 +54,8 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			throw new RuntimeException("Unable to retrieve LabOrders since the OrderType of <" + orderTypeId + "> is invalid.");
 		}
 		
-		log.debug("Retrieving lab orders of type "+orderType+" for: location="+location+",concept="+concept+",date="+orderDate+",status="+status+",patient="+patient);
+		log.debug("Retrieving lab orders of type "+orderType+" for: location="+location+",concept="+concept+",date="+orderDate+",status="+status+",patients="+patients);
 		
-		List<Patient> patientList = patient == null ? null : Arrays.asList(patient);
 		List<Concept> conceptList = concept == null ? null : Arrays.asList(concept);
 		
 		if (status == null) {
@@ -64,7 +63,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		}
 		
 		// Retrieve matching orders
-		List<Order> ordersMatch = Context.getOrderService().getOrders(Order.class, patientList, conceptList, status, null, null, Arrays.asList(orderType));
+		List<Order> ordersMatch = Context.getOrderService().getOrders(Order.class, patients, conceptList, status, null, null, Arrays.asList(orderType));
 		for (Order o : ordersMatch) {
 			Encounter e = o.getEncounter();
 			if (location != null && !location.equals(e.getLocation())) {

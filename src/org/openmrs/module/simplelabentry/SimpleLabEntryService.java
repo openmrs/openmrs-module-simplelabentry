@@ -25,11 +25,11 @@ public interface SimpleLabEntryService {
 	 * @param location The Location of the encounter that the orders are assigned to
 	 * @param orderDate The startDate of the Order
 	 * @param status The ORDER_STATUS of the orders for its patient
-	 * @param patient The patient to get orders for
+	 * @param patients The List of Patients to get orders for
 	 * @return list of Orders matching the parameters
 	 */
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
-	public List<Order> getLabOrders(Concept concept, Location location, Date orderDate, ORDER_STATUS status, Patient patient);
+	public List<Order> getLabOrders(Concept concept, Location location, Date orderDate, ORDER_STATUS status, List<Patient> patients);
 	
 	/**
 	 * This returns a List of all of the Concepts that have been configured 

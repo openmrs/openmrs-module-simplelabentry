@@ -32,7 +32,7 @@ public class LabEntryPortletController extends PortletController {
     	model.put("labTestConcepts", ls.getLabTestConcepts());
 		
 		// Retrieve Orders that Match Input Parameters
-		Object patientId = model.get("patientId");
+		String identifier = (String)model.get("identifier");
 		String orderLocationId = (String)model.get("orderLocation");
 		String orderSetConceptId = (String)model.get("orderConcept");
 		String orderDateStr = (String)model.get("orderDate");
@@ -59,20 +59,27 @@ public class LabEntryPortletController extends PortletController {
 			Location location = StringUtils.hasText(orderLocationId) ? Context.getLocationService().getLocation(Integer.parseInt(orderLocationId)) : null;
 			Date orderDate = StringUtils.hasText(orderDateStr) ? Context.getDateFormat().parse(orderDateStr) : null;
 			ORDER_STATUS status = "open".equals(limit) ? ORDER_STATUS.CURRENT : "closed".equals(limit) ? ORDER_STATUS.COMPLETE : ORDER_STATUS.NOTVOIDED;
-			Patient patient = null;
+			List<Patient> patients = null;
 			boolean check = true;
 			
-			if (patientId != null && !"".equals(patientId)) {
-				patient = Context.getPatientService().getPatient(Integer.valueOf(patientId.toString()));
-				if (patient == null) {
+			if (StringUtils.hasText(identifier)) {
+				patients = Context.getPatientService().getPatients(null, identifier, null, true);
+				try {
+					Patient p = Context.getPatientService().getPatient(Integer.parseInt(identifier));
+					if (p != null && !patients.contains(p)) {
+						patients.add(p);
+					}
+				}
+				catch (Exception e) {}
+				if (patients.isEmpty()) {
 					check = false;
 				}
-				log.debug("Found: " + patient + " for patientId=" + patientId);
+				log.debug("Found: " + patients + " for identifier=" + identifier);
 			}
 			if (check) {
 				// Retrieve matching orders
-				if (patient != null || concept != null || location != null || orderDate != null) {
-					labOrderList = ls.getLabOrders(concept, location, orderDate, status, patient);
+				if (patients != null || concept != null || location != null || orderDate != null) {
+					labOrderList = ls.getLabOrders(concept, location, orderDate, status, patients);
 					log.debug("Found: " + labOrderList.size() + " LabOrders");
 				}
 			}

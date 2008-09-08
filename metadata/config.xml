@@ -13,7 +13,7 @@
 	<activator>@MODULE_PACKAGE@.SimpleLabEntryActivator</activator>
 	<!-- /Base Module Properties -->
 	
-	<require_version>1.4.0.01.5099</require_version>
+	<require_version>1.4.0.01.5420</require_version>
 	
 	<!-- Extensions -->
 	<extension>
@@ -57,6 +57,7 @@
 			<create creator="new" javascript="DWRSimpleLabEntryService">
 				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService"/>
 				<include method="getPatient"/>
+				<include method="checkPatientIdentifier"/>
 				<include method="getPatientByIdentifier"/>
 				<include method="addPatientIdentifier"/>
 				<include method="createPatient"/>
