@@ -104,8 +104,15 @@
 	
 	<target name="deploy-web" depends="package-module">
 		<property environment="env"/>
-		<copy todir="/usr/emr/java/apache-tomcat-6.0.16//webapps/openmrs/WEB-INF/view/module/${module.id}">
+		<copy todir="/usr/emr/java/apache-tomcat-6.0.16/webapps/openmrs/WEB-INF/view/module/${module.id}">
 			<fileset dir="web/module" includes="**/*" />
+		</copy>
+	</target>
+	
+	<target name="deploy-module" depends="package-module">
+		<property environment="env"/>
+		<copy todir="/home/mseaton/.OpenMRS/modules">
+			<fileset dir="dist" includes="*.omod" />
 		</copy>
 	</target>
 	
