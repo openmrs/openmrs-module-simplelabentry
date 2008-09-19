@@ -109,6 +109,21 @@
 		dojo.widget.manager.getWidgetById("pSearch").inputNode.select();
 		dojo.widget.manager.getWidgetById("pSearch").inputNode.focus();
 	}
+	
+	function enableDisableOrderFields() {
+		<c:choose>
+			<c:when test="${model.allowCategoryEdit == 'false'}">
+				$j(".orderDetailSection input[name='startDate']").attr("disabled","true").css("color","blue");
+				$j(".orderDetailSection select[name='location']").attr("disabled","true").css("color","blue");
+				$j(".orderDetailSection select[name='concept']").attr("disabled","true").css("color","blue");
+			</c:when>
+			<c:otherwise>
+				$j(".orderDetailSection input[name='startDate']").removeAttr("disabled").css("color","black");
+				$j(".orderDetailSection select[name='location']").removeAttr("disabled").css("color","black");
+				$j(".orderDetailSection select[name='concept']").removeAttr("disabled").css("color","black");
+			</c:otherwise>
+		</c:choose>
+	}
 
 	function showNewOrder() {
 		$j("#newIdentifierAddSection").hide();
@@ -117,6 +132,7 @@
 		$j(".orderDetailSection input[name='startDate']").val('${model.orderDate}');
 		$j(".orderDetailSection select[name='location']").val('${model.orderLocation}');
 		$j(".orderDetailSection select[name='concept']").val('${model.orderConcept}');
+		enableDisableOrderFields();
 		$j(".orderDetailSection :button[name='CreateOrderButton']").click( function() { createOrder(); } );
 	}
 
@@ -137,6 +153,7 @@
 			$j(".orderDetailSection input[name='startDate']").val(order.startDateString);
 			$j(".orderDetailSection select[name='location']").val(order.locationId);
 			$j(".orderDetailSection select[name='concept']").val(order.conceptId);
+			enableDisableOrderFields();
 			$j(".orderDetailSection input[name='accessionNumber']").val(order.accessionNumber);
 			$j(".labResultDetail input[name='discontinuedDate']").val(order.discontinuedDateString);
 			for (i=0; i<order.labResults.length; i++) {

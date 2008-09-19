@@ -27,7 +27,7 @@
 		</form>
 	</div>
 	<br/><br/>
-	<b class="boxHeader">Manage Existing Orders and Results</b>
+	<b class="boxHeader">Edit/Manage Orders and Results</b>
 	<div class="box">
 		<form action="existingOrders.htm" method="get">
 			Choose From Existing Orders by Category: <simplelabentry:groupedOrderTag name="groupKey" defaultValue="" javascript="" />

@@ -11,7 +11,7 @@
 	</form>
 	<br/><hr/><br/>
 	<c:if test="${!empty param.groupKey}">
-		<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="limit=open|groupKey=${param.groupKey}" />
+		<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="limit=open|allowCategoryEdit=false|groupKey=${param.groupKey}" />
 	</c:if>
 </div>
 
