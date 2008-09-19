@@ -41,7 +41,12 @@
 		<property>@MODULE_ID@.patientIdentifierType</property>
 		<defaultValue>5</defaultValue>
 		<description>The Identifier Type to use when searching for / creating patients</description>
-	</globalProperty>	
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.patientHealthCenterAttributeType</property>
+		<defaultValue>7</defaultValue>
+		<description>The Person Attribute Type for Patient Health Center</description>
+	</globalProperty>
 
 	<!-- /Required Global Properties -->
 	<!-- DWR -->

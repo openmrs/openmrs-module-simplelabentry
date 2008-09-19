@@ -56,7 +56,7 @@
 		$('matchedIdentifier').innerHTML = labPatient.identifier + (labPatient.otherIdentifiers == '' ? '' : '<br/><small>(' + labPatient.otherIdentifiers + ')</small>');
 		$('matchedName').innerHTML = labPatient.givenName + ' ' + labPatient.familyName;
 		$('matchedGender').innerHTML = labPatient.gender;
-		$('matchedAge').innerHTML = labPatient.age;
+		$('matchedAge').innerHTML = labPatient.ageStr;
 		$('matchedDistrict').innerHTML = labPatient.countyDistrict;
 		$('matchedSector').innerHTML = labPatient.cityVillage;
 		$('matchedCell').innerHTML = labPatient.neighborhoodCell;
@@ -193,24 +193,26 @@
 	function createPatient() {
 		var newIdent = $j('#newPatientIdentifier').text();
 		var newIdentType = '${patientIdType}';
-		var newIdentLoc = '${param.orderLocation}';
+		var selectedLocation = '${param.orderLocation}';
 		var newFirstName = $('newFirstName').value;
 		var newLastName = $('newLastName').value;
 		var newGender = $j("input[name='newGender']:checked").val();
-		var newAge = $('newAge').value;
+		var newAgeY = $('newAgeY').value;
+		var newAgeM = $('newAgeM').value;
+		var newProvince = $('newProvince').value;
 		var newCountyDistrict = $('newCountyDistrict').value;
 		var newCityVillage = $('newCityVillage').value;
 		var newNeighborhoodCell = $('newNeighborhoodCell').value;
 		var newAddress1 = $('newAddress1').value;
-		DWRSimpleLabEntryService.createPatient(	newFirstName, newLastName, newGender, newAge, newIdent, newIdentType, newIdentLoc, 
-											   	newCountyDistrict, newCityVillage, newNeighborhoodCell, newAddress1, 
+		DWRSimpleLabEntryService.createPatient(	newFirstName, newLastName, newGender, newAgeY, newAgeM, newIdent, newIdentType, selectedLocation, 
+											   	newProvince, newCountyDistrict, newCityVillage, newNeighborhoodCell, newAddress1, 
 											   	{ 	callback:function(createdPatient) {
 														clearPatientAndSearchFields(true);
 												   		_selectedPatientId = createdPatient.patientId;
 														$j("#matchedIdentifier").text(newIdent);
 														$j("#matchedName").text(createdPatient.givenName + ' ' + createdPatient.familyName);
 														$j("#matchedGender").text(createdPatient.gender);
-														$j("#matchedAge").text(createdPatient.age);
+														$j("#matchedAge").text(createdPatient.ageStr);
 														$j("#matchedDistrict").text(createdPatient.countyDistrict);
 														$j("#matchedSector").text(createdPatient.cityVillage);
 														$j("#matchedCell").text(createdPatient.neighborhoodCell);
@@ -364,6 +366,7 @@
 					<th>Family Name</th>
 					<th>Sex</th>
 					<th>Age</th>
+					<th>Province</th>
 					<th>District</th>
 					<th>Sector</th>
 					<th>Cellule</th>
@@ -379,7 +382,11 @@
 							<label for="${record.key}"> <spring:message code="simplelabentry.gender.${record.value}"/> </label>
 						</openmrs:forEachRecord>
 					</td>
-					<td><input type="text" class="orderField" id="newAge" name="newAge" size="3" /></td>
+					<td>
+						<input type="text" class="orderField" id="newAgeY" name="newAgeY" size="3" />y
+						<input type="text" class="orderField" id="newAgeM" name="newAgeM" size="3" />m
+					</td>
+					<td><input type="text" class="orderField" id="newProvince" name="newProvince" size="10" /></td>
 					<td><input type="text" class="orderField" id="newCountyDistrict" name="newCountyDistrict" size="10" /></td>
 					<td><input type="text" class="orderField" id="newCityVillage" name="newCityVillage" size="10" /></td>
 					<td><input type="text" class="orderField" id="newNeighborhoodCell" name="newNeighborhoodCell" size="10" /></td>
