@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
+<%@ taglib prefix="simplelabentry" uri="/WEB-INF/view/module/simplelabentry/resources/simplelabentry.tld" %>
 
 <openmrs:htmlInclude file="/dwr/interface/LabResultListItem.js" />
 <openmrs:htmlInclude file="/dwr/interface/DWRPatientService.js" />
@@ -11,6 +12,8 @@
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 
 <openmrs:globalProperty key="simplelabentry.patientIdentifierType" var="patientIdType" />
+<openmrs:globalProperty key="simplelabentry.programToDisplay" var="programToDisplay" />
+<openmrs:globalProperty key="simplelabentry.workflowToDisplay" var="workflowToDisplay" />
 
 <script type="text/javascript">
 
@@ -55,6 +58,7 @@
 	function loadPatient(labPatient) {
 		$('matchedIdentifier').innerHTML = labPatient.identifier + (labPatient.otherIdentifiers == '' ? '' : '<br/><small>(' + labPatient.otherIdentifiers + ')</small>');
 		$('matchedName').innerHTML = labPatient.givenName + ' ' + labPatient.familyName;
+		$('matchedGroup').innerHTML = labPatient.programState;
 		$('matchedGender').innerHTML = labPatient.gender;
 		$('matchedAge').innerHTML = labPatient.ageStr;
 		$('matchedDistrict').innerHTML = labPatient.countyDistrict;
@@ -211,6 +215,7 @@
 												   		_selectedPatientId = createdPatient.patientId;
 														$j("#matchedIdentifier").text(newIdent);
 														$j("#matchedName").text(createdPatient.givenName + ' ' + createdPatient.familyName);
+														$j("#matchedGroup").text(createdPatient.programState);
 														$j("#matchedGender").text(createdPatient.gender);
 														$j("#matchedAge").text(createdPatient.ageStr);
 														$j("#matchedDistrict").text(createdPatient.countyDistrict);
@@ -254,6 +259,7 @@
 		
 		DWRSimpleLabEntryService.saveLabOrder(_selectedOrderId, _selectedPatientId, orderConcept, orderLoc, orderDate, accessionNum, discontinuedDate, labResultMap,
 				{ 	callback:function(createdOrder) {
+						clearFormFields();
 						location.reload();
 					},
 					errorHandler:function(errorString, exception) {
@@ -318,6 +324,7 @@
 				<tr>
 					<th>IMB ID</th>
 					<th>Name / Surname</th>
+					<th>Group</th>
 					<th>Sex</th>
 					<th>Age</th>
 					<th>District</th>
@@ -328,6 +335,7 @@
 				<tr>
 					<td id="matchedIdentifier"></td>
 					<td id="matchedName"></td>
+					<td id="matchedGroup"></td>
 					<td id="matchedGender"></td>
 					<td id="matchedAge"></td>
 					<td id="matchedDistrict"></td>
@@ -418,6 +426,7 @@
 			<th>Name / Surname</th>
 			<th>Sex</th>
 			<th>Age</th>
+			<th>Group</th>
 			<th>District</th>
 			<th>Sector</th>
 			<th>Cellule</th>
@@ -439,6 +448,11 @@
 					</td>
 					<td>${order.patient.gender}</td>
 					<td>${order.patient.age}</td>
+					<td>
+						<simplelabentry:patientProgram programInput="${programToDisplay}" workflowInput="${workflowToDisplay}" patientId="${order.patient.patientId}" programVar="p" workflowVar="w" patientProgramVar="pp" currentStateVar="currentState">
+							${currentState == null ? "" : currentState.state.concept.name.name}
+						</simplelabentry:patientProgram>
+					</td>
 					<c:choose>
 						<c:when test="${!empty order.patient.personAddress}">
 							<td>${order.patient.personAddress.countyDistrict}</td>

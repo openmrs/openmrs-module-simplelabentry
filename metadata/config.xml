@@ -47,7 +47,16 @@
 		<defaultValue>7</defaultValue>
 		<description>The Person Attribute Type for Patient Health Center</description>
 	</globalProperty>
-
+	<globalProperty>
+		<property>@MODULE_ID@.programToDisplay</property>
+		<defaultValue>HIV PROGRAM</defaultValue>
+		<description>The Program to retrieve for patients.</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.workflowToDisplay</property>
+		<defaultValue>ANTIRETROVIRAL TREATMENT GROUP</defaultValue>
+		<description>The Workflow to retrieve for the above Program for patients.</description>
+	</globalProperty>
 	<!-- /Required Global Properties -->
 	<!-- DWR -->
 	<dwr>

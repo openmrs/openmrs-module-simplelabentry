@@ -61,4 +61,72 @@
 		</attribute>
 	</tag>
 	
+	<tag>
+		<description>
+			Returns a Program, ProgramWorkflow, PatientProgram, and PatientState given appropriate inputs
+		</description>
+		<name>patientProgram</name>
+		<tag-class>org.openmrs.module.simplelabentry.web.taglib.PatientProgramTag</tag-class>
+		<body-content>JSP</body-content>
+		<variable>
+			<name-from-attribute>programVar</name-from-attribute>
+			<variable-class>org.openmrs.Program</variable-class>
+		</variable>
+		<variable>
+			<name-from-attribute>workflowVar</name-from-attribute>
+			<variable-class>org.openmrs.ProgramWorkflow</variable-class>
+		</variable>
+		<variable>
+			<name-from-attribute>patientProgramVar</name-from-attribute>
+			<variable-class>org.openmrs.PatientProgram</variable-class>
+		</variable>
+		<variable>
+			<name-from-attribute>currentStateVar</name-from-attribute>
+			<variable-class>org.openmrs.PatientState</variable-class>
+		</variable>
+		<attribute>
+			<name>programInput</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>workflowInput</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>patientId</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.Integer</type>
+		</attribute>
+	
+		<attribute>
+			<name>programVar</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>workflowVar</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>patientProgramVar</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>currentStateVar</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>	
+	</tag>
+	
 </taglib>

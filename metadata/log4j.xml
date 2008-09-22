@@ -15,4 +15,8 @@
 		<level value="INFO" />
 	</logger>
 	
+	<logger name="org.openmrs.module.simplelabentry.web.taglib.PatientProgramTag">
+		<level value="INFO" />
+	</logger>
+	
 </log4j:configuration>
