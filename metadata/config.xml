@@ -25,37 +25,52 @@
 	<globalProperty>
 		<property>@MODULE_ID@.supportedTests</property>
 		<defaultValue>1019,657</defaultValue>
-		<description>Defines the Concept IDs of the possible Lab Test Types (ConceptClass=LabSet or Test) that may be entered using this module</description>
+		<description>
+			This should be a comma-separated string of Concept IDs defining the Lab Tests supported by this system.
+			These Concepts must have a ConceptClass of either LabSet or Test.  A Concept of class LabSet will support entry of all
+			Test Concepts in the LabSet together.  The LabSet would represent the type of Test (ie. Hematology) and the Tests within
+			this set would represent the individual Results (ie. Hematocrit, Hemoglobin, etc.).
+			If only a single Test with a single result is desired, then a Concept of class Test may be added to the list directly.
+		</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.labOrderType</property>
 		<defaultValue>4</defaultValue>
-		<description>The ID of the OrderType that represents a Lab Test Order</description>
+		<description>This should be the OrderTypeId of the OrderType that represents a Lab Test Order</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.labTestEncounterType</property>
 		<defaultValue>9</defaultValue>
-		<description>The ID of the Encounter Type that represents a Lab Test Encounter</description>
+		<description>This should be the EncounterTypeId of the EncounterType that represents a Lab Test Encounter</description>
 	</globalProperty>	
 	<globalProperty>
 		<property>@MODULE_ID@.patientIdentifierType</property>
 		<defaultValue>5</defaultValue>
-		<description>The Identifier Type to use when searching for / creating patients</description>
+		<description>
+			This should be the PatientIdentifierTypeId for the PatientIdentifierType 
+			that will be used for listing, searching, and creating patients
+		</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.patientHealthCenterAttributeType</property>
 		<defaultValue>7</defaultValue>
-		<description>The Person Attribute Type for Patient Health Center</description>
+		<description>The PersonAttributeTypeId for the PersonAttributeType representing the Patient's Health Center</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.programToDisplay</property>
 		<defaultValue>HIV PROGRAM</defaultValue>
-		<description>The Program to retrieve for patients.</description>
+		<description>
+			In Patient Lists, we will display the Current State for the PatientProgram for the Program configured by this property.
+			This is used in conjunction with the "workflowToDisplay" property
+		</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.workflowToDisplay</property>
 		<defaultValue>ANTIRETROVIRAL TREATMENT GROUP</defaultValue>
-		<description>The Workflow to retrieve for the above Program for patients.</description>
+		<description>
+			In Patient Lists, we will display the Current State for the PatientProgram for the ProgramWorkflow configured by this property.
+			This is used in conjunction with the "programToDisplay" property
+		</description>
 	</globalProperty>
 	<!-- /Required Global Properties -->
 	<!-- DWR -->

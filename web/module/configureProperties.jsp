@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="localHeader.jsp"%>
-<openmrs:require privilege="Manage Global Properties" otherwise="/login.htm" redirect="/module/simplelabentry/index" />
+<openmrs:require privilege="Manage Global Properties" otherwise="/login.htm" redirect="/module/simplelabentry/configureProperties.htm" />
 
 <openmrs:htmlInclude file="/dwr/interface/DWRAdministrationService.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
