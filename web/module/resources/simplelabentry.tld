@@ -59,8 +59,7 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
-	</tag>
-	
+	</tag>	
 	<tag>
 		<description>
 			Returns a Program, ProgramWorkflow, PatientProgram, and PatientState given appropriate inputs
@@ -102,7 +101,6 @@
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.Integer</type>
 		</attribute>
-	
 		<attribute>
 			<name>programVar</name>
 			<required>true</required>
@@ -128,5 +126,27 @@
 			<type>java.lang.String</type>
 		</attribute>	
 	</tag>
-	
+	<tag>
+		<description>
+			Retrieves the matching global properties, and if any are missing, redirects to configuration page
+		</description>
+		<name>requireConfiguration</name>
+		<tag-class>org.openmrs.module.simplelabentry.web.taglib.RequireConfigurationTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>propertyPrefix</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>ignoreList</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>configurationPage</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>	
 </taglib>

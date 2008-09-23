@@ -1,5 +1,9 @@
 <%@ taglib prefix="simplelabentry" uri="/WEB-INF/view/module/simplelabentry/resources/simplelabentry.tld" %>
 
+<c:if test="<%= !request.getRequestURI().contains("configureProperties") %>">
+	<simplelabentry:requireConfiguration propertyPrefix="simplelabentry." configurationPage="/module/simplelabentry/configureProperties.htm" />
+</c:if>
+
 <div style="border-bottom: 1px solid black;">
 	<ul id="menu">
 		<li class="first">
@@ -18,6 +22,11 @@
 		<openmrs:hasPrivilege privilege="Edit Orders">
 			<li <c:if test="<%= request.getRequestURI().contains("existingOrders") %>">class="active"</c:if>>
 				<a href="existingOrders.htm">Edit/Manage Orders and Results</a>
+			</li>
+		</openmrs:hasPrivilege>
+		<openmrs:hasPrivilege privilege="Manage Global Properties">
+			<li <c:if test="<%= request.getRequestURI().contains("configureProperties") %>">class="active"</c:if>>
+				<a href="configureProperties.htm">Lab Entry Configuration</a>
 			</li>
 		</openmrs:hasPrivilege>
 	
