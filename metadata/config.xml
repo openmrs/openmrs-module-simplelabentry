@@ -61,16 +61,19 @@
 	<!-- DWR -->
 	<dwr>
 		<allow>
-			<convert converter="collection" match="java.util.Collection"/>
 			<convert converter="bean" match="org.openmrs.module.simplelabentry.web.dwr.LabPatientListItem"/>
 			<convert converter="bean" match="org.openmrs.module.simplelabentry.web.dwr.LabOrderListItem"/>
 			<convert converter="bean" match="org.openmrs.module.simplelabentry.web.dwr.LabResultListItem"/>
 			<create creator="new" javascript="LabResultListItem">
 				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.LabResultListItem"/>
 			</create>
+			<create creator="new" javascript="LabPatientListItem">
+				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.LabPatientListItem"/>
+			</create>
 			<create creator="new" javascript="DWRSimpleLabEntryService">
 				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService"/>
 				<include method="getPatient"/>
+				<include method="findPatients"/>
 				<include method="checkPatientIdentifier"/>
 				<include method="getPatientByIdentifier"/>
 				<include method="addPatientIdentifier"/>

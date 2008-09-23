@@ -1,6 +1,7 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 <%@ taglib prefix="simplelabentry" uri="/WEB-INF/view/module/simplelabentry/resources/simplelabentry.tld" %>
 
+<openmrs:htmlInclude file="/dwr/interface/LabPatientListItem.js" />
 <openmrs:htmlInclude file="/dwr/interface/LabResultListItem.js" />
 <openmrs:htmlInclude file="/dwr/interface/DWRPatientService.js" />
 <openmrs:htmlInclude file="/dwr/interface/DWRSimpleLabEntryService.js" />
@@ -43,6 +44,79 @@
 						document.location = msg.objs[0].href;
 				}
 			);
+
+			searchWidget.postCreate = function() {
+				if (searchWidget.patientId != "") {
+					searchWidget.selectPatient(searchWidget.patientId);
+				}
+				else if (searchWidget.searchPhrase) {
+					DWRSimpleLabEntryService.findPatients(searchWidget.simpleClosure(searchWidget, "doObjectsFound"), searchWidget.searchPhrase);
+				}
+			};
+
+			searchWidget.selectPatient = function(patientId) {
+				DWRSimpleLabEntryService.getPatient(searchWidget.simpleClosure(searchWidget, "select"), patientId);
+			};
+			
+			searchWidget.doFindObjects = function(text) {
+				DWRSimpleLabEntryService.findPatients(searchWidget.simpleClosure(searchWidget, "doObjectsFound"), text);
+				return false;
+			};
+
+			searchWidget.getCountyDistrict = function(p) { return p.countyDistrict == null ? searchWidget.noCell() : p.countyDistrict; };
+			searchWidget.getCityVillage = function(p) { return p.cityVillage == null ? searchWidget.noCell() : p.cityVillage; };
+			searchWidget.getNeighborhoodCell = function(p) { return p.neighborhoodCell == null ? searchWidget.noCell() : p.neighborhoodCell; };
+			searchWidget.getProgramState = function(p) { return p.programState == null ? searchWidget.noCell() : p.programState; };
+			searchWidget.getLastObs = function(p) { return p.lastObs == null ? searchWidget.noCell() : p.lastObs; };
+			
+			searchWidget.getAddress = function(p) {
+				str = (p.countyDistrict == null ? "" : p.countyDistrict);
+				str += (p.cityVillage == null ? "" : ((str == "" ? "" : ", ") + p.cityVillage));
+				str += (p.neighborhoodCell == null ? "" : ((str == "" ? "" : ", ") + p.neighborhoodCell));
+				str += (p.address1 == null ? "" : ((str == "" ? "" : ", ") + p.address1));
+				return str == "" ? searchWidget.noCell() : str;
+			};
+
+			searchWidget.displayHeaderRow = function() {
+				this.setHeaderCellContent(this.getHeaderCellContent());
+				this.headerRow.style.display="";
+			};
+
+			searchWidget.getHeaderCellContent = function() {
+				var arr = new Array();
+				arr.push('');
+				arr.push('<spring:message code="Patient.identifier" javaScriptEscape="true"/>');
+				arr.push('<spring:message code="PersonName.givenName" javaScriptEscape="true"/>');
+				arr.push('<spring:message code="PersonName.middleName" javaScriptEscape="true"/>');
+				arr.push('<spring:message code="PersonName.familyName" javaScriptEscape="true"/>');
+				arr.push('<spring:message code="Person.age" javaScriptEscape="true"/>');
+				arr.push('<spring:message code="Person.gender" javaScriptEscape="true"/>');
+				arr.push('Group');
+				arr.push('Last CD4');
+				arr.push('Address');
+				<openmrs:forEachDisplayAttributeType personType="patient" displayType="listing" var="attrType">
+					arr.push('<spring:message code="PersonAttributeType.${fn:replace(attrType.name, ' ', '')}" javaScriptEscape="true" text="${attrType.name}"/>');
+				</openmrs:forEachDisplayAttributeType>
+				return arr;
+			};
+
+			searchWidget.getCellFunctions = function() {
+				var arr = new Array();
+				arr.push(searchWidget.simpleClosure(searchWidget, "getNumber"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getId"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getGiven"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getMiddle"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getFamily"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getAge"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getGender"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getProgramState"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getLastObs"));
+				arr.push(searchWidget.simpleClosure(searchWidget, "getAddress"));
+				<openmrs:forEachDisplayAttributeType personType="patient" displayType="listing" var="attrType">
+					arr.push(searchWidget.simpleClosure(searchWidget, "getAttribute", "${attrType.name}"));
+				</openmrs:forEachDisplayAttributeType>
+				return arr;
+			};
 			
 			searchWidget.addPatientLink = '<a href="javascript:showCreatePatient();">Create New Patient</a>';
 			searchWidget.inputNode.select();
