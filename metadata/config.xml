@@ -6,7 +6,7 @@
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
 	<name>Simple Lab Entry</name>
-	<version>1.0</version>
+	<version>1.1</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>Michael Seaton</author>
 	<description>Lab Order and Result Entry</description>
@@ -24,7 +24,7 @@
 	<!-- Required Global Properties -->
 	<globalProperty>
 		<property>@MODULE_ID@.supportedTests</property>
-		<defaultValue>1019,657</defaultValue>
+		<defaultValue></defaultValue>
 		<description>
 			This should be a comma-separated string of Concept IDs defining the Lab Tests supported by this system.
 			These Concepts must have a ConceptClass of either LabSet or Test.  A Concept of class LabSet will support entry of all
@@ -35,17 +35,17 @@
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.labOrderType</property>
-		<defaultValue>4</defaultValue>
+		<defaultValue></defaultValue>
 		<description>This should be the OrderTypeId of the OrderType that represents a Lab Test Order</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.labTestEncounterType</property>
-		<defaultValue>9</defaultValue>
+		<defaultValue></defaultValue>
 		<description>This should be the EncounterTypeId of the EncounterType that represents a Lab Test Encounter</description>
 	</globalProperty>	
 	<globalProperty>
 		<property>@MODULE_ID@.patientIdentifierType</property>
-		<defaultValue>5</defaultValue>
+		<defaultValue></defaultValue>
 		<description>
 			This should be the PatientIdentifierTypeId for the PatientIdentifierType 
 			that will be used for listing, searching, and creating patients
@@ -53,23 +53,25 @@
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.patientHealthCenterAttributeType</property>
-		<defaultValue>7</defaultValue>
+		<defaultValue></defaultValue>
 		<description>The PersonAttributeTypeId for the PersonAttributeType representing the Patient's Health Center</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.programToDisplay</property>
-		<defaultValue>HIV PROGRAM</defaultValue>
+		<defaultValue></defaultValue>
 		<description>
 			In Patient Lists, we will display the Current State for the PatientProgram for the Program configured by this property.
-			This is used in conjunction with the "workflowToDisplay" property
+			This is used in conjunction with the "workflowToDisplay" property.  This should be the name of the program, not the id.
+			For example - "HIV PROGRAM"
 		</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.workflowToDisplay</property>
-		<defaultValue>ANTIRETROVIRAL TREATMENT GROUP</defaultValue>
+		<defaultValue></defaultValue>
 		<description>
 			In Patient Lists, we will display the Current State for the PatientProgram for the ProgramWorkflow configured by this property.
-			This is used in conjunction with the "programToDisplay" property
+			This is used in conjunction with the "programToDisplay" property.  This should be the name of the workflow, not the id.
+			For example, "ANTIRETROVIRAL TREATMENT GROUP"
 		</description>
 	</globalProperty>
 	<!-- /Required Global Properties -->

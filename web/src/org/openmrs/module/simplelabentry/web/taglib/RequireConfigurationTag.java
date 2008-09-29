@@ -49,7 +49,7 @@ public class RequireConfigurationTag extends TagSupport {
 		}
 		
 		for (GlobalProperty p : Context.getAdministrationService().getAllGlobalProperties()) {
-			if (p.getProperty().startsWith(propertyPrefix)) {
+			if (p != null && p.getProperty() != null && p.getProperty().startsWith(propertyPrefix)) {
 				if (StringUtils.isBlank(p.getPropertyValue())) {
 					if (!propsToIgnore.contains(p.getProperty())) {
 						HttpServletRequest request = (HttpServletRequest)pageContext.getRequest();

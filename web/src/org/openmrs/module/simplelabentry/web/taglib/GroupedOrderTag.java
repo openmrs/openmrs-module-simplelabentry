@@ -42,46 +42,52 @@ public class GroupedOrderTag extends TagSupport {
 	
 	public int doStartTag() {
 		
-		log.debug("In OpenOrderTag");
-		SimpleLabEntryService ls = (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
-		ORDER_STATUS status = "open".equals(limit) ? ORDER_STATUS.CURRENT : "closed".equals(limit) ? ORDER_STATUS.COMPLETE : ORDER_STATUS.NOTVOIDED;
-    	List<Order> openOrders = ls.getLabOrders(null, null, null, status, null);
-    	
-    	log.debug("Found " + openOrders.size() + " open orders.");
-    	
-    	Map<String, Integer> numVal = new HashMap<String, Integer>();
-    	Map<String, String> groupNameVal = new TreeMap<String, String>();
-    	
-    	for (Order o : openOrders) {
-    		StringBuffer groupName = new StringBuffer();
-    		groupName.append(ObjectUtils.toString(o.getEncounter().getLocation().getName(), "?") + " ");
-    		groupName.append(Context.getDateFormat().format(o.getStartDate() != null ? o.getStartDate() : o.getEncounter().getEncounterDatetime()) + " ");
-    		groupName.append(StringUtils.isBlank(o.getConcept().getName().getShortName()) ?o.getConcept().getName().getName() : o.getConcept().getName().getShortName());
-    		
-    		StringBuffer groupVal = new StringBuffer();
-    		groupVal.append(ObjectUtils.toString(o.getEncounter().getLocation().getLocationId(), "?") + ".");
-    		groupVal.append(Context.getDateFormat().format(o.getStartDate() != null ? o.getStartDate() : o.getEncounter().getEncounterDatetime()) + ".");
-    		groupVal.append(o.getConcept().getConceptId());
-    		
-    		groupNameVal.put(groupName.toString(), groupVal.toString());
-    		
-    		Integer orderCount = numVal.get(groupName.toString());
-    		if (orderCount == null) {
-    			orderCount = new Integer(0);
-    		}
-    		numVal.put(groupName.toString(), ++orderCount);
-    	}
-    	log.debug("Grouped orders = " + groupNameVal);
-		
-    	StringBuffer sb = new StringBuffer();
-    	sb.append("<select name=\"" + name + "\" " + javascript + "\">");
-		sb.append("<option value=\"\"></option>");
-		for (String name : groupNameVal.keySet()) {
-			String val = groupNameVal.get(name);
-			Integer count = numVal.get(name);
-			sb.append("<option value=\"" + val + "\"" + (val.equals(defaultValue) ? " selected" : "") + ">" + name + " (" + count + ")" + "</option>");
+		StringBuffer sb = new StringBuffer();
+		try {
+			log.debug("In OpenOrderTag");
+			SimpleLabEntryService ls = (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
+			ORDER_STATUS status = "open".equals(limit) ? ORDER_STATUS.CURRENT : "closed".equals(limit) ? ORDER_STATUS.COMPLETE : ORDER_STATUS.NOTVOIDED;
+	    	List<Order> openOrders = ls.getLabOrders(null, null, null, status, null);
+	    	
+	    	log.debug("Found " + openOrders.size() + " open orders.");
+	    	
+	    	Map<String, Integer> numVal = new HashMap<String, Integer>();
+	    	Map<String, String> groupNameVal = new TreeMap<String, String>();
+	    	
+	    	for (Order o : openOrders) {
+	    		StringBuffer groupName = new StringBuffer();
+	    		groupName.append(ObjectUtils.toString(o.getEncounter().getLocation().getName(), "?") + " ");
+	    		groupName.append(Context.getDateFormat().format(o.getStartDate() != null ? o.getStartDate() : o.getEncounter().getEncounterDatetime()) + " ");
+	    		groupName.append(StringUtils.isBlank(o.getConcept().getName().getShortName()) ?o.getConcept().getName().getName() : o.getConcept().getName().getShortName());
+	    		
+	    		StringBuffer groupVal = new StringBuffer();
+	    		groupVal.append(ObjectUtils.toString(o.getEncounter().getLocation().getLocationId(), "?") + ".");
+	    		groupVal.append(Context.getDateFormat().format(o.getStartDate() != null ? o.getStartDate() : o.getEncounter().getEncounterDatetime()) + ".");
+	    		groupVal.append(o.getConcept().getConceptId());
+	    		
+	    		groupNameVal.put(groupName.toString(), groupVal.toString());
+	    		
+	    		Integer orderCount = numVal.get(groupName.toString());
+	    		if (orderCount == null) {
+	    			orderCount = new Integer(0);
+	    		}
+	    		numVal.put(groupName.toString(), ++orderCount);
+	    	}
+	    	log.debug("Grouped orders = " + groupNameVal);
+			
+	    	sb.append("<select name=\"" + name + "\" " + javascript + "\">");
+			sb.append("<option value=\"\"></option>");
+			for (String name : groupNameVal.keySet()) {
+				String val = groupNameVal.get(name);
+				Integer count = numVal.get(name);
+				sb.append("<option value=\"" + val + "\"" + (val.equals(defaultValue) ? " selected" : "") + ">" + name + " (" + count + ")" + "</option>");
+			}
+			sb.append("</select>");
 		}
-		sb.append("</select>");
+		catch (Exception e) {
+			sb = new StringBuffer("ERROR RENDERING TAG");
+			log.error("ERROR RENDERING GroupedOrderTag", e);
+		}
 		
 		try {
 			pageContext.getOut().write(sb.toString());
@@ -89,7 +95,7 @@ public class GroupedOrderTag extends TagSupport {
 		catch (IOException e) {
 			log.error(e);
 		}
-
+		
 		return SKIP_BODY;
 	}
 
