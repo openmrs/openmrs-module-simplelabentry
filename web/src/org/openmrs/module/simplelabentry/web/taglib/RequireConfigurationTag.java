@@ -57,6 +57,7 @@ public class RequireConfigurationTag extends TagSupport {
 						pageContext.getSession().setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "All configuration parameters must be specified prior to using this module");
 						HttpServletResponse response = (HttpServletResponse)pageContext.getResponse();
 						try {
+							log.info("Configuration not complete, redirecting to page: " + request.getContextPath() + configurationPage);
 							response.sendRedirect(request.getContextPath() + configurationPage);
 							return SKIP_PAGE;
 						}
