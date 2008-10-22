@@ -1,6 +1,6 @@
 <%@ taglib prefix="simplelabentry" uri="/WEB-INF/view/module/simplelabentry/resources/simplelabentry.tld" %>
 
-<c:if test="<%= !request.getRequestURI().contains("configureProperties") %>">
+<c:if test='<%= !request.getRequestURI().contains("configureProperties") %>'>
 	<simplelabentry:requireConfiguration propertyPrefix="simplelabentry." configurationPage="/module/simplelabentry/configureProperties.htm" />
 </c:if>
 
@@ -10,22 +10,22 @@
 			<a href="index.htm" style="font-size:large; font-weight:bold; text-decoration:none;">Lab Entry System</a>
 		</li>
 		<openmrs:hasPrivilege privilege="Add Orders">
-			<li <c:if test="<%= request.getRequestURI().contains("orderEntry") %>">class="active"</c:if>>
+			<li <c:if test='<%= request.getRequestURI().contains("orderEntry") %>'>class="active"</c:if>>
 				<a href="orderEntry.htm">Enter Orders</a>
 			</li>
 		</openmrs:hasPrivilege>
-		<openmrs:hasPrivilege privilege="Edit Orders">
-			<li <c:if test="<%= request.getRequestURI().contains("resultEntry") %>">class="active"</c:if>>
+		<openmrs:hasPrivilege privilege='Edit Orders'>
+			<li <c:if test='<%= request.getRequestURI().contains("resultEntry") %>'>class="active"</c:if>>
 				<a href="resultEntry.htm">Enter Results</a>
 			</li>
 		</openmrs:hasPrivilege>
 		<openmrs:hasPrivilege privilege="Edit Orders">
-			<li <c:if test="<%= request.getRequestURI().contains("existingOrders") %>">class="active"</c:if>>
+			<li <c:if test='<%= request.getRequestURI().contains("existingOrders") %>'>class="active"</c:if>>
 				<a href="existingOrders.htm">Edit/Manage Orders and Results</a>
 			</li>
 		</openmrs:hasPrivilege>
 		<openmrs:hasPrivilege privilege="Manage Global Properties">
-			<li <c:if test="<%= request.getRequestURI().contains("configureProperties") %>">class="active"</c:if>>
+			<li <c:if test='<%= request.getRequestURI().contains("configureProperties") %>'>class="active"</c:if>>
 				<a href="configureProperties.htm">Lab Entry Configuration</a>
 			</li>
 		</openmrs:hasPrivilege>
