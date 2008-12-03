@@ -6,6 +6,8 @@
 	<simplelabentry:requireConfiguration propertyPrefix="simplelabentry." configurationPage="/module/simplelabentry/configureProperties.htm" />
 </c:if>
 
+<%@ include file="/WEB-INF/template/header.jsp"%>
+
 <div style="border-bottom: 1px solid black;">
 	<ul id="menu">
 		<li class="first">
