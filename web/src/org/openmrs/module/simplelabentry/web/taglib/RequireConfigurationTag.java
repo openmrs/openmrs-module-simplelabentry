@@ -61,6 +61,9 @@ public class RequireConfigurationTag extends TagSupport {
 							response.sendRedirect(request.getContextPath() + configurationPage);
 							return SKIP_PAGE;
 						}
+						catch (IllegalStateException ise) {
+							log.warn("Unable to forward request.  It is likely that a response was already committed.  Underlying exception: " + ise);
+						}
 						catch (IOException e) {
 							log.error("An error occurred in tag: " + e);
 							throw new JspException(e);
