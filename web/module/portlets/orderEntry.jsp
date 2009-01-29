@@ -235,7 +235,7 @@
 			$j(".orderDetailSection input[name='accessionNumber']").val(order.accessionNumber);
 			$j(".labResultDetail input[name='discontinuedDate']").val(order.discontinuedDateString);
 			for (i=0; i<order.labResults.length; i++) {
-				$j(".labResultCell input[name='resultValue."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
+				$j("[@name='resultValue."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
 			}
 			$j(".labResultSection"+order.conceptId).show();
 		});
@@ -322,7 +322,7 @@
 		var labResultMap = {};
 		$j(".labResultConcept").each( function(i) {
 			var cId = $j(this).text();
-			var resultStr = $j(".labResultCell input[name='resultValue."+cId + "']").val();
+			var resultStr = $j("[@name='resultValue."+cId + "']").val();
 			if (resultStr != null && resultStr != '') {
 				var r = new LabResultListItem();
 				r.conceptId = cId;
