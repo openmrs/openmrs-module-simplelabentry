@@ -511,7 +511,7 @@
 		<c:forEach items="${model.labOrders}" var="order" varStatus="orderStatus">
 			<c:if test="${!empty order.orderId}">
 				<tr id="viewOrderRow${order.orderId}" class="existingOrderRow">
-					<td><a href="javascript:editOrder('${order.orderId}');"><small>Edit</small></a></td>
+					<td><a href="javascript:editOrder('${order.orderId}');"><small>Enter Results</small></a></td>
 					<td><openmrs:formatDate date="${order.encounter.encounterDatetime}" /></td>
 					<td>${order.accessionNumber}</td>
 					<td>${order.patient.patientIdentifier}</td>
@@ -540,7 +540,7 @@
 						<c:choose>
 							<c:when test="${model.allowDelete == 'false'}">&nbsp;</c:when>
 							<c:when test="${model.allowDelete == 'nonResults' && !empty order.encounter.obs}">&nbsp;</c:when>
-							<c:otherwise><a href="javascript:deleteOrder('${order.orderId}', '');"><small>[X]</small></a></c:otherwise>
+							<c:otherwise><a href="javascript:deleteOrder('${order.orderId}', '');"><small>Delete</small></a></c:otherwise>
 						</c:choose>
 					</td>
 				</tr>
@@ -617,7 +617,9 @@
 		</div>
 	</div>
 	<br/>
-	<input type="button" name="SaveOrderButton" value="Save Order" onclick="saveOrder();" />
-	<input type="button" value="Cancel" onclick="clearFormFields();" />
+	<div align="center">
+		<input type="button" name="SaveOrderButton" value="Save" onclick="saveOrder();" />
+		<input type="button" value="Cancel" onclick="clearFormFields();" />
+	</div>
 	<br/>
 </div>

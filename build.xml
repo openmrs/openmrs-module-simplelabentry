@@ -6,7 +6,7 @@
 <!-- ** @version 1.0                                        ** -->
 <!-- ********************************************************* -->
 <project name="SimpleLabEntry" default="package-module">
-		
+
 	<!-- *********************************************************** -->
 	<!-- **                     TARGETS                           ** -->
 	<!-- *********************************************************** -->
@@ -21,8 +21,6 @@
 			<xmlcatalog refid="common-dtds"/>
 		</xmlproperty>
 		
-		<xmlproperty file="metadata/config.xml" />
-
 		<filterset id="variables.to.replace">
 			<filter token="MODULE_ID" value="${module.id}" />
 			<filter token="MODULE_NAME" value="${module.name}" />
@@ -38,7 +36,7 @@
 				<include name="**/*.jar"/>
 			</fileset>
 		</path>
-
+	
 	</target>
 
 	<target name="clean" description="Delete build and dist directories">
@@ -104,14 +102,14 @@
 	
 	<target name="deploy-web" depends="package-module">
 		<property environment="env"/>
-		<copy todir="/usr/emr/java/apache-tomcat-6.0.16/webapps/openmrs/WEB-INF/view/module/${module.id}">
+		<copy todir="${env.CATALINA_HOME}/webapps/openmrs/WEB-INF/view/module/${module.id}">
 			<fileset dir="web/module" includes="**/*" />
 		</copy>
 	</target>
 	
 	<target name="deploy-module" depends="package-module">
 		<property environment="env"/>
-		<copy todir="/home/mseaton/.OpenMRS/modules">
+		<copy todir="${user.home}/.OpenMRS/modules">
 			<fileset dir="dist" includes="*.omod" />
 		</copy>
 	</target>

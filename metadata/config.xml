@@ -6,7 +6,7 @@
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
 	<name>Simple Lab Entry</name>
-	<version>1.5</version>
+	<version>1.5.1</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>Michael Seaton</author>
 	<description>Lab Order and Result Entry</description>
@@ -20,6 +20,12 @@
 		<point>org.openmrs.admin.list</point>
 		<class>@MODULE_PACKAGE@.extension.html.AdminList</class>
 	</extension>
+	<extension>
+		<point>org.openmrs.gutter.tools</point>
+		<class>@MODULE_PACKAGE@.extension.html.LabGutterItem</class>
+	</extension>
+	
+	
 
 	<!-- Required Global Properties -->
 	<globalProperty>
