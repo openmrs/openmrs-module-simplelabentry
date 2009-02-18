@@ -235,7 +235,7 @@
 			$j(".orderDetailSection input[name='accessionNumber']").val(order.accessionNumber);
 			$j(".labResultDetail input[name='discontinuedDate']").val(order.discontinuedDateString);
 			for (i=0; i<order.labResults.length; i++) {
-				$j("[@name='resultValue."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
+				$j("[@name='resultValue."+order.conceptId+"."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
 			}
 			$j(".labResultSection"+order.conceptId).show();
 		});
@@ -321,8 +321,9 @@
 
 		var labResultMap = {};
 		$j(".labResultConcept").each( function(i) {
-			var cId = $j(this).text();
-			var resultStr = $j("[@name='resultValue."+cId + "']").val();
+			var cIdsToSplit = $j(this).text();
+			var cId = cIdsToSplit.split(".",2)[1];
+			var resultStr = $j("[@name='resultValue."+cIdsToSplit + "']").val();
 			if (resultStr != null && resultStr != '') {
 				var r = new LabResultListItem();
 				r.conceptId = cId;
@@ -376,6 +377,7 @@
 <style>
 	th,td {text-align:left; padding-left:10px; padding-right:10px;}
 	.searchSection {padding:5px; border: 1px solid grey; background-color: whitesmoke;}
+	.labResultCell {white-space:nowrap;}
 </style>
 
 <c:if test="${model.allowAdd == 'true'}">
@@ -596,15 +598,15 @@
 							<c:when test="${labConcept.set}">
 								<openmrs:forEachRecord name="conceptSet" conceptSet="${labConcept.conceptId}">
 									<td class="labResultTemplateCell">
-										<span class="labResultTemplateConcept" style="display:none;">${record.conceptId}</span>
-										<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${record.conceptId}" size="5" />
+										<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${record.conceptId}</span>
+										<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${record.conceptId}" size="5" />
 									</td>
 								</openmrs:forEachRecord>
 							</c:when>
 							<c:otherwise>
 								<td class="labResultTemplateCell">
-									<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}</span>
-									<openmrs_tag:obsValueField conceptId="${labConcept.conceptId}" formFieldName="resultValue.${labConcept.conceptId}" size="5" />
+									<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${labConcept.conceptId}</span>
+									<openmrs_tag:obsValueField conceptId="${labConcept.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${labConcept.conceptId}" size="5" />
 								</td>
 							</c:otherwise>
 						</c:choose>
