@@ -5,17 +5,69 @@
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 <br/>
 <div>
-	<form action="orderEntry.htm" method="get">
-		<b>Choose what Orders you want to enter:</b>
-		<spring:message code="simplelabentry.orderLocation" />: 
-		<openmrs_tag:locationField formFieldName="orderLocation" initialValue="${param.orderLocation}"/>
-		<spring:message code="simplelabentry.orderType" />:
-		<simplelabentry:orderConceptTag name="orderConcept" defaultValue="${param.orderConcept}" javascript="" />
-		<spring:message code="simplelabentry.orderDate" />: 
-		<input type="text" name="orderDate" size="10" value="${param.orderDate}" onFocus="showCalendar(this)" />
-		<input type="submit" value="<spring:message code="general.submit" />" />
-	</form>
-	<br/><hr/><br/>
+	<c:set var="selectedAllFields">
+		${param.orderLocation!=null && param.orderConcept!=null && param.orderDate!=null}
+	</c:set>
+		
+	<b class="boxHeader">Step 1.  Choose what orders you want to enter:</b>
+	<div class="box" >
+	
+		<div align="center">
+		<c:choose>		
+			<!-- If all fields are not selected, display them as editable -->
+			<c:when test="${!selectedAllFields}">
+				<form action="orderEntry.htm" method="get">
+				
+						<spring:message code="simplelabentry.orderLocation" />: 
+						<openmrs_tag:locationField formFieldName="orderLocation" 
+							initialValue="${param.orderLocation}"/>
+
+						<spring:message code="simplelabentry.orderType" />:
+						<simplelabentry:orderConceptTag name="orderConcept" 
+							defaultValue="${param.orderConcept}" 
+							javascript="" 
+							disabled="false"/>
+
+						<spring:message code="simplelabentry.orderDate" />: 
+						<input type="text" name="orderDate" size="10" value="${param.orderDate}" onFocus="showCalendar(this)" />
+
+					<input type="submit" value="<spring:message code="general.submit" />"/>
+					
+				</form>				
+			</c:when>
+			<!-- Otherwise, display fields as readonly so we don't confuse the user -->
+			<c:otherwise>
+				<spring:message code="simplelabentry.orderLocation" />: 
+
+				<select name="orderLocation" id="orderLocation" disabled>
+					<openmrs:forEachRecord name="location">
+						<option value="${record.locationId}" 
+							<c:if test="${record.locationId == param.orderLocation}">selected</c:if>>${record.name}
+						</option>
+					</openmrs:forEachRecord>
+				</select>
+				
+				<spring:message code="simplelabentry.orderType" />:
+				<simplelabentry:orderConceptTag name="orderConcept" 
+							defaultValue="${param.orderConcept}" 
+							javascript=""
+							disabled="true" />
+				
+				<spring:message code="simplelabentry.orderDate" />: 
+				<input type="text" name="orderDate" size="10" value="${param.orderDate}" disabled onFocus="showCalendar(this)" />				
+
+				<input type="submit" value="<spring:message code="general.submit" />" disabled/>
+								
+				<a href="orderEntry.htm">New Order Sheet</a>
+				
+				
+			</c:otherwise>
+		</c:choose>
+		</div>
+	</div>
+
+	<br/>
+	
 	<c:if test="${!empty param.orderLocation && !empty param.orderConcept && !empty param.orderDate }">
 		<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="allowAdd=true|allowDelete=nonResults|orderLocation=${param.orderLocation}|orderConcept=${param.orderConcept}|orderDate=${param.orderDate}" />
 	</c:if>

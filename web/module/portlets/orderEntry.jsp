@@ -380,10 +380,11 @@
 	.labResultCell {white-space:nowrap;}
 </style>
 
+
+<b class="boxHeader">Step 2.  Manage orders / results</b>
+<div style="align:left;" class="box" >	
+
 <c:if test="${model.allowAdd == 'true'}">
-	<b class="boxHeader">Add New Order</b>
-	<div style="align:left;" class="box" >
-	
 		Enter IMB ID: 
 		<input type="text" id="patientIdentifier" class="orderField" name="patientIdentifier" />
 		<input type="button" value="Search" id="SearchByIdButton" onclick="matchPatientById('${patientIdType}',$('patientIdentifier').value);" />
@@ -399,7 +400,7 @@
 			<table id="matchedPatientTable">
 				<tr>
 					<th>IMB ID</th>
-					<th>Name / Surname</th>
+					<th>Given Name / Family Name</th>
 					<th>Group</th>
 					<th>Sex</th>
 					<th>Age</th>
@@ -481,147 +482,148 @@
 					</td>
 				</tr>
 			</table>
-		</div>
-	</div>
-</c:if>
-
-<b class="boxHeader">
-	<c:choose>
-		<c:when test="${model.limit=='open'}">Open Orders</c:when>
-		<c:when test="${model.limit=='closed'}">Closed Orders</c:when>
-		<c:otherwise>All Orders</c:otherwise>
-	</c:choose>
-</b>
-<div class="box">
-	<table style="width:100%;">
-		<tr style="background-color:#CCCCCC;">
-			<th></th>
-			<th>Date</th>
-			<th>Lab ID</th>
-			<th>IMB ID</th>
-			<th>Name / Surname</th>
-			<th>Sex</th>
-			<th>Age</th>
-			<th>Group</th>
-			<th>District</th>
-			<th>Sector</th>
-			<th>Cellule</th>
-			<th>Umudugudu</th>
-			<th></th>
-		</tr>
-		<c:if test="${fn:length(model.labOrders) == 0}"><tr><td>No Orders</td></tr></c:if>
-		<c:forEach items="${model.labOrders}" var="order" varStatus="orderStatus">
-			<c:if test="${!empty order.orderId}">
-				<tr id="viewOrderRow${order.orderId}" class="existingOrderRow">
-					<td><a href="javascript:editOrder('${order.orderId}');"><small>Enter Results</small></a></td>
-					<td><openmrs:formatDate date="${order.encounter.encounterDatetime}" /></td>
-					<td>${order.accessionNumber}</td>
-					<td>${order.patient.patientIdentifier}</td>
-					<td>
-						<a href="${pageContext.request.contextPath}/admin/patients/newPatient.form?patientId=${order.patient.patientId}">
-							${order.patient.personName.givenName} ${order.patient.personName.familyName}
-						</a>
-					</td>
-					<td>${order.patient.gender}</td>
-					<td>${order.patient.age}</td>
-					<td>
-						<simplelabentry:patientProgram programInput="${programToDisplay}" workflowInput="${workflowToDisplay}" patientId="${order.patient.patientId}" programVar="p" workflowVar="w" patientProgramVar="pp" currentStateVar="currentState">
-							${currentState == null ? "" : currentState.state.concept.name.name}
-						</simplelabentry:patientProgram>
-					</td>
-					<c:choose>
-						<c:when test="${!empty order.patient.personAddress}">
-							<td>${order.patient.personAddress.countyDistrict}</td>
-							<td>${order.patient.personAddress.cityVillage}</td>
-							<td>${order.patient.personAddress.neighborhoodCell}</td>
-							<td>${order.patient.personAddress.address1}</td>
-						</c:when>
-						<c:otherwise><td colspan=4">&nbsp;</td></c:otherwise>
-					</c:choose>
-					<td align="right">
+		</div>		
+	</c:if>
+	
+	<div>
+		<b>
+			<c:choose>
+				<c:when test="${model.limit=='open'}">Open Orders</c:when>
+				<c:when test="${model.limit=='closed'}">Closed Orders</c:when>
+				<c:otherwise>All Orders</c:otherwise>
+			</c:choose>
+		</b>
+		<table style="width:100%;">
+			<tr style="background-color:#CCCCCC;">
+				<th></th>
+				<th>Date</th>
+				<th>Lab ID</th>
+				<th>IMB ID</th>
+				<th>Given Name / Family Name</th>
+				<th>Sex</th>
+				<th>Age</th>
+				<th>Group</th>
+				<th>District</th>
+				<th>Sector</th>
+				<th>Cellule</th>
+				<th>Umudugudu</th>
+				<th></th>
+			</tr>
+			<c:if test="${fn:length(model.labOrders) == 0}"><tr><td>No Orders</td></tr></c:if>
+			<c:forEach items="${model.labOrders}" var="order" varStatus="orderStatus">
+				<c:if test="${!empty order.orderId}">
+					<tr id="viewOrderRow${order.orderId}" class="existingOrderRow">
+						<td><a href="javascript:editOrder('${order.orderId}');"><small>Enter Results</small></a></td>
+						<td><openmrs:formatDate date="${order.encounter.encounterDatetime}" /></td>
+						<td>${order.accessionNumber}</td>
+						<td>${order.patient.patientIdentifier}</td>
+						<td>
+							<a href="${pageContext.request.contextPath}/admin/patients/newPatient.form?patientId=${order.patient.patientId}">
+								${order.patient.personName.givenName} ${order.patient.personName.familyName}
+							</a>
+						</td>
+						<td>${order.patient.gender}</td>
+						<td>${order.patient.age}</td>
+						<td>
+							<simplelabentry:patientProgram programInput="${programToDisplay}" workflowInput="${workflowToDisplay}" patientId="${order.patient.patientId}" programVar="p" workflowVar="w" patientProgramVar="pp" currentStateVar="currentState">
+								${currentState == null ? "" : currentState.state.concept.name.name}
+							</simplelabentry:patientProgram>
+						</td>
 						<c:choose>
-							<c:when test="${model.allowDelete == 'false'}">&nbsp;</c:when>
-							<c:when test="${model.allowDelete == 'nonResults' && !empty order.encounter.obs}">&nbsp;</c:when>
-							<c:otherwise><a href="javascript:deleteOrder('${order.orderId}', '');"><small>Delete</small></a></c:otherwise>
-						</c:choose>
-					</td>
-				</tr>
-				<tr><td colspan="12" class="editOrderRow" style="display:none; background-color:#CCCCCC; border:2px solid blue;" id="editOrderRow${order.orderId}"></td></tr>
-			</c:if>
-		</c:forEach>
-	</table>
-</div>
-
-<div class="orderDetailTemplate" style="display:none;">
-	<b>Order Details</b>
-	<input type="hidden" name="orderId" value="" />
-	<table>
-		<tr>
-			<th>Lab ID:</th>
-			<td><input type="text" class="accessionNumber" name="accessionNumber" /></td>
-			<th><spring:message code="simplelabentry.orderLocation" />:</td>
-			<td><openmrs_tag:locationField formFieldName="location" /></td>
-			<th><spring:message code="simplelabentry.orderType" />:</td>
-			<td>
-				<select name="concept">
-					<option value=""></option>
-					<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
-						<option value="${labConcept.conceptId}">${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}</option>
-					</c:forEach>
-				</select>
-			</td>
-			<th><spring:message code="simplelabentry.orderDate" />: </td>
-			<td><input type="text" name="startDate" size="10" onFocus="showCalendar(this)" /></td>
-		</tr>
-	</table>	
-	<br/>
-	<div class="labResultSection" style="display:none;">
-		<b style="padding-bottom:10px;">Results</b>
-
-		<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
-			<div class="labResultSection${labConcept.conceptId}" style="display:none;">
-				<table>
-					<tr>
-						<c:choose>
-							<c:when test="${labConcept.set}">
-								<openmrs:forEachRecord name="conceptSet" conceptSet="${labConcept.conceptId}">
-									<th>${empty record.name.shortName ? record.name.name : record.name.shortName}</th>
-								</openmrs:forEachRecord>
+							<c:when test="${!empty order.patient.personAddress}">
+								<td>${order.patient.personAddress.countyDistrict}</td>
+								<td>${order.patient.personAddress.cityVillage}</td>
+								<td>${order.patient.personAddress.neighborhoodCell}</td>
+								<td>${order.patient.personAddress.address1}</td>
 							</c:when>
-							<c:otherwise>
-								${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}
-							</c:otherwise>
+							<c:otherwise><td colspan=4">&nbsp;</td></c:otherwise>
 						</c:choose>
+						<td align="right">
+							<c:choose>
+								<c:when test="${model.allowDelete == 'false'}">&nbsp;</c:when>
+								<c:when test="${model.allowDelete == 'nonResults' && !empty order.encounter.obs}">&nbsp;</c:when>
+								<c:otherwise><a href="javascript:deleteOrder('${order.orderId}', '');"><small>Delete</small></a></c:otherwise>
+							</c:choose>
+						</td>
 					</tr>
-					<tr>
-						<c:choose>
-							<c:when test="${labConcept.set}">
-								<openmrs:forEachRecord name="conceptSet" conceptSet="${labConcept.conceptId}">
+					<tr><td colspan="12" class="editOrderRow" style="display:none; background-color:#CCCCCC; border:2px solid blue;" id="editOrderRow${order.orderId}"></td></tr>
+				</c:if>
+			</c:forEach>
+		</table>
+	</div>
+	
+	<div class="orderDetailTemplate" style="display:none;">
+		<b>Order Details</b>
+		<input type="hidden" name="orderId" value="" />
+		<table>
+			<tr>
+				<th>Lab ID:</th>
+				<td><input type="text" class="accessionNumber" name="accessionNumber" /></td>
+				<th><spring:message code="simplelabentry.orderLocation" />:</td>
+				<td><openmrs_tag:locationField formFieldName="location" /></td>
+				<th><spring:message code="simplelabentry.orderType" />:</td>
+				<td>
+					<select name="concept">
+						<option value=""></option>
+						<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
+							<option value="${labConcept.conceptId}">${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}</option>
+						</c:forEach>
+					</select>
+				</td>
+				<th><spring:message code="simplelabentry.orderDate" />: </td>
+				<td><input type="text" name="startDate" size="10" onFocus="showCalendar(this)" /></td>
+			</tr>
+		</table>	
+		<br/>
+		<div class="labResultSection" style="display:none;">
+			<b style="padding-bottom:10px;">Results</b>
+	
+			<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
+				<div class="labResultSection${labConcept.conceptId}" style="display:none;">
+					<table>
+						<tr>
+							<c:choose>
+								<c:when test="${labConcept.set}">
+									<openmrs:forEachRecord name="conceptSet" conceptSet="${labConcept.conceptId}">
+										<th>${empty record.name.shortName ? record.name.name : record.name.shortName}</th>
+									</openmrs:forEachRecord>
+								</c:when>
+								<c:otherwise>
+									${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}
+								</c:otherwise>
+							</c:choose>
+						</tr>
+						<tr>
+							<c:choose>
+								<c:when test="${labConcept.set}">
+									<openmrs:forEachRecord name="conceptSet" conceptSet="${labConcept.conceptId}">
+										<td class="labResultTemplateCell">
+											<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${record.conceptId}</span>
+											<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${record.conceptId}" size="5" />
+										</td>
+									</openmrs:forEachRecord>
+								</c:when>
+								<c:otherwise>
 									<td class="labResultTemplateCell">
-										<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${record.conceptId}</span>
-										<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${record.conceptId}" size="5" />
+										<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${labConcept.conceptId}</span>
+										<openmrs_tag:obsValueField conceptId="${labConcept.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${labConcept.conceptId}" size="5" />
 									</td>
-								</openmrs:forEachRecord>
-							</c:when>
-							<c:otherwise>
-								<td class="labResultTemplateCell">
-									<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${labConcept.conceptId}</span>
-									<openmrs_tag:obsValueField conceptId="${labConcept.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${labConcept.conceptId}" size="5" />
-								</td>
-							</c:otherwise>
-						</c:choose>
-					</tr>
-				</table>
+								</c:otherwise>
+							</c:choose>
+						</tr>
+					</table>
+				</div>
+			</c:forEach>
+	 		<div class="labResultDetailTemplate">
+				<b style="padding-left:10px;">Date of Result:</b> <input type="text" name="discontinuedDate" size="10" onFocus="showCalendar(this);" />
 			</div>
-		</c:forEach>
- 		<div class="labResultDetailTemplate">
-			<b style="padding-left:10px;">Date of Result:</b> <input type="text" name="discontinuedDate" size="10" onFocus="showCalendar(this);" />
 		</div>
+		<br/>
+		<div align="center">
+			<input type="button" name="SaveOrderButton" value="Save" onclick="saveOrder();" />
+			<input type="button" value="Cancel" onclick="clearFormFields();" />
+		</div>
+		<br/>
 	</div>
-	<br/>
-	<div align="center">
-		<input type="button" name="SaveOrderButton" value="Save" onclick="saveOrder();" />
-		<input type="button" value="Cancel" onclick="clearFormFields();" />
-	</div>
-	<br/>
 </div>
+

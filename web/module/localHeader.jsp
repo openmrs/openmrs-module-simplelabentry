@@ -15,7 +15,7 @@
 		</li>
 		<openmrs:hasPrivilege privilege="Add Orders">
 			<li <c:if test='<%= request.getRequestURI().contains("orderEntry") %>'>class="active"</c:if>>
-				<a href="orderEntry.htm">Enter Orders</a>
+				<a href="orderEntry.htm">Add Orders</a>
 			</li>
 		</openmrs:hasPrivilege>
 		<openmrs:hasPrivilege privilege='Edit Orders'>
@@ -25,7 +25,7 @@
 		</openmrs:hasPrivilege>
 		<openmrs:hasPrivilege privilege="Edit Orders">
 			<li <c:if test='<%= request.getRequestURI().contains("existingOrders") %>'>class="active"</c:if>>
-				<a href="existingOrders.htm">Edit/Manage Orders and Results</a>
+				<a href="existingOrders.htm">Manage Orders / Results</a>
 			</li>
 		</openmrs:hasPrivilege>
 		<openmrs:hasPrivilege privilege="Manage Global Properties">

@@ -31,6 +31,7 @@ public class OrderConceptTag extends TagSupport {
 	private String name;
 	private String defaultValue;
 	private String javascript;
+	private Boolean disabled = false;
 	
 	public int doStartTag() {
 		
@@ -40,7 +41,7 @@ public class OrderConceptTag extends TagSupport {
     	log.debug("Found " + concepts.size() + " supported concepts.");
 		
     	StringBuffer sb = new StringBuffer();
-    	sb.append("<select name=\"" + name + "\" " + javascript + "\">");
+    	sb.append("<select " + (disabled?"disabled":"") + " name=\"" + name + "\" " + javascript + "\">");
 		sb.append("<option value=\"\"></option>");
 		for (Concept c : concepts) {
 			sb.append("<option value=\"" + c.getConceptId() + "\"" + (c.getConceptId().toString().equals(defaultValue) ? " selected" : "") + ">");
@@ -65,6 +66,15 @@ public class OrderConceptTag extends TagSupport {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Boolean getDisabled() {
+		return (disabled != null) ? disabled : false;
+	}
+
+	public void setDisabled(Boolean disabled) {
+		log.info("Set Disabled: " + disabled);
+		this.disabled = disabled;
 	}
 	
 	public String getDefaultValue() {
