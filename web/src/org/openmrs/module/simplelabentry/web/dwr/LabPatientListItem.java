@@ -26,6 +26,7 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
 import org.openmrs.PersonAddress;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
@@ -98,7 +99,13 @@ public class LabPatientListItem extends PatientListItem {
 			if (workflow != null) {
 				List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false);
 				if (!patientPrograms.isEmpty()) {
-					programState = patientPrograms.get(0).getCurrentState(workflow).getState().getConcept().getName().getName();
+					PatientProgram prog = patientPrograms.get(0);
+					if (prog != null) {
+						PatientState state = prog.getCurrentState(workflow);
+						if (state != null && state.getState() != null) {
+							programState = state.getState().getConcept().getName().getName();
+						}
+					}
 				}
 			}
 			
