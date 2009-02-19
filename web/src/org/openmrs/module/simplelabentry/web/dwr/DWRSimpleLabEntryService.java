@@ -1,6 +1,7 @@
 package org.openmrs.module.simplelabentry.web.dwr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -30,6 +31,7 @@ import org.openmrs.User;
 import org.openmrs.api.PatientIdentifierException;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.simplelabentry.SimpleLabEntryService;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.validator.PatientIdentifierValidator;
 import org.openmrs.web.dwr.DWRPatientService;
@@ -537,6 +539,15 @@ public class DWRSimpleLabEntryService {
 		}
 		if (!hasLabResults && discontinuedDate != null) {
 			errors.add("You cannot enter a result date if no results have been entered.");
+		}
+		
+		// Ensure duplicate orders are not placed
+		SimpleLabEntryService ls = (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
+		List<Order> existingOrders = ls.getLabOrders(orderConcept, orderLocation, orderDate, null, Arrays.asList(patient));
+		for (Order o : existingOrders) {
+			if (StringUtils.equalsIgnoreCase(o.getAccessionNumber(), accessionNumber)) {
+				errors.add("You cannot enter an order that matches an existing order.");
+			}
 		}
 		
 		if (!errors.isEmpty()) {
