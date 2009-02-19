@@ -545,7 +545,7 @@ public class DWRSimpleLabEntryService {
 		SimpleLabEntryService ls = (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
 		List<Order> existingOrders = ls.getLabOrders(orderConcept, orderLocation, orderDate, null, Arrays.asList(patient));
 		for (Order o : existingOrders) {
-			if (StringUtils.equalsIgnoreCase(o.getAccessionNumber(), accessionNumber)) {
+			if (orderId == null && StringUtils.equalsIgnoreCase(o.getAccessionNumber(), accessionNumber)) {
 				errors.add("You cannot enter an order that matches an existing order.");
 			}
 		}
