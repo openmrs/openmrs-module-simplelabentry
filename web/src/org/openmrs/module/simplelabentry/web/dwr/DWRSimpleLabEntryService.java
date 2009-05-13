@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -377,23 +378,23 @@ public class DWRSimpleLabEntryService {
 	}
 	
 	/**
-	 * Saves a Lab Order given the passed parameters
+	 * Saves a set of Lab Order given the passed parameters
 	 * @param orderId  The orderId of the order you wish to save
 	 * @param patientId  The patientId of the order you wish to save
-	 * @param orderConceptStr  A String containing the Concept ID for the Order
+	 * @param orderConceptIds  Concept IDs for the Order
 	 * @param orderLocationStr  A String containing the Location ID for the Order
 	 * @param orderDateStr  A String containing the Order Start Date
 	 * @param accessionNumber  The accession number for the Order
 	 * @param discontinuedDateStr - A String containing the Order Discontinued Date
 	 * @param labResults - Map<String, LabResultListItem> containing a Map of concept string to LabResultListItem to save
 	 * 
-	 * @return LabOrderListItem - The saved LabOrder
+	 * @return List<LabOrderListItem> - The saved LabOrders
 	 */
-	public LabOrderListItem saveLabOrder(Integer orderId, Integer patientId, String orderConceptStr, String orderLocationStr, String orderDateStr, String accessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults) {
+	public List<LabOrderListItem> saveLabOrders(Integer orderId, Integer patientId, List<Integer> orderConceptIds, String orderLocationStr, String orderDateStr, String accessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults) {
 		
-		log.debug("Saving LabOrder with params: " + orderId + ", " + patientId + ", " + orderConceptStr + ", " + orderLocationStr + ", " + orderDateStr + ", " + accessionNumber + ", " + discontinuedDateStr + ", " + labResults);
+		log.debug("Saving LabOrder with params: " + orderId + ", " + patientId + ", " + orderConceptIds + ", " + orderLocationStr + ", " + orderDateStr + ", " + accessionNumber + ", " + discontinuedDateStr + ", " + labResults);
 		Patient patient = null;
-		Concept orderConcept = null;
+		Map<Integer, Concept> orderConceptMap = null;
 		Location orderLocation = null;
 		Date orderDate = null;
 		EncounterType encounterType = null;
@@ -405,14 +406,21 @@ public class DWRSimpleLabEntryService {
 		
 		// Validate input
 		
-		if (orderConceptStr == null || "".equals(orderConceptStr)) { 
+		if (orderConceptIds == null || orderConceptIds.isEmpty()) { 
 			errors.add("Order Type Concept is required");
 		}
 		else {
 			try {
-				orderConcept = Context.getConceptService().getConcept(Integer.valueOf(orderConceptStr));
-				if (orderConcept == null) {
-					errors.add("Order Type Concept was not found.");
+				orderConceptMap = new HashMap<Integer, Concept>(orderConceptIds.size());
+
+				for (Integer orderConceptId : orderConceptIds) {
+					Concept orderConcept = Context.getConceptService().getConcept(Integer.valueOf(orderConceptId));
+					if (orderConcept == null) {
+						errors.add("Order Type Concept was not found.");
+					}
+					else {
+						orderConceptMap.put(orderConceptId, orderConcept);
+					}
 				}
 			}
 			catch (Exception e) {
@@ -543,10 +551,12 @@ public class DWRSimpleLabEntryService {
 		
 		// Ensure duplicate orders are not placed
 		SimpleLabEntryService ls = (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
-		List<Order> existingOrders = ls.getLabOrders(orderConcept, orderLocation, orderDate, null, Arrays.asList(patient));
-		for (Order o : existingOrders) {
-			if (!o.getOrderId().equals(orderId) && StringUtils.equalsIgnoreCase(o.getAccessionNumber(), accessionNumber)) {
-				errors.add("You cannot enter an order that matches an existing order.");
+		for (Concept orderConcept : orderConceptMap.values()) {
+			List<Order> existingOrders = ls.getLabOrders(orderConcept, orderLocation, orderDate, null, Arrays.asList(patient));
+			for (Order o : existingOrders) {
+				if (!o.getOrderId().equals(orderId) && StringUtils.equalsIgnoreCase(o.getAccessionNumber(), accessionNumber)) {
+					errors.add("You cannot enter an order that matches an existing order.");
+				}
 			}
 		}
 		
@@ -563,94 +573,107 @@ public class DWRSimpleLabEntryService {
 		
 		User user = Context.getAuthenticatedUser();
 		Date now = new Date();
+		List<LabOrderListItem> labOrderListItems = new ArrayList<LabOrderListItem>();
 
-		// Create or Load existing Encounter and Order
-		Order o = null;
-		if (orderId == null) {
-			o = new Order();
-			o.setPatient(patient);
-			o.setOrderer(user);  // TODO: Is this what we want?
-			o.setCreator(user);
-			o.setDateCreated(now);
+		// Use one Encoutner for all the newly created orders.
+		Encounter e = null;
+		for (Concept orderConcept : orderConceptMap.values()) {
+			// Create or Load existing Encounter and Order
+			Order o = null;
+			if (orderId == null) {
+				o = new Order();
+				o.setPatient(patient);
+				o.setOrderer(user);  // TODO: Is this what we want?
+				o.setCreator(user);
+				o.setDateCreated(now);
+				
+				if(e == null) {
+					e = new Encounter();
+					e.setEncounterType(encounterType);
+					e.setPatient(patient);
+					e.setDateCreated(now);
+					e.setCreator(user);
+					e.setProvider(user); // TODO: Is this what we want to do here?
+				}
+				
+				o.setEncounter(e);
+				e.addOrder(o);
+			}
+			else {
+				o = Context.getOrderService().getOrder(orderId);
+			}
 			
-			Encounter e = new Encounter();
-			e.setEncounterType(encounterType);
-			e.setPatient(patient);
-			e.setDateCreated(now);
-			e.setCreator(user);
-			e.setProvider(user); // TODO: Is this what we want to do here?
+			e = o.getEncounter();
+			e.setEncounterDatetime(orderDate);
+			e.setLocation(orderLocation);
 			
-			o.setEncounter(e);
-			e.addOrder(o);
-		}
-		else {
-			o = Context.getOrderService().getOrder(orderId);
-		}
-		
-		Encounter e = o.getEncounter();
-		e.setEncounterDatetime(orderDate);
-		e.setLocation(orderLocation);
-		
-		o.setOrderType(orderType);
-		o.setConcept(orderConcept);
-		o.setAccessionNumber(accessionNumber);
-		o.setStartDate(orderDate); // TODO: Confirm this
-		o.setDiscontinuedDate(discontinuedDate);
-		if (discontinuedDate != null) {
-			o.setDiscontinued(true);
-			o.setDiscontinuedBy(user);
-		}
-		else {
-			o.setDiscontinued(false);
-			o.setDiscontinuedBy(null);
-		}
-		
-		// Lab Results
-		for (String resultConcept : labResults.keySet()) {
-			LabResultListItem rli = labResults.get(resultConcept);
-			boolean needToAdd = true;
-			for (Obs obs : e.getObs()) {
-				if (obs.getConcept().getConceptId().toString().equals(resultConcept)) {
-					String previousResult = LabResultListItem.getValueStringFromObs(obs);
-					if (previousResult != null && previousResult.equals(rli.getResult())) {
-						log.debug("Concept: " + obs.getConcept().getName() + ", value: " + rli.getResult() + " has not changed.");
-						needToAdd = false;
-					}
-					else {
-						log.debug("Concept: " + obs.getConcept().getName() + " has changed value from: " + previousResult + " to: " + rli.getResult());
-						obs.setVoided(true);
-						obs.setVoidedBy(user);
+			o.setOrderType(orderType);
+			o.setConcept(orderConcept);
+			o.setAccessionNumber(accessionNumber);
+			o.setStartDate(orderDate); // TODO: Confirm this
+			o.setDiscontinuedDate(discontinuedDate);
+			if (discontinuedDate != null) {
+				o.setDiscontinued(true);
+				o.setDiscontinuedBy(user);
+			}
+			else {
+				o.setDiscontinued(false);
+				o.setDiscontinuedBy(null);
+			}
+			
+			// Lab Results
+			for (String resultConcept : labResults.keySet()) {
+				LabResultListItem rli = labResults.get(resultConcept);
+				boolean needToAdd = true;
+				for (Obs obs : e.getObs()) {
+					if (obs.getConcept().getConceptId().toString().equals(resultConcept)) {
+						String previousResult = LabResultListItem.getValueStringFromObs(obs);
+						if (previousResult != null && previousResult.equals(rli.getResult())) {
+							log.debug("Concept: " + obs.getConcept().getName() + ", value: " + rli.getResult() + " has not changed.");
+							needToAdd = false;
+						}
+						else {
+							log.debug("Concept: " + obs.getConcept().getName() + " has changed value from: " + previousResult + " to: " + rli.getResult());
+							obs.setVoided(true);
+							obs.setVoidedBy(user);
+						}
 					}
 				}
+				if (needToAdd) {
+					Obs newObs = new Obs();
+					newObs.setConcept(Context.getConceptService().getConcept(Integer.parseInt(resultConcept)));
+					newObs.setEncounter(e);
+					newObs.setObsDatetime(e.getEncounterDatetime());
+					newObs.setOrder(o);
+					newObs.setPerson(e.getPatient());
+					LabResultListItem.setObsFromValueString(newObs, rli.getResult());
+					newObs.setAccessionNumber(accessionNumber);
+					newObs.setCreator(user);
+					newObs.setDateCreated(now);
+					e.addObs(newObs);
+					log.debug("Added obs: " + newObs);
+				}
 			}
-			if (needToAdd) {
-				Obs newObs = new Obs();
-				newObs.setConcept(Context.getConceptService().getConcept(Integer.parseInt(resultConcept)));
-				newObs.setEncounter(e);
-				newObs.setObsDatetime(e.getEncounterDatetime());
-				newObs.setOrder(o);
-				newObs.setPerson(e.getPatient());
-				LabResultListItem.setObsFromValueString(newObs, rli.getResult());
-				newObs.setAccessionNumber(accessionNumber);
-				newObs.setCreator(user);
-				newObs.setDateCreated(now);
-				e.addObs(newObs);
-				log.debug("Added obs: " + newObs);
-			}
+	
+			labOrderListItems.add(new LabOrderListItem(o));
 		}
-
 		Context.getEncounterService().saveEncounter(e);
-		return new LabOrderListItem(o);
+		return labOrderListItems;
 	}
 	
 	/**
-	 * Voids a LabOrder and related Encounter given a passed Order ID and reason
+	 * Voids a LabOrder and related Encounter if it has no orders given a 
+	 * passed Order ID and reason.
 	 * @param orderId  The orderId of the order you wish to void
 	 * @param reason  The reason why the order is being voided
 	 * @return LabOrderListItem
 	 */
 	public void deleteLabOrderAndEncounter(String orderId, String reason) {
 		Order o = Context.getOrderService().getOrder(Integer.valueOf(orderId));
-		Context.getEncounterService().voidEncounter(o.getEncounter(), reason);
+		boolean voidContext = o.getEncounter().getOrders().size() <= 1;
+		
+		Context.getOrderService().voidOrder(o, reason);
+		if(voidContext)
+			Context.getEncounterService().voidEncounter(o.getEncounter(), reason);
 	}
 }

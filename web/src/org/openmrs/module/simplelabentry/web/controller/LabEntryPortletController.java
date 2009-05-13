@@ -43,6 +43,9 @@ public class LabEntryPortletController extends PortletController {
 	    	orderLocationId = split.length >= 1 ? split[0] : "";
 	    	orderDateStr = split.length >= 2 ? split[1] : "";
 	    	orderSetConceptId = split.length >= 3 ? split[2] : "";
+	    	
+	    	// Make sure the concept ID is set in the model.  Used by orderEntry.jsp to set the right checkbox
+			model.put("groupConceptId", orderSetConceptId);	    	
     	}
 		
 		String limit = (String)model.get("limit");

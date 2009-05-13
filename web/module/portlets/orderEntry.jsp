@@ -189,18 +189,22 @@
 	}
 	
 	function enableDisableOrderFields() {
-		<c:choose>
-			<c:when test="${model.allowCategoryEdit == 'false'}">
-				$j(".orderDetailSection input[name='startDate']").attr("disabled","true").css("color","blue");
-				$j(".orderDetailSection select[name='location']").attr("disabled","true").css("color","blue");
-				$j(".orderDetailSection select[name='concept']").attr("disabled","true").css("color","blue");
-			</c:when>
-			<c:otherwise>
-				$j(".orderDetailSection input[name='startDate']").removeAttr("disabled").css("color","black");
-				$j(".orderDetailSection select[name='location']").removeAttr("disabled").css("color","black");
-				$j(".orderDetailSection select[name='concept']").removeAttr("disabled").css("color","black");
-			</c:otherwise>
-		</c:choose>
+		// Start date and location are never editable
+		$j(".orderDetailSection input[name='startDate']").attr("disabled","true").css("color","blue");
+		$j(".orderDetailSection select[name='location']").attr("disabled","true").css("color","blue");
+		
+//		<c:choose>
+//			<c:when test="${model.allowCategoryEdit == 'false'}">
+//				$j(".orderDetailSection input[name='startDate']").attr("disabled","true").css("color","blue");
+//				$j(".orderDetailSection select[name='location']").attr("disabled","true").css("color","blue");
+//				$j(".orderDetailSection select[name='concept']").attr("disabled","true").css("color","blue");
+//			</c:when>
+//			<c:otherwise>
+//				$j(".orderDetailSection input[name='startDate']").removeAttr("disabled").css("color","black");
+//				$j(".orderDetailSection select[name='location']").removeAttr("disabled").css("color","black");
+//				$j(".orderDetailSection select[name='concept']").removeAttr("disabled").css("color","black");
+//			</c:otherwise>
+//		</c:choose>
 	}
 
 	function showNewOrder() {
@@ -314,11 +318,24 @@
 	function saveOrder(orderId) {
 
 		var orderLoc = $j(".orderDetailSection select[name='location']").val();
-		var orderConcept = $j(".orderDetailSection select[name='concept']").val();
 		var orderDate = $j(".orderDetailSection input[name='startDate']").val();
 		var accessionNum = $j(".orderDetailSection input[name='accessionNumber']").val();
 		var discontinuedDate = $j(".labResultDetail input[name='discontinuedDate']").val();
+		var orderConceptIds = [];
 
+		var index = 0;
+		<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
+			var orderConcept = $j(".orderDetailSection input[name='${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}']:checked").val();
+			if(orderConcept != null && orderConcept != '') {
+				orderConceptIds[index++] = orderConcept;
+			}
+		</c:forEach>
+
+		if(index == 0) {
+			alert('Please select a type of exam.');
+			return;
+		}
+		
 		var labResultMap = {};
 		$j(".labResultConcept").each( function(i) {
 			var cIdsToSplit = $j(this).text();
@@ -331,8 +348,8 @@
 				labResultMap[cId] = r;
 			}
 		});
-		
-		DWRSimpleLabEntryService.saveLabOrder(_selectedOrderId, _selectedPatientId, orderConcept, orderLoc, orderDate, accessionNum, discontinuedDate, labResultMap,
+
+		DWRSimpleLabEntryService.saveLabOrders(_selectedOrderId, _selectedPatientId, orderConceptIds, orderLoc, orderDate, accessionNum, discontinuedDate, labResultMap,
 				{ 	callback:function(createdOrder) {
 						clearFormFields();
 						location.reload();
@@ -379,7 +396,6 @@
 	.searchSection {padding:5px; border: 1px solid grey; background-color: whitesmoke;}
 	.labResultCell {white-space:nowrap;}
 </style>
-
 
 <b class="boxHeader">Step 2.  Manage orders / results</b>
 <div style="align:left;" class="box" >	
@@ -513,7 +529,12 @@
 			<c:forEach items="${model.labOrders}" var="order" varStatus="orderStatus">
 				<c:if test="${!empty order.orderId}">
 					<tr id="viewOrderRow${order.orderId}" class="existingOrderRow">
-						<td><a href="javascript:editOrder('${order.orderId}');"><small>Enter Results</small></a></td>
+						<td>
+							<c:choose>
+								<c:when test="${!empty param.identifier || empty param.groupKey}"><small>${empty order.concept.name.shortName ? order.concept.name.name : order.concept.name.shortName}</small></c:when>
+								<c:otherwise><a href="javascript:editOrder('${order.orderId}');"><small>Enter Results</small></a></c:otherwise>
+							</c:choose>
+						</td>
 						<td><openmrs:formatDate date="${order.encounter.encounterDatetime}" /></td>
 						<td>${order.accessionNumber}</td>
 						<td>${order.patient.patientIdentifier}</td>
@@ -536,7 +557,7 @@
 								<td>${order.patient.personAddress.neighborhoodCell}</td>
 								<td>${order.patient.personAddress.address1}</td>
 							</c:when>
-							<c:otherwise><td colspan=4">&nbsp;</td></c:otherwise>
+							<c:otherwise><td colspan="4">&nbsp;</td></c:otherwise>
 						</c:choose>
 						<td align="right">
 							<c:choose>
@@ -559,19 +580,20 @@
 			<tr>
 				<th>Lab ID:</th>
 				<td><input type="text" class="accessionNumber" name="accessionNumber" /></td>
-				<th><spring:message code="simplelabentry.orderLocation" />:</td>
+				<th><spring:message code="simplelabentry.orderLocation" />:</th>
 				<td><openmrs_tag:locationField formFieldName="location" /></td>
-				<th><spring:message code="simplelabentry.orderType" />:</td>
-				<td>
-					<select name="concept">
-						<option value=""></option>
-						<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
-							<option value="${labConcept.conceptId}">${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}</option>
-						</c:forEach>
-					</select>
+				<th><spring:message code="simplelabentry.orderDate" />: </th>
+				<td><input type="text" name="startDate" size="10" readonly="readonly"/></td> <!-- onFocus="showCalendar(this)"  --> 
+			</tr>
+			<tr>
+				<th><spring:message code="simplelabentry.orderType" />:</th>
+				<td colspan="5">
+					<c:forEach items="${model.labTestConcepts}" var="labConcept" varStatus="labConceptStatus">
+						<input type="checkbox" <c:if test="${model.groupConceptId != null && model.groupConceptId == labConcept.conceptId}">checked="checked"</c:if> <c:if test="${model.groupConceptId != null}">disabled="disabled"</c:if> value="${labConcept.conceptId}" name="${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}" id="${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}">
+							${empty labConcept.name.shortName ? labConcept.name.name : labConcept.name.shortName}
+						</input>
+					</c:forEach>
 				</td>
-				<th><spring:message code="simplelabentry.orderDate" />: </td>
-				<td><input type="text" name="startDate" size="10" onFocus="showCalendar(this)" /></td>
 			</tr>
 		</table>	
 		<br/>

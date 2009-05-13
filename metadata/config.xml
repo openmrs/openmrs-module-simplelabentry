@@ -6,7 +6,7 @@
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
 	<name>Simple Lab Entry</name>
-	<version>1.5.2</version>
+	<version>1.5.3</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>Michael Seaton</author>
 	<description>Lab Order and Result Entry</description>
@@ -102,7 +102,7 @@
 				<include method="addPatientIdentifier"/>
 				<include method="createPatient"/>
 				<include method="getOrder"/>
-				<include method="saveLabOrder"/>
+				<include method="saveLabOrders"/>
 				<include method="deleteLabOrderAndEncounter"/>
 			</create>
 		</allow>
@@ -111,7 +111,7 @@
 				import org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService;
 				import org.openmrs.module.simplelabentry.web.dwr.LabResultListItem;
 				import java.util.Map;
-				DWRSimpleLabEntryService.saveLabOrder(Integer orderId, Integer patientId, String orderConceptStr, String orderLocationStr, String orderDateStr, String accessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults);
+				DWRSimpleLabEntryService.saveLabOrders(Integer orderId, Integer patientId, List<Integer> orderConceptIds, String orderLocationStr, String orderDateStr, String accessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults);
 			]]>
 		</signatures>
 	</dwr>

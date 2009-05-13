@@ -11,8 +11,6 @@
 		<form action="orderEntry.htm" method="get">
 			<spring:message code="simplelabentry.orderLocation" />: 
 			<openmrs_tag:locationField formFieldName="orderLocation" initialValue=""/>
-			<spring:message code="simplelabentry.orderType" />:
-			<simplelabentry:orderConceptTag name="orderConcept" defaultValue="" javascript="" />
 			<spring:message code="simplelabentry.orderDate" />: 
 			<input type="text" name="orderDate" size="10" value="" onFocus="showCalendar(this)" />
 			<input type="submit" value="<spring:message code="general.submit" />" />

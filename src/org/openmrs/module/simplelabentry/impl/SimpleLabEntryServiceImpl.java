@@ -39,7 +39,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
      */
 	public List<Order> getLabOrders(Concept concept, Location location, Date orderDate, ORDER_STATUS status, List<Patient> patients) {
 		
-		Map<Date, Order> orders = new TreeMap<Date, Order>();
+		List<Order> orderList = new ArrayList<Order>();
 		
 		// Retrieve proper OrderType for Lab Orders
 		OrderType orderType = null;
@@ -82,11 +82,9 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 				}
 			}
 			log.debug("Adding lab order: " + o);
-			orders.put(e.getDateCreated(), o);
+			orderList.add(o);
 		}
 		
-		List<Order> orderList = new ArrayList<Order>();
-		orderList.addAll(orders.values());
 		return orderList;
 	}
 	

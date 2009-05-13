@@ -22,12 +22,6 @@
 						<openmrs_tag:locationField formFieldName="orderLocation" 
 							initialValue="${param.orderLocation}"/>
 
-						<spring:message code="simplelabentry.orderType" />:
-						<simplelabentry:orderConceptTag name="orderConcept" 
-							defaultValue="${param.orderConcept}" 
-							javascript="" 
-							disabled="false"/>
-
 						<spring:message code="simplelabentry.orderDate" />: 
 						<input type="text" name="orderDate" size="10" value="${param.orderDate}" onFocus="showCalendar(this)" />
 
@@ -47,20 +41,13 @@
 					</openmrs:forEachRecord>
 				</select>
 				
-				<spring:message code="simplelabentry.orderType" />:
-				<simplelabentry:orderConceptTag name="orderConcept" 
-							defaultValue="${param.orderConcept}" 
-							javascript=""
-							disabled="true" />
-				
 				<spring:message code="simplelabentry.orderDate" />: 
 				<input type="text" name="orderDate" size="10" value="${param.orderDate}" disabled onFocus="showCalendar(this)" />				
 
 				<input type="submit" value="<spring:message code="general.submit" />" disabled/>
 								
 				<a href="orderEntry.htm">New Order Sheet</a>
-				
-				
+
 			</c:otherwise>
 		</c:choose>
 		</div>
@@ -68,8 +55,8 @@
 
 	<br/>
 	
-	<c:if test="${!empty param.orderLocation && !empty param.orderConcept && !empty param.orderDate }">
-		<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="allowAdd=true|allowDelete=nonResults|orderLocation=${param.orderLocation}|orderConcept=${param.orderConcept}|orderDate=${param.orderDate}" />
+	<c:if test="${!empty param.orderLocation && !empty param.orderDate }">
+		<openmrs:portlet url="orderEntry" id="orderEntrySectionId" moduleId="simplelabentry" parameters="allowAdd=true|allowDelete=nonResults|orderLocation=${param.orderLocation}|orderDate=${param.orderDate}" />
 	</c:if>
 </div>
 
