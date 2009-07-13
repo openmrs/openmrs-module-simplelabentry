@@ -539,7 +539,7 @@
 						<td>${order.accessionNumber}</td>
 						<td>${order.patient.patientIdentifier}</td>
 						<td>
-							<a href="${pageContext.request.contextPath}/admin/patients/newPatient.form?patientId=${order.patient.patientId}" target="_blank">
+							<a href="${pageContext.request.contextPath}/admin/patients/patient.form?patientId=${order.patient.patientId}" target="_blank">
 								${order.patient.personName.givenName} ${order.patient.personName.familyName}
 							</a>
 						</td>
