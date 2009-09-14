@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,7 +54,13 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		
 		log.debug("Retrieving lab orders of type "+orderType+" for: location="+location+",concept="+concept+",date="+orderDate+",status="+status+",patients="+patients);
 		
-		List<Concept> conceptList = concept == null ? null : Arrays.asList(concept);
+		List<Concept> conceptList = null;
+		if (concept == null) {
+			conceptList = getLabTestConcepts();
+		}
+		else {
+			conceptList = Arrays.asList(concept);
+		}
 		
 		if (status == null) {
 			status = ORDER_STATUS.NOTVOIDED;
