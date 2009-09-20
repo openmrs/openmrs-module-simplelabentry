@@ -1,14 +1,20 @@
 package org.openmrs.module.simplelabentry;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.openmrs.Concept;
+import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Order;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OrderService.ORDER_STATUS;
+import org.openmrs.module.simplelabentry.report.LabOrderReport;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,5 +45,24 @@ public interface SimpleLabEntryService {
 	 * @return list of Concepts representing those
 	 */
 	@Authorized(OpenmrsConstants.PRIV_VIEW_CONCEPTS)
-	public List<Concept> getLabTestConcepts();
+	public List<Concept> getLabConcepts();
+	
+	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	public LabOrderReport runLabOrderReport(Location location, Date startDate, Date endDate);
+	
+	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	public File runAndRenderLabOrderReport(Location location, Date startDate, Date endDate) throws IOException;
+	
+	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	public List<Map<String,String>> getLabOrderReportData(Location location, Date startDate, Date endDate);
+	
+	@Authorized(OpenmrsConstants.PRIV_VIEW_ENCOUNTERS)	
+	public List<Encounter> getLabOrderEncounters(Location location, Date startDate, Date endDate);
+
+	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)	
+	public List<Order> getLabOrdersBetweenDates(Location location, Date startDate, Date endDate);
+
+	//@Authorized(OpenmrsConstants.PRIV_VIEW_ORDER_TYPES)	
+	//public OrderType getLabOrderType();
+	
 }

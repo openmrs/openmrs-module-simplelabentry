@@ -29,7 +29,7 @@ public class LabEntryPortletController extends PortletController {
 		SimpleLabEntryService ls = (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
 		
 		// Supported LabTest Sets
-    	model.put("labTestConcepts", ls.getLabTestConcepts());
+    	model.put("labTestConcepts", ls.getLabConcepts());
 		
 		// Retrieve Orders that Match Input Parameters
 		String identifier = (String)model.get("identifier");
