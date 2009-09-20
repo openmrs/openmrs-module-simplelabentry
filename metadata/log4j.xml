@@ -3,20 +3,46 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
-	<logger name="org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService">
+
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%p - %C{1}.%M(%L) |%d{ISO8601}| %m%n" />
+		</layout>
+	</appender>
+
+	<!--  Override core loggers -->
+	<logger name="org.hibernate.tool.hbm2ddl">
+		<level value="FATAL"/>
+	</logger>	
+	<logger name="org.hibernate">
+		<level value="WARN"/>
+	</logger>	
+	<logger name="org.apache">
+		<level value="WARN"/>
+	</logger>	
+	<logger name="com.mchange">
+		<level value="WARN"/>
+	</logger>	
+	<logger name="net.sf.ehcache">
+		<level value="WARN"/>
+	</logger>	
+	<logger name="org.springframework">
+		<level value="WARN"/>
+	</logger>	
+	<logger name="org.openmrs">
+		<level value="INFO"/>
+	</logger>		
+
+	<!--  Module specific configuration -->
+	<logger name="org.openmrs.module.simplelabentry">
 		<level value="INFO" />
 	</logger>
+		
+	<root>
+		<level value="INFO"/>
+		<appender-ref ref="CONSOLE"/>
+	</root>
 	
-	<logger name="org.openmrs.module.simplelabentry.web.controller.ResultEntryFormController">
-		<level value="INFO" />
-	</logger>
-	
-	<logger name="org.openmrs.module.simplelabentry.web.controller.LabEntryPortletController">
-		<level value="INFO" />
-	</logger>
-	
-	<logger name="org.openmrs.module.simplelabentry.web.taglib.PatientProgramTag">
-		<level value="INFO" />
-	</logger>
 	
 </log4j:configuration>
