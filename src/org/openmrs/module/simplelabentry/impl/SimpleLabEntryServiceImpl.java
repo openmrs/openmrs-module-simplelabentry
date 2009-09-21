@@ -14,7 +14,6 @@ import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hsqldb.lib.Set;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
 import org.openmrs.ConceptSet;
@@ -70,7 +69,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		
 		List<Concept> conceptList = null;
 		if (concept == null) {
-			conceptList = getLabConcepts();
+			conceptList = getSupportedLabSets();
 		}
 		else {
 			conceptList = Arrays.asList(concept);
@@ -109,7 +108,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 	/**
      * @see org.openmrs.module.simplelabentry.SimpleLabEntryService#getLabTestConceptSets()
      */
-	public List<Concept> getLabConcepts() {
+	public List<Concept> getSupportedLabSets() {
     	List<Concept> ret = new ArrayList<Concept>();
     	String testProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.supportedTests");
     	if (testProp != null) {
@@ -133,9 +132,9 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 	 * Get a list of concept IDs 
 	 * @return
 	 */
-    public List<ConceptColumn> getConceptColumns() {
-    	List<ConceptColumn> columns = new ArrayList<ConceptColumn>();
-    	for (Concept concept : getLabConcepts()) { 
+    public List<Concept> getSupportedLabConcepts() {
+    	List<Concept> concepts = new ArrayList<Concept>();
+    	for (Concept concept : getSupportedLabSets()) { 
     		try { 
     			// Concept set
     			if (concept.isSet()) {    	
@@ -143,13 +142,30 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
     				
     				// Iterate over all concepts in set and add them as columns
     				for (ConceptSet childConcept : conceptSets) {     					    	    			
-    	    			columns.add(new ConceptColumn(childConcept.getConcept()));   		
+    	    			concepts.add(childConcept.getConcept());   		
     				} 	
     			} 
     			// Normal concept
     			else {
-	    			columns.add(new ConceptColumn(concept));
+    				concepts.add(concept);
     			}
+    		} catch (Exception e) { 
+    			log.error("Error occurred while looking up concept / concept set by ID " + concept.getConceptId(), e);
+    			throw new APIException("Invalid concept ID " + concept.getConceptId() + " : " + e.getMessage(), e);
+    		}
+    	}    	
+    	return concepts;
+	}		
+	
+	/**
+	 * Get a list of concept IDs 
+	 * @return
+	 */
+    public List<ConceptColumn> getConceptColumns() {
+    	List<ConceptColumn> columns = new ArrayList<ConceptColumn>();
+    	for (Concept concept : getSupportedLabConcepts()) { 
+    		try { 
+    			columns.add(new ConceptColumn(concept));
     		} catch (Exception e) { 
     			log.error("Error occurred while looking up concept / concept set by ID " + concept.getConceptId(), e);
     			throw new APIException("Invalid concept ID " + concept.getConceptId() + " : " + e.getMessage(), e);
@@ -220,10 +236,11 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			Map<String,String> row = new LinkedHashMap<String,String>();
 			row.put("Patient ID", encounter.getPatient().getPatientId().toString());						
 			row.put("IMB ID", encounter.getPatient().getPatientIdentifier(identifierType).getIdentifier());
-			row.put("Family Name", encounter.getPatient().getGivenName());
-			row.put("Given", encounter.getPatient().getGivenName());
+			row.put("Family Name", encounter.getPatient().getFamilyName());
+			row.put("Given", encounter.getPatient().getGivenName());			
 			row.put("Age", DateUtil.getTimespan(new Date(), encounter.getPatient().getBirthdate()));
 			row.put("Group", treatmentGroups.get(encounter.getPatientId()));
+			row.put("Location", encounter.getLocation().getName());				
 			row.put("Date", Context.getDateFormat().format(encounter.getEncounterDatetime()));
 
 			/* FIXME Quick hack to get a desired observation by concept. This currently 

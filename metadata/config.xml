@@ -6,9 +6,9 @@
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
 	<name>Simple Lab Entry</name>
-	<version>1.5.3</version>
+	<version>1.6.0-dev</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
-	<author>Michael Seaton</author>
+	<author>Michael Seaton, Justin Miranda</author>
 	<description>Lab Order and Result Entry</description>
 	<activator>@MODULE_PACKAGE@.SimpleLabEntryActivator</activator>
 	<!-- /Base Module Properties -->

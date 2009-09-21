@@ -5,9 +5,7 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="metadata"/>
-	<classpathentry kind="lib" path="lib-common/openmrs-api-1.4.4.00.9527.jar" sourcepath="/openmrs-1.4.x"/>
 	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.4.4.00.9527.jar"/>
-	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.4.4.00.9527.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.4.x/lib/antlr/antlr_2.7.6.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.4.x/lib/asm/asm.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.4.x/lib/c3p0/c3p0-0.9.1.jar"/>
@@ -45,5 +43,7 @@
 	<classpathentry kind="lib" path="/openmrs-1.4.x/lib/xstream/xstream-1.3.jar" sourcepath="/openmrs-source/xstream-distribution-1.3.1-src.zip"/>
 	<classpathentry kind="lib" path="/openmrs-1.4.x/lib/commons-logging/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/poi-3.2-FINAL-20081019.jar"/>
+	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.4.0.02.5530.jar"/>
+	<classpathentry kind="lib" path="lib-common/openmrs-api-1.4.4.00.9527.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

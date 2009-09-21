@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jfree.util.Log;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -16,8 +17,16 @@ import org.openmrs.PersonAttributeType;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.simplelabentry.SimpleLabEntryService;
 
 public class SimpleLabEntryUtil { 
+
+	private static Log log = LogFactory.getLog(SimpleLabEntryUtil.class);
+	
+	
+	public static SimpleLabEntryService getSimpleLabEntryService() { 
+		return (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
+	}
 	
 	/**
 	 * Gets the lab order type associated with the underlying lab order type global property.
@@ -83,7 +92,7 @@ public class SimpleLabEntryUtil {
 						
 		}
 		catch (Exception e) {
-			Log.error("error: ", e);
+			log.error("error: ", e);
 			
 		}
 			
@@ -108,24 +117,26 @@ public class SimpleLabEntryUtil {
 		for (Encounter encounter : encounters) { 
 			patients.addMember(encounter.getPatientId());
 		}
-		
-		// Get patient programs / treatment groups for all patients
-		Map<Integer, PatientProgram> patientPrograms = 
-			Context.getPatientSetService().getPatientPrograms(patients, SimpleLabEntryUtil.getProgram());
-		
-		for(PatientProgram patientProgram : patientPrograms.values()) { 
-			PatientState patientState = patientProgram.getCurrentState(SimpleLabEntryUtil.getWorkflow());	
-			if (patientState != null) { 
-				
-				// Show only the group number
-				// TODO This needs to be more generalized since not everyone will use the Rwanda
-				// convention for naming groups
-				String value = patientState.getState().getConcept().getDisplayString();
-				if (value != null)
-					value = SimpleLabEntryUtil.removeWords(value, "PEDI,FOLLOWING,GROUP");				
-				treatmentGroupCache.put(patientProgram.getPatient().getPatientId(), value);
-			}			
-		}		
+
+		if (!patients.isEmpty()) { 
+			// Get patient programs / treatment groups for all patients
+			Map<Integer, PatientProgram> patientPrograms = 
+				Context.getPatientSetService().getPatientPrograms(patients, SimpleLabEntryUtil.getProgram());
+			
+			for(PatientProgram patientProgram : patientPrograms.values()) { 
+				PatientState patientState = patientProgram.getCurrentState(SimpleLabEntryUtil.getWorkflow());	
+				if (patientState != null) { 
+					
+					// Show only the group number
+					// TODO This needs to be more generalized since not everyone will use the Rwanda
+					// convention for naming groups
+					String value = patientState.getState().getConcept().getDisplayString();
+					if (value != null)
+						value = SimpleLabEntryUtil.removeWords(value, "PEDI,FOLLOWING,GROUP");				
+					treatmentGroupCache.put(patientProgram.getPatient().getPatientId(), value);
+				}			
+			}		
+		}
 		return treatmentGroupCache;
 	}
 

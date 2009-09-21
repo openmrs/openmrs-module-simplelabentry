@@ -37,7 +37,7 @@ public class OrderConceptTag extends TagSupport {
 		
 		log.debug("In OrderConceptTag");
 		SimpleLabEntryService ls = (SimpleLabEntryService) Context.getService(SimpleLabEntryService.class);
-    	List<Concept> concepts = ls.getLabConcepts();
+    	List<Concept> concepts = ls.getSupportedLabSets();
     	log.debug("Found " + concepts.size() + " supported concepts.");
 		
     	StringBuffer sb = new StringBuffer();

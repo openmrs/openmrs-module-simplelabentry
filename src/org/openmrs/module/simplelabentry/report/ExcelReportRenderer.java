@@ -30,30 +30,34 @@ public class ExcelReportRenderer {
         HSSFWorkbook wb = new HSSFWorkbook();
         ExcelStyleHelper styleHelper = new ExcelStyleHelper(wb);
 
-        // TODO This should actually loop over locations and display orders by location
-        String worksheetName = "Lab Order Report";
+        Map<String, List<Map<String,String>>> dataSetsByLocation = report.getGroupData("Location");
         
-        HSSFSheet sheet = wb.createSheet(ExcelSheetHelper.fixSheetName(worksheetName));
-        ExcelSheetHelper helper = new ExcelSheetHelper(sheet);
-        Set<String> columnList = report.getData().get(0).keySet();
-        
-        // Display top header
-        for (String columnName : columnList) {
-        	helper.addCell(columnName, styleHelper.getStyle("bold,border=bottom,size=12"));
-        }
-        for (Iterator<Map<String,String>> i = report.getData().iterator(); i.hasNext(); ) {
-            helper.nextRow();
-            Map<String,String> row = i.next();
-            for (String columnName : columnList) {
-            	Object cellValue = row.get(columnName);
-                HSSFCellStyle style = null;
-                if (cellValue instanceof Date) {
-                    style = styleHelper.getStyle("date");
-                }
-                helper.addCell(cellValue, style);
-            }
-        }
-        
+        for (String location : dataSetsByLocation.keySet()) { 
+        	
+	        List<Map<String, String>> locationDataSet = dataSetsByLocation.get(location);
+        	
+	        HSSFSheet sheet = wb.createSheet(ExcelSheetHelper.fixSheetName(location));
+	        ExcelSheetHelper helper = new ExcelSheetHelper(sheet);	        
+	        
+	        Map<String,String> firstRow = locationDataSet.get(0);
+	        
+	        // Display top header
+	        for (String columnName : firstRow.keySet()) {
+	        	helper.addCell(columnName, styleHelper.getStyle("bold,border=bottom,size=12"));
+	        }
+	        
+	        for (Map<String, String> locationDataRow : locationDataSet)	{       
+	            helper.nextRow();
+	            for (String columnName : locationDataRow.keySet()) {
+	            	Object cellValue = locationDataRow.get(columnName);
+	                HSSFCellStyle style = null;
+	                if (cellValue instanceof Date) {
+	                    style = styleHelper.getStyle("date");
+	                }
+	                helper.addCell(cellValue, style);
+	            }
+	        }
+        }        
         wb.write(out);
     }
 }

@@ -28,6 +28,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Concept;
 import org.openmrs.Location;
+import org.openmrs.Obs;
 import org.openmrs.OrderType;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.context.Context;
@@ -58,6 +59,33 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 	public void beforeTests() throws Exception { 
 		authenticate();
 	}
+	
+	@Test 
+	public void shouldGetObsBetweenDates() throws Exception {
+		Date startDate = Context.getDateFormat().parse("01/01/2009");
+		Date endDate = new Date(); //Context.getDateFormat().parse("01/30/2009");			
+		//Location location = Context.getLocationService().getLocation(new Integer(26));		
+		Location location = null;
+		List<Concept> questions = 
+			SimpleLabEntryUtil.getSimpleLabEntryService().getSupportedLabConcepts();
+
+		List<Obs> obs = Context.getObsService().getObservations(
+				null, 
+				null, 
+				questions, 
+				null, 
+				null, 
+				null, 
+				null, //"location", 
+				null, 
+				null, 
+				startDate, 
+				endDate, 
+				false);		
+	
+		log.info("obs: " + obs.size());
+	}
+	
 	
 	@Test
 	public void shouldRemoveWords() { 
@@ -95,13 +123,13 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 	public void shouldGenerateLabOrderReport() throws Exception { 
 		
 		Date startDate = Context.getDateFormat().parse("01/01/2009");
-		Date endDate = new Date(); //Context.getDateFormat().parse("01/30/2009");			
+		Date endDate = Context.getDateFormat().parse("01/30/2009");			
 		//Location location = Context.getLocationService().getLocation(new Integer(26));		
 		Location location = null;
 		
 		
 		File file = 
-			Context.getService(SimpleLabEntryService.class).runAndRenderLabOrderReport(location, startDate, endDate);
+			SimpleLabEntryUtil.getSimpleLabEntryService().runAndRenderLabOrderReport(location, startDate, endDate);
 		
 		if (file != null)
 			log.info("generated lab order report: " + file.getAbsolutePath());
@@ -110,8 +138,8 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldReturnLabConcepts() { 
-		SimpleLabEntryService service = Context.getService(SimpleLabEntryService.class);
-		List<Concept> concepts = service.getLabConcepts();
+		SimpleLabEntryService service = SimpleLabEntryUtil.getSimpleLabEntryService();
+		List<Concept> concepts = service.getSupportedLabSets();
 		Assert.assertEquals("should return 4 lab concept", 4, concepts.size());	
 		
 	} 
@@ -127,28 +155,23 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 			Location location = Context.getLocationService().getLocation(new Integer(26));		
 			
 			
-			SimpleLabEntryService service = Context.getService(SimpleLabEntryService.class);		
+			SimpleLabEntryService service = SimpleLabEntryUtil.getSimpleLabEntryService();		
 			List<Map<String,String>> dataset = service.getLabOrderReportData(location, startDate, endDate);
-			
+			Assert.assertNotNull(dataset);
 			
 		} catch (Exception e) { 
 			logger.error("Error getting order report data", e);
 			
 		}
 	}
-
-	@Test
-	public void shouldReturnLabOrderReportData() { } 
 	
-	@Test
+	
+	/*
+	public void shouldReturnLabOrderReportData() { } 
 	public void shouldReturnLabOrderEncounters() { } 
-
-	@Test
 	public void shouldReturnLabOrdersBetweenDates() { } 
-
-	@Test
 	public void shouldReturnLabOrderType() { } 
-		
+	*/
 	
 	
 	

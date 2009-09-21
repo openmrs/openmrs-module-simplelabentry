@@ -45,7 +45,8 @@ public interface SimpleLabEntryService {
 	 * @return list of Concepts representing those
 	 */
 	@Authorized(OpenmrsConstants.PRIV_VIEW_CONCEPTS)
-	public List<Concept> getLabConcepts();
+	public List<Concept> getSupportedLabSets();
+	public List<Concept> getSupportedLabConcepts();
 	
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
 	public LabOrderReport runLabOrderReport(Location location, Date startDate, Date endDate);

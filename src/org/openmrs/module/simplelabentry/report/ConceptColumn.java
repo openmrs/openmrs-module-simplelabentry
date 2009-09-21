@@ -23,7 +23,7 @@ public class ConceptColumn {
 	 */
 	public ConceptColumn(Concept concept) { 
 		this.concept = concept;
-		this.displayName = concept.getShortestName(Context.getLocale(), false).getName();
+		this.displayName = concept.getName().getShortestName();
 		this.dataType = concept.getDatatype().getName();
 	}
 	
