@@ -122,8 +122,8 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldGenerateLabOrderReport() throws Exception { 
 		
-		Date startDate = Context.getDateFormat().parse("01/01/2009");
-		Date endDate = Context.getDateFormat().parse("01/30/2009");			
+		Date startDate = Context.getDateFormat().parse("01/13/2009");
+		Date endDate = Context.getDateFormat().parse("01/13/2009");			
 		//Location location = Context.getLocationService().getLocation(new Integer(26));		
 		Location location = null;
 		

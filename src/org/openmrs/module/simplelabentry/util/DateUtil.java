@@ -146,10 +146,10 @@ public class DateUtil {
 		}
 		if (delta < 12 * MONTH) {
 			int months = (int) (delta / (DAY * 30));
-			return months <= 1 ? "one month" : months + " months";
+			return months <= 1 ? "1mo" : months + "mo";
 		} else {
 			int years = (int) (delta / (DAY * 365));
-			return years <= 1 ? "one year" : years + " years";
+			return years <= 1 ? "1yo" : years + "";
 		}
 
 	}

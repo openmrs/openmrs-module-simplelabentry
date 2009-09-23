@@ -67,13 +67,17 @@ public class ExcelSheetHelper {
         addCell(cellValue, null);
     }
     
+    public void addCell(Object cellValue, HSSFCellStyle style) { 
+    	addCell(cellValue, style, false);
+    }
+    
     /**
      * Adds the next cell with the given value and style.
      * 
      * @param cellValue
      * @param style
      */
-    public void addCell(Object cellValue, HSSFCellStyle style) {
+    public void addCell(Object cellValue, HSSFCellStyle style, boolean isHeaderCell) {
         System.out.println("Creating cell " + currentRowNum + "," + currentColNum + ": " + cellValue);
         if (currentRow == null) {
             currentRow = sheet.createRow(currentRowNum);
@@ -97,11 +101,13 @@ public class ExcelSheetHelper {
             throw new RuntimeException("Unable to handle: " + cellValue.getClass());
         }
         if (style != null) {
+        	if (isHeaderCell) style.setRotation((short)90);
             cell.setCellStyle(style);
         }
         ++currentColNum;
     }
-
+    
+    
     /**
      * Moves to the next row.
      */
