@@ -1,6 +1,7 @@
 package org.openmrs.module.simplelabentry.report;
 
 import org.openmrs.Concept;
+import org.openmrs.ConceptNumeric;
 import org.openmrs.api.context.Context;
 
 
@@ -52,6 +53,17 @@ public class ConceptColumn {
 	
 	public String getDataType() { 			
 		return this.dataType;
+	}
+	
+	public Boolean isNumeric() { 
+		return (concept instanceof ConceptNumeric);
+	}
+	
+	public Boolean isPrecise() { 
+		if (isNumeric()) { 
+			return ((ConceptNumeric) concept).getPrecise();
+		}
+		return false;
 	}
 	
 }

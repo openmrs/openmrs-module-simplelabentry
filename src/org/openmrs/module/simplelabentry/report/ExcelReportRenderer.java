@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFPrintSetup;
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.openmrs.module.simplelabentry.report.ConceptColumn;
@@ -24,7 +25,7 @@ import org.openmrs.module.simplelabentry.report.LabOrderReport;
 
 public class ExcelReportRenderer {
 
-	private static String EXCLUDE_COLUMNS = "Patient ID,";
+	private static String EXCLUDE_COLUMNS = "Patient ID,Location";
 	
 	
 	
@@ -35,66 +36,82 @@ public class ExcelReportRenderer {
      * @should render ReportData to an xls file
      */
     public void render(LabOrderReport report, OutputStream out) throws IOException {
-        HSSFWorkbook wb = new HSSFWorkbook();
-        ExcelStyleHelper styleHelper = new ExcelStyleHelper(wb);
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        ExcelStyleHelper styleHelper = new ExcelStyleHelper(workbook);
         
         Map<String, List<Map<String,String>>> dataSetsByLocation = report.getGroupData("Location");
         
+        
+        // Iterate over all locations 
         for (String location : dataSetsByLocation.keySet()) { 
         	
-	        List<Map<String, String>> locationDataSet = dataSetsByLocation.get(location);
-        	
-	        HSSFSheet sheet = wb.createSheet(ExcelSheetHelper.fixSheetName(location));
-	        ExcelSheetHelper helper = new ExcelSheetHelper(sheet);	        
+        	// Create new worksheet for each location 
+	        HSSFSheet worksheet = workbook.createSheet(ExcelSheetHelper.fixSheetName(location));
+	        worksheet.setGridsPrinted(true);
+	        worksheet.setHorizontallyCenter(true);
+	        worksheet.setMargin(HSSFSheet.LeftMargin, 0);
+	        worksheet.setMargin(HSSFSheet.RightMargin, 0);
+
+	        // Configure the printer settings for each worksheet
+	        HSSFPrintSetup printSetup = worksheet.getPrintSetup();
+	        printSetup.setFitWidth((short)1);
+	        printSetup.setFitHeight((short)9999);
+	        printSetup.setLandscape(true);	        
+	        printSetup.setPaperSize(HSSFPrintSetup.LETTER_PAPERSIZE);
+
+	        // Create helper to 
+	        ExcelSheetHelper worksheetHelper = new ExcelSheetHelper(worksheet);	        
 	        
-	        Map<String,String> firstRow = locationDataSet.get(0);
+	        // Get the header row
+	        List<Map<String, String>> dataSet = dataSetsByLocation.get(location);
+	        Map<String,String> firstRow = dataSet.get(0);
 	        
 	        // Display top header
 	        int columnIndex = 0;
 	        for (String columnName : firstRow.keySet()) {	        	
 	        	if (!EXCLUDE_COLUMNS.contains(columnName)) { 
 		        	HSSFCellStyle cellStyle = styleHelper.getStyle("bold,border=bottom,size=10");		        	
-		        			        	
+		        		
+		        	// 'true' tells the helper to rotate the text
+		        	worksheetHelper.addCell(columnName, cellStyle, true);
+	    	        //sheet.autoSizeColumn(columnIndex);
 		        	// If obs column header cell
+		        	/*
 		        	if (columnIndex>6 || columnIndex==3 || columnIndex==4) { // 
-		        		sheet.setColumnWidth(columnIndex, 1000);
+		        		worksheet.setColumnWidth(columnIndex, 1000);
 			        	helper.addCell(columnName, cellStyle, true);  // 'true' tells the helper to rotate the text
 		        	} 
 		        	// All other header cells
 		        	else { 
 		        		helper.addCell(columnName, cellStyle);
-		        	}
+		        	}*/
 	        	}
 	        	columnIndex++;
-	        }
+	        }	        
 	        
-	        HSSFPrintSetup ps = sheet.getPrintSetup();
-	        ps.setFitWidth((short)1);
-	        ps.setFitHeight((short)9999);
-	        sheet.setGridsPrinted(true);
-	        sheet.setHorizontallyCenter(true);
-	        sheet.setMargin(HSSFSheet.LeftMargin, 0);
-	        sheet.setMargin(HSSFSheet.RightMargin, 0);
-	        ps.setLandscape(true);
-	        
-	        ps.setPaperSize(HSSFPrintSetup.LETTER_PAPERSIZE);
-	        //ps.setPaperSize(HSSFPrintSetup.LEGAL_PAPERSIZE);
-	        //ps.setPaperSize(HSSFPrintSetup.EXECUTIVE_PAPERSIZE);
-	        
-	        for (Map<String, String> locationDataRow : locationDataSet)	{       
-	            helper.nextRow();
-	            for (String columnName : locationDataRow.keySet()) {
+	        // Output all data grouped by location
+	        for (Map<String, String> dataRow : dataSet)	{       
+	        	worksheetHelper.nextRow();
+	            for (String columnName : dataRow.keySet()) {
 	            	if (!EXCLUDE_COLUMNS.contains(columnName)) { 
-		            	Object cellValue = locationDataRow.get(columnName);
+		            	Object value = dataRow.get(columnName);
 		                HSSFCellStyle style = null;
-		                if (cellValue instanceof Date) {
+		                if (value instanceof Date) {
 		                    style = styleHelper.getStyle("date");
 		                }
-		                helper.addCell(cellValue, styleHelper.getStyle("size=8"));
+		                worksheetHelper.addCell(value, styleHelper.getStyle("size=8"));
 	            	}
 	            }
 	        }
+	        	        
+	        // Resize each column to fit contents
+	        HSSFRow row = worksheet.getRow(0);
+	        for (int i = 0; i<row.getLastCellNum();i++) { 
+	        	worksheet.autoSizeColumn((short) i);	        	
+	        }
+	        
+	        
         }        
-        wb.write(out);
+        workbook.write(out);
     }
 }

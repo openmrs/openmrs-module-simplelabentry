@@ -14,7 +14,6 @@
 package org.openmrs.module.simplelabentry;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,14 +25,14 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openmrs.Cohort;
 import org.openmrs.Concept;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.OrderType;
+import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.simplelabentry.report.ExcelReportRenderer;
-import org.openmrs.module.simplelabentry.report.LabOrderReport;
 import org.openmrs.module.simplelabentry.util.SimpleLabEntryUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
@@ -58,6 +57,26 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 	@Before 
 	public void beforeTests() throws Exception { 
 		authenticate();
+	}
+	
+	@Test 
+	public void shouldGetLabReportPrograms() throws Exception { 
+		List<Program> programs = SimpleLabEntryUtil.getLabReportPrograms();
+		Assert.assertEquals(2, programs.size());
+	}
+	
+	@Test
+	public void shouldGetTreatmentGroupCache() throws Exception { 
+		Cohort patients = Context.getPatientSetService().getAllPatients();		
+		Assert.assertNotNull(patients);
+				
+		Map<Integer, String> treatmentGroupCache = SimpleLabEntryUtil.getTreatmentGroupCache(patients);		
+		Assert.assertEquals(treatmentGroupCache.keySet().size(), 598);
+				
+		log.warn("treatment group cache " + treatmentGroupCache);
+		for (Integer patientId : treatmentGroupCache.keySet()) { 			
+			log.info(patientId + " = " + treatmentGroupCache.get(patientId));			
+		}		
 	}
 	
 	@Test 
@@ -89,11 +108,20 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldRemoveWords() { 
-		String value = "GROUP PEDI FOLLOWING 31";
-		String actual = SimpleLabEntryUtil.removeWords(value, "PEDI,FOLLOWING,GROUP");		
+		String value = "GROUP PEDIATRIC FOLLOWING 31";
+		String actual = SimpleLabEntryUtil.remove(value, "PEDIATRIC,FOLLOWING,GROUP");		
 		
+		//"PEDIATRIC=PEDI,FOLLOWING=FOL,GROUP="
 		log.info("Actual: " + actual);
 		Assert.assertEquals("31", actual);		
+	}
+
+	@Test
+	public void shouldReplaceWords() { 
+		String value = "PEDIATRIC GROUP FOLLOWING 31";
+		String actual = SimpleLabEntryUtil.replace(value, "PEDIATRIC=PEDI,FOLLOWING=FOL,GROUP =,");
+		log.info("actual: " + actual);
+		Assert.assertEquals("PEDI FOL 31", actual);		
 	}
 	
 	@Test
@@ -116,14 +144,13 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldReturnAllOrderTypes() {
 		List<OrderType> orderTypes = Context.getOrderService().getAllOrderTypes();		
-		Assert.assertEquals("should return 4 order types", 4, orderTypes.size());				
+		Assert.assertEquals(5, orderTypes.size());				
 	}
 	
 	@Test
-	public void shouldGenerateLabOrderReport() throws Exception { 
-		
-		Date startDate = Context.getDateFormat().parse("01/13/2009");
-		Date endDate = Context.getDateFormat().parse("01/13/2009");			
+	public void shouldGenerateLabOrderReport() throws Exception {		
+		Date startDate = Context.getDateFormat().parse("06/01/2009");
+		Date endDate = Context.getDateFormat().parse("06/10/2009");			
 		//Location location = Context.getLocationService().getLocation(new Integer(26));		
 		Location location = null;
 		
@@ -144,9 +171,6 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 		
 	} 
 	
-		
-
-	
 	@Ignore
 	public void shouldReturnAllLabOrdersBetweenGivenDates() { 
 		try { 
@@ -164,15 +188,6 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 			
 		}
 	}
-	
-	
-	/*
-	public void shouldReturnLabOrderReportData() { } 
-	public void shouldReturnLabOrderEncounters() { } 
-	public void shouldReturnLabOrdersBetweenDates() { } 
-	public void shouldReturnLabOrderType() { } 
-	*/
-	
 	
 	
 }

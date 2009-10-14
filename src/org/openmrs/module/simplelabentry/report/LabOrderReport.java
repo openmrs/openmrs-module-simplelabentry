@@ -1,6 +1,5 @@
 package org.openmrs.module.simplelabentry.report;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,15 +9,6 @@ public class LabOrderReport {
 
 	
 	List<Map<String,String>> dataMap = null;
-	//List<ConceptColumn> columns = null;
-	
-		
-	/*
-	public LabOrderReport(List<ConceptColumn> columns) { 
-		this.columns = columns;
-		this.dataMap = new ArrayList<Map<String,String>>();		
-	}
-	*/
 
 	public LabOrderReport(List<Map<String,String>> dataMap) { 
 		this.dataMap = dataMap;		
@@ -30,10 +20,8 @@ public class LabOrderReport {
 	}
 	
 	
-	public Map<String, List<Map<String,String>>> getGroupData(String groupByColumn) { 
-		
-		Map<String, List<Map<String, String>>> groupDataMap = new HashMap<String, List<Map<String,String>>>();
-		
+	public Map<String, List<Map<String,String>>> getGroupData(String groupByColumn) { 		
+		Map<String, List<Map<String, String>>> groupDataMap = new HashMap<String, List<Map<String,String>>>();		
 		for (Map<String, String> row : dataMap) { 	
 			String groupByKey = row.get(groupByColumn);
 			List<Map<String,String>> groupDataRow = groupDataMap.get(groupByKey);
@@ -44,9 +32,5 @@ public class LabOrderReport {
 		}		
 		return groupDataMap;
 	}
-	
-	
-	
-	
 	
 }

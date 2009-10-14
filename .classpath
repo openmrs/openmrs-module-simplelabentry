@@ -43,7 +43,7 @@
 	<classpathentry kind="lib" path="/openmrs-1.4.x/lib/commons-logging/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/poi-3.2-FINAL-20081019.jar"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.4.4.00.9527.jar"/>
-	<classpathentry kind="lib" path="lib-common/openmrs-api-1.4.4.00.9527.jar"/>
+	<classpathentry kind="lib" path="lib-common/openmrs-api-1.4.4.00.9527.jar" sourcepath="/openmrs-1.4.x"/>
     <classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.4.4.00.9527.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

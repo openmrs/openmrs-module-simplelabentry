@@ -132,33 +132,16 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 	 * Get a list of concept IDs 
 	 * @return
 	 */
-    public List<Concept> getSupportedLabConcepts() {
-    	List<Concept> concepts = new ArrayList<Concept>();
-    	for (Concept concept : getSupportedLabSets()) { 
-    		try { 
-    			// Concept set
-    			if (concept.isSet()) {    	
-    				List<ConceptSet> conceptSets = Context.getConceptService().getConceptSetsByConcept(concept);
-    				
-    				// Iterate over all concepts in set and add them as columns
-    				for (ConceptSet childConcept : conceptSets) {     					    	    			
-    	    			concepts.add(childConcept.getConcept());   		
-    				} 	
-    			} 
-    			// Normal concept
-    			else {
-    				concepts.add(concept);
-    			}
-    		} catch (Exception e) { 
-    			log.error("Error occurred while looking up concept / concept set by ID " + concept.getConceptId(), e);
-    			throw new APIException("Invalid concept ID " + concept.getConceptId() + " : " + e.getMessage(), e);
-    		}
-    	}    	
-    	return concepts;
+    public List<Concept> getSupportedLabConcepts() {    	
+    	// orders the appropriate concepts according to requirements
+    	return SimpleLabEntryUtil.getLabReportConcepts();
 	}		
 	
 	/**
-	 * Get a list of concept IDs 
+	 * Get a list of concept columns.
+	 * 
+	 * TODO If we need to override values like precision, we'll do it here.
+	 * 
 	 * @return
 	 */
     public List<ConceptColumn> getConceptColumns() {
@@ -229,21 +212,24 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		PatientIdentifierType identifierType = SimpleLabEntryUtil.getPatientIdentifierType();
 		
 		// Eagerly fetching and caching treatment groups so we don't have to do this for each patient
-		Map<Integer, String> treatmentGroups = SimpleLabEntryUtil.getTreatmentGroupCache(encounters);
-		
+		Cohort patients = SimpleLabEntryUtil.getCohort(encounters);		
+		Map<Integer, String> treatmentGroups = SimpleLabEntryUtil.getTreatmentGroupCache(patients);
 		
 		for (Encounter encounter : encounters) {			
+			log.info("Encounter for " + encounter.getPatient() + " on " + encounter.getEncounterDatetime());
 			Map<String,String> row = new LinkedHashMap<String,String>();
 			row.put("Patient ID", encounter.getPatient().getPatientId().toString());						
 			row.put("IMB ID", encounter.getPatient().getPatientIdentifier(identifierType).getIdentifier());
 			row.put("Family Name", encounter.getPatient().getFamilyName());
 			row.put("Given", encounter.getPatient().getGivenName());			
 			row.put("Age", DateUtil.getTimespan(new Date(), encounter.getPatient().getBirthdate()));
+			row.put("Gender", encounter.getPatient().getGender());			
 			row.put("Group", treatmentGroups.get(encounter.getPatientId()));
 			row.put("Location", encounter.getLocation().getName());				
-			row.put("Date", Context.getDateFormat().format(encounter.getEncounterDatetime()));
+			row.put("CD4 Date", Context.getDateFormat().format(encounter.getEncounterDatetime()));
 
-			/* FIXME Quick hack to get a desired observation by concept. This currently 
+			/* 
+			 * FIXME Quick hack to get a desired observation by concept. This currently 
 			 * returns the first observation found.  I'm assuming that the Dao orders by 
 			 * date, but need to test this out. Need to implement a more elegant solution 
 			 * for returning the most recent observation
@@ -264,12 +250,17 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 				}
 				// Prevents null pointer exception 
 				obs = (obs != null ? obs : new Obs());
-				
+				String value = "";
 				// Add obs value to column in row
-				row.put(conceptColumn.getDisplayName(), obs.getValueAsString(Context.getLocale()));
-
-			}
-			
+				// FIXME Hack to get non-precise (should be done in the Concept.getValueAsString() method).
+				if (conceptColumn.isNumeric() && !conceptColumn.isPrecise()) { 
+					value += "" + obs.getValueNumeric().intValue();
+				} 
+				else { 
+					value = obs.getValueAsString(Context.getLocale());
+				}
+				row.put(conceptColumn.getDisplayName(), value);
+			}			
 			// Add row to dataset
 			dataset.add(row);
 		}
