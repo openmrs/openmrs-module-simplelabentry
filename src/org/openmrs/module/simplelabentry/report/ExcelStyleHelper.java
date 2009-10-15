@@ -11,7 +11,6 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.openmrs.util.OpenmrsUtil;
@@ -24,10 +23,10 @@ import org.openmrs.util.OpenmrsUtil;
 public class ExcelStyleHelper {
 
     HSSFWorkbook wb;
-    Map fonts = new HashMap();
-    Map styles = new HashMap();
-    Collection fontAttributeNames = new HashSet();
-    Collection fontAttributeStarting = new ArrayList();
+    Map<String,HSSFFont> fonts = new HashMap<String,HSSFFont>();
+    Map<String,HSSFCellStyle> styles = new HashMap<String,HSSFCellStyle>();
+    Collection<String> fontAttributeNames = new HashSet<String>();
+    Collection<String> fontAttributeStarting = new ArrayList<String>();
     short dateFormat;
 
     public ExcelStyleHelper(HSSFWorkbook wb) {
@@ -36,12 +35,11 @@ public class ExcelStyleHelper {
         fontAttributeNames.add("italic");
         fontAttributeNames.add("underline");
         fontAttributeStarting.add("size=");
-        HSSFDataFormat df = wb.createDataFormat();
-        dateFormat = df.getFormat("d-mmm-yy");
+        dateFormat = wb.createDataFormat().getFormat("d-mmm-yy");
     }
 
     public HSSFFont getFont(String s) {
-        SortedSet att = new TreeSet();
+        SortedSet<String> att = new TreeSet<String>();
         for (StringTokenizer st = new StringTokenizer(s, ","); st
                 .hasMoreTokens();) {
             String str = st.nextToken().trim().toLowerCase();
@@ -55,8 +53,7 @@ public class ExcelStyleHelper {
             return (HSSFFont) fonts.get(descriptor);
         } else {
             HSSFFont font = wb.createFont();
-            for (Iterator i = att.iterator(); i.hasNext();) {
-                String str = (String) i.next();
+            for (String str : att) {
                 if (str.equals("bold")) {
                     font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
                 } else if (str.equals("italic")) {
@@ -88,8 +85,8 @@ public class ExcelStyleHelper {
      * @return
      */
     public HSSFCellStyle getStyle(String s) {
-        SortedSet att = new TreeSet();
-        SortedSet fontAtts = new TreeSet();
+        SortedSet<String> att = new TreeSet<String>();
+        SortedSet<String> fontAtts = new TreeSet<String>();
         for (StringTokenizer st = new StringTokenizer(s, ","); st
                 .hasMoreTokens();) {
             String str = st.nextToken().trim().toLowerCase();
@@ -100,8 +97,8 @@ public class ExcelStyleHelper {
             if (fontAttributeNames.contains(str)) {
                 isFont = true;
             } else {
-                for (Iterator i = fontAttributeStarting.iterator(); i.hasNext();) {
-                    if (str.startsWith((String) i.next())) {
+                for (String fontAttributePrefix : fontAttributeStarting) {
+                    if (str.startsWith(fontAttributePrefix)) {
                         isFont = true;
                         break;
                     }
@@ -109,7 +106,7 @@ public class ExcelStyleHelper {
             }
             (isFont ? fontAtts : att).add(str);
         }
-        SortedSet allAtts = new TreeSet();
+        SortedSet<String> allAtts = new TreeSet<String>();
         allAtts.addAll(att);
         allAtts.addAll(fontAtts);
         String descriptor = OpenmrsUtil.join(allAtts, ",");
@@ -121,8 +118,8 @@ public class ExcelStyleHelper {
                 HSSFFont font = getFont(OpenmrsUtil.join(fontAtts, ","));
                 style.setFont(font);
             }
-            for (Iterator i = att.iterator(); i.hasNext();) {
-                helper(style, (String) i.next());
+            for (String str : att) {
+                helper(style, str);
             }
             styles.put(descriptor, style);
             return style;
@@ -131,10 +128,9 @@ public class ExcelStyleHelper {
 
     public HSSFCellStyle getAugmented(HSSFCellStyle style, String s) {
         String desc = null;
-        for (Iterator i = styles.entrySet().iterator(); i.hasNext();) {
-            Map.Entry e = (Map.Entry) i.next();
+        for (Map.Entry<String,HSSFCellStyle> e : styles.entrySet()) {
             if (e.getValue().equals(style)) {
-                desc = (String) e.getKey();
+                desc = e.getKey();
             }
         }
         if (desc == null) {

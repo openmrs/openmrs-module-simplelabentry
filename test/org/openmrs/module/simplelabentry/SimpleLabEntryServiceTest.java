@@ -14,6 +14,7 @@
 package org.openmrs.module.simplelabentry;
 
 import java.io.File;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,14 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 		authenticate();
 	}
 	
+
+	@Test
+	public void shouldConvertDoubleToInteger() throws Exception { 
+		String value = NumberFormat.getIntegerInstance().format(new Double("12942.0"));				
+		Assert.assertEquals("12942", value);
+		
+	}
+	
 	@Test 
 	public void shouldGetLabReportPrograms() throws Exception { 
 		List<Program> programs = SimpleLabEntryUtil.getLabReportPrograms();
@@ -84,7 +93,7 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 		Date startDate = Context.getDateFormat().parse("01/01/2009");
 		Date endDate = new Date(); //Context.getDateFormat().parse("01/30/2009");			
 		//Location location = Context.getLocationService().getLocation(new Integer(26));		
-		Location location = null;
+		//Location location = null;
 		List<Concept> questions = 
 			SimpleLabEntryUtil.getSimpleLabEntryService().getSupportedLabConcepts();
 
@@ -150,7 +159,7 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldGenerateLabOrderReport() throws Exception {		
 		Date startDate = Context.getDateFormat().parse("06/01/2009");
-		Date endDate = Context.getDateFormat().parse("06/10/2009");			
+		Date endDate = Context.getDateFormat().parse("06/05/2009");			
 		//Location location = Context.getLocationService().getLocation(new Integer(26));		
 		Location location = null;
 		

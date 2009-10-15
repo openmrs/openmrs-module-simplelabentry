@@ -3,8 +3,10 @@ package org.openmrs.module.simplelabentry.impl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,6 +38,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.simplelabentry.SimpleLabEntryService;
 import org.openmrs.module.simplelabentry.report.ConceptColumn;
+import org.openmrs.module.simplelabentry.report.DataSet;
 import org.openmrs.module.simplelabentry.report.ExcelReportRenderer;
 import org.openmrs.module.simplelabentry.report.LabOrderReport;
 import org.openmrs.module.simplelabentry.util.DateUtil;
@@ -162,39 +165,48 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
      * 
      */
     public LabOrderReport runLabOrderReport(Location location, Date startDate, Date endDate) { 
+
+    	LabOrderReport report = new LabOrderReport();    	
+    	report.addParameter("location", location);
+    	report.addParameter("startDate", startDate);
+    	report.addParameter("endDate", endDate);
     	
     	//List<ConceptColumn> columns = getConceptColumns();
-    	
-    	List<Map<String,String>> dataMap = 
+    	// TODO We should pass in the report here, but at the time I just needed to add parameters
+    	// so that we could have access to them when we render the report.
+    	List<Map<String,String>> dataSet = 
     		getLabOrderReportData(location, startDate, endDate);
     	
-    	return new LabOrderReport(dataMap);
+    	report.setDataSet(new DataSet(dataSet));
+    	
+    	return report;
     }
     
     
-    public File runAndRenderLabOrderReport(Location location, Date startDate, Date endDate) throws IOException { 
+    /**
+     * 
+     */
+	public File runAndRenderLabOrderReport(Location location, Date startDate, Date endDate) throws IOException {
+		FileOutputStream fos = null;
+		try {
+		
+			LabOrderReport report = runLabOrderReport(location, startDate,endDate);
+			ExcelReportRenderer renderer = new ExcelReportRenderer();
+			File file = new File("dist/lab-order-report.xls");
+			fos = new FileOutputStream(file);
+			renderer.render(report, fos);
+			return file;
 
-    	File file = null;
-    	FileOutputStream fos = null;
-    	try { 
-	    	LabOrderReport report = runLabOrderReport(location, startDate, endDate);	
-	        ExcelReportRenderer renderer = new ExcelReportRenderer();
-	        file = new File("lab-order-report.xls");
-	        log.info("Writing as file: " + file.getAbsolutePath());
-	        fos = new FileOutputStream(file);
-	        renderer.render(report, fos);
-		} catch (Exception e) { 
+		} catch (Exception e) {
 			log.error("Unable to render lab order report", e);
-		} finally { 	        
-			if (fos != null) { 
+		} finally {
+			if (fos != null) {
 				fos.flush();
-		        fos.close();		
+				fos.close();
 			}
-		}		
-        
-		return file;
-        
-    }
+		}
+		return null;
+	}
     
 	
 	/**
@@ -221,12 +233,12 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			row.put("Patient ID", encounter.getPatient().getPatientId().toString());						
 			row.put("IMB ID", encounter.getPatient().getPatientIdentifier(identifierType).getIdentifier());
 			row.put("Family Name", encounter.getPatient().getFamilyName());
-			row.put("Given", encounter.getPatient().getGivenName());			
+			row.put("Given", encounter.getPatient().getGivenName());
 			row.put("Age", DateUtil.getTimespan(new Date(), encounter.getPatient().getBirthdate()));
 			row.put("Gender", encounter.getPatient().getGender());			
 			row.put("Group", treatmentGroups.get(encounter.getPatientId()));
 			row.put("Location", encounter.getLocation().getName());				
-			row.put("CD4 Date", Context.getDateFormat().format(encounter.getEncounterDatetime()));
+			row.put("Result Date", Context.getDateFormat().format(encounter.getEncounterDatetime()));
 
 			/* 
 			 * FIXME Quick hack to get a desired observation by concept. This currently 
@@ -238,23 +250,29 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			for (ConceptColumn conceptColumn : getConceptColumns()) { 
 				Obs obs = null;
 				for (Obs currentObs : encounter.getObs()) { 
-					// TODO This only works when comparing conceptId, not concepts
+					// FIXME This only works when comparing conceptId, not concepts
 					if (currentObs.getConcept().getConceptId().equals(conceptColumn.getConcept().getConceptId())) { 	
-						// Just making sure this is the most recent observation
-						// if obs is null then we know is the first in the list
-						// otherwise check which observation came first (based on obs date time) 
+						// (1) if obs is null then we use currentObs because it's the first in the list
+						// (2) otherwise we use which observation happened first based on obs datetime 
 						if (obs == null || obs.getObsDatetime().compareTo(currentObs.getObsDatetime()) < 0) { 
 							obs = currentObs;
 						}
 					}
 				}
-				// Prevents null pointer exception 
-				obs = (obs != null ? obs : new Obs());
+				
 				String value = "";
+				
+				// TODO Prevents null pointer exception 
+				obs = (obs != null ? obs : new Obs());
+				
 				// Add obs value to column in row
 				// FIXME Hack to get non-precise (should be done in the Concept.getValueAsString() method).
 				if (conceptColumn.isNumeric() && !conceptColumn.isPrecise()) { 
-					value += "" + obs.getValueNumeric().intValue();
+					if (obs.getValueNumeric()!=null) { 
+						NumberFormat nf = NumberFormat.getIntegerInstance();
+						nf.setGroupingUsed(false);
+						value = nf.format(obs.getValueNumeric());
+					}
 				} 
 				else { 
 					value = obs.getValueAsString(Context.getLocale());

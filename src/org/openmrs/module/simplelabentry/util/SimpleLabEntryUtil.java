@@ -1,5 +1,7 @@
 package org.openmrs.module.simplelabentry.util;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +22,8 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.simplelabentry.SimpleLabEntryService;
+import org.openmrs.module.simplelabentry.report.DataSet;
+import org.openmrs.module.simplelabentry.report.DataSetRow;
 
 public class SimpleLabEntryUtil { 
 
@@ -131,19 +135,19 @@ public class SimpleLabEntryUtil {
 	 */
 	public static List<Concept> getLabReportConcepts() { 
 		List<Concept> concepts = new LinkedList<Concept>();
-		concepts.add(Context.getConceptService().getConcept(5497)); // CD4 (5497)
-		concepts.add(Context.getConceptService().getConcept(730)); // CD4% (730)
-		concepts.add(Context.getConceptService().getConcept(653)); // SGOT (653)
-		concepts.add(Context.getConceptService().getConcept(654)); // SGPT (654)
-		concepts.add(Context.getConceptService().getConcept(790)); // Cr (790)
-		concepts.add(Context.getConceptService().getConcept(1017)); // MCHC (1017)
-		concepts.add(Context.getConceptService().getConcept(678)); // WBC (678)
-		concepts.add(Context.getConceptService().getConcept(3059)); // Gr (3059)
-		concepts.add(Context.getConceptService().getConcept(3060)); // Gr% (3060)
-		concepts.add(Context.getConceptService().getConcept(952)); // ALC (952)
-		concepts.add(Context.getConceptService().getConcept(1021)); // Ly% (1021)
-		concepts.add(Context.getConceptService().getConcept(729)); // PLTS (729)
-		concepts.add(Context.getConceptService().getConcept(856)); // Viral Load (856)		
+		concepts.add(Context.getConceptService().getConceptNumeric(5497)); // CD4 (5497)
+		concepts.add(Context.getConceptService().getConceptNumeric(730)); // CD4% (730)
+		concepts.add(Context.getConceptService().getConceptNumeric(653)); // SGOT (653)
+		concepts.add(Context.getConceptService().getConceptNumeric(654)); // SGPT (654)
+		concepts.add(Context.getConceptService().getConceptNumeric(790)); // Cr (790)
+		concepts.add(Context.getConceptService().getConceptNumeric(1017)); // MCHC (1017)
+		concepts.add(Context.getConceptService().getConceptNumeric(678)); // WBC (678)
+		concepts.add(Context.getConceptService().getConceptNumeric(3059)); // Gr (3059)
+		concepts.add(Context.getConceptService().getConceptNumeric(3060)); // Gr% (3060)
+		concepts.add(Context.getConceptService().getConceptNumeric(952)); // ALC (952)
+		concepts.add(Context.getConceptService().getConceptNumeric(1021)); // Ly% (1021)
+		concepts.add(Context.getConceptService().getConceptNumeric(729)); // PLTS (729)
+		concepts.add(Context.getConceptService().getConceptNumeric(856)); // Viral Load (856)		
 		//concepts.add(Context.getConceptService().getConcept(3055)); // Ur (3055)
 		//concepts.add(Context.getConceptService().getConcept(1015)); // HCT (1015)
 		//concepts.add(Context.getConceptService().getConcept(21)); // HB (21))
@@ -246,5 +250,47 @@ public class SimpleLabEntryUtil {
 		
 	}
 		
+	
+	/**
+	 * 
+	 * @param dataSet
+	 * @param sortByColumn
+	 * @return
+	 */
+	public static void sortDataSet(DataSet dataSet) { 
+		// Create a new list of rows 
+		List<DataSetRow> rows = new LinkedList<DataSetRow>(dataSet.getRows());
+		
+		// Sort rows 
+		Collections.sort(rows, new Comparator<DataSetRow>() { 
+			public int compare(DataSetRow row1, DataSetRow row2) { 
+				return row1.compareTo(row2);
+			}
+		});		
+		dataSet.setRows(rows);
+	}
+	
+	/**
+	 * Groups the data set by the given column and returns a map 
+	 * of datasets indexed by the specified group by column.
+	 * 
+	 * @param groupByColumn
+	 * @return
+	 */
+	public static Map<String, DataSet> groupDataSetByColumn(DataSet dataSet, String groupByColumn) { 		
+		Map<String, DataSet> groupedDataSets = new HashMap<String, DataSet>();		
+		for (DataSetRow dataRow : dataSet) { 							
+			String groupKey = dataRow.get(groupByColumn);
+			DataSet groupDataSet = groupedDataSets.get(groupKey);
+			if (groupDataSet == null)
+				groupDataSet = new DataSet();
+			groupDataSet.add(dataRow);	
+			groupedDataSets.put(groupKey, groupDataSet);
+		}		
+		return groupedDataSets;
+	}	
+	
+	
+	
 	
 }

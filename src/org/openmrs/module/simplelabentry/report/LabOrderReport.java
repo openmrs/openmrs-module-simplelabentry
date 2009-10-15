@@ -1,36 +1,34 @@
 package org.openmrs.module.simplelabentry.report;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 public class LabOrderReport {
 
-	
-	List<Map<String,String>> dataMap = null;
+	private Parameters parameters = new Parameters();
+	private DataSet dataSet = new DataSet();
 
-	public LabOrderReport(List<Map<String,String>> dataMap) { 
-		this.dataMap = dataMap;		
-	}
-
+	public LabOrderReport() { } 
 	
-	public List<Map<String,String>> getData() { 
-		return this.dataMap;		
+	public LabOrderReport(DataSet dataSet) { 
+		this.dataSet = dataSet;		
 	}
 	
+	public DataSet getDataSet() { 
+		return this.dataSet;		
+	}
+
+	public void setDataSet(DataSet dataSet) { 
+		this.dataSet = dataSet;
+	}
 	
-	public Map<String, List<Map<String,String>>> getGroupData(String groupByColumn) { 		
-		Map<String, List<Map<String, String>>> groupDataMap = new HashMap<String, List<Map<String,String>>>();		
-		for (Map<String, String> row : dataMap) { 	
-			String groupByKey = row.get(groupByColumn);
-			List<Map<String,String>> groupDataRow = groupDataMap.get(groupByKey);
-			if (groupDataRow == null)
-				groupDataRow = new LinkedList<Map<String,String>>();
-			groupDataRow.add(row);	
-			groupDataMap.put(groupByKey, groupDataRow);
-		}		
-		return groupDataMap;
+	public Parameters getParameters() { 
+		return this.parameters;
+	}
+
+	public void addParameter(String parameter, Object value) { 
+		parameters.add(parameter, value);
 	}
 	
 }
+
+
+

@@ -24,7 +24,7 @@ public class ConceptColumn {
 	 */
 	public ConceptColumn(Concept concept) { 
 		this.concept = concept;
-		this.displayName = concept.getName().getShortestName();
+		this.displayName = concept.getBestShortName(Context.getLocale()).getName();
 		this.dataType = concept.getDatatype().getName();
 	}
 	
@@ -56,7 +56,7 @@ public class ConceptColumn {
 	}
 	
 	public Boolean isNumeric() { 
-		return (concept instanceof ConceptNumeric);
+		return concept.isNumeric();
 	}
 	
 	public Boolean isPrecise() { 
