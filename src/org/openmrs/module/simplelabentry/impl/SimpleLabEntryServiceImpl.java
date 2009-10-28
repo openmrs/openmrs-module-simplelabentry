@@ -192,7 +192,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		
 			LabOrderReport report = runLabOrderReport(location, startDate,endDate);
 			ExcelReportRenderer renderer = new ExcelReportRenderer();
-			File file = new File("dist/lab-order-report.xls");
+			File file = new File("lab-order-report.xls");
 			fos = new FileOutputStream(file);
 			renderer.render(report, fos);
 			return file;
