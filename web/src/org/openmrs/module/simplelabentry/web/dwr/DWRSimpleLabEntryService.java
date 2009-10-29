@@ -671,7 +671,9 @@ public class DWRSimpleLabEntryService {
 	public void deleteLabOrderAndEncounter(String orderId, String reason) {
 		Order o = Context.getOrderService().getOrder(Integer.valueOf(orderId));
 		boolean voidContext = o.getEncounter().getOrders().size() <= 1;
-		
+		if (reason == null || reason.equals("")) {
+			reason = " ";
+		}
 		Context.getOrderService().voidOrder(o, reason);
 		if(voidContext)
 			Context.getEncounterService().voidEncounter(o.getEncounter(), reason);

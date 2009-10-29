@@ -82,6 +82,8 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			status = ORDER_STATUS.NOTVOIDED;
 		}
 		
+		Date now = new Date();
+		
 		// Retrieve matching orders
 		List<Order> ordersMatch = Context.getOrderService().getOrders(Order.class, patients, conceptList, status, null, null, Arrays.asList(orderType));
 		for (Order o : ordersMatch) {
@@ -91,7 +93,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			}
 			// TODO: This shouldn't be necessary, but it seems like the OrderService does not do it correctly?
 			if (status != null) {
-				if ( (status == ORDER_STATUS.CURRENT && o.isDiscontinued()) || (status == ORDER_STATUS.COMPLETE && o.isCurrent()) ) {
+				if ( (status == ORDER_STATUS.CURRENT && o.isDiscontinued(now)) || (status == ORDER_STATUS.COMPLETE && o.isCurrent()) ) {
 					continue;
 				}
 			}
