@@ -140,6 +140,8 @@ public class SimpleLabEntryUtil {
 		concepts.add(Context.getConceptService().getConceptNumeric(653)); // SGOT (653)
 		concepts.add(Context.getConceptService().getConceptNumeric(654)); // SGPT (654)
 		concepts.add(Context.getConceptService().getConceptNumeric(790)); // Cr (790)
+		concepts.add(Context.getConceptService().getConceptNumeric(1015)); // HCT (1015)
+		concepts.add(Context.getConceptService().getConceptNumeric(21)); // HB (21))
 		concepts.add(Context.getConceptService().getConceptNumeric(1017)); // MCHC (1017)
 		concepts.add(Context.getConceptService().getConceptNumeric(678)); // WBC (678)
 		concepts.add(Context.getConceptService().getConceptNumeric(3059)); // Gr (3059)
@@ -149,8 +151,6 @@ public class SimpleLabEntryUtil {
 		concepts.add(Context.getConceptService().getConceptNumeric(729)); // PLTS (729)
 		concepts.add(Context.getConceptService().getConceptNumeric(856)); // Viral Load (856)		
 		//concepts.add(Context.getConceptService().getConcept(3055)); // Ur (3055)
-		//concepts.add(Context.getConceptService().getConcept(1015)); // HCT (1015)
-		//concepts.add(Context.getConceptService().getConcept(21)); // HB (21))
 		return concepts;
 	}
 	
