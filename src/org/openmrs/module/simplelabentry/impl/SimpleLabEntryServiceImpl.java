@@ -228,8 +228,27 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		// Eagerly fetching and caching treatment groups so we don't have to do this for each patient
 		Cohort patients = SimpleLabEntryUtil.getCohort(encounters);		
 		Map<Integer, String> treatmentGroups = SimpleLabEntryUtil.getTreatmentGroupCache(patients);
-		
-		for (Encounter encounter : encounters) {			
+
+		// Merge any encounters that have the same patient id, sample date and location
+		// NOTE: This does not work if there is more than one obs of a type per day.
+		Map<String, Encounter> mergedEncounters = new HashMap<String, Encounter>();
+		for (Encounter encounter : encounters) {
+			String key = encounter.getPatientId().toString() + Context.getDateFormat().format(encounter.getEncounterDatetime()) +
+				encounter.getLocation().getName();
+			Encounter mergedEncounter = mergedEncounters.get(key);
+			if(mergedEncounter == null)
+				mergedEncounters.put(key, encounter);
+			else {
+				for (Obs currentObs : encounter.getObs()) {
+					if(currentObs.isVoided())
+						continue;
+					
+					mergedEncounter.addObs(currentObs);
+				}
+			}
+		}
+
+		for (Encounter encounter : mergedEncounters.values()) {			
 			log.info("Encounter for " + encounter.getPatient() + " on " + encounter.getEncounterDatetime());
 			Map<String,String> row = new LinkedHashMap<String,String>();
 			row.put("Patient ID", encounter.getPatient().getPatientId().toString());						
@@ -240,7 +259,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			row.put("Gender", encounter.getPatient().getGender());			
 			row.put("Group", treatmentGroups.get(encounter.getPatientId()));
 			row.put("Location", encounter.getLocation().getName());				
-			row.put("Result Date", Context.getDateFormat().format(encounter.getEncounterDatetime()));
+			row.put("Sample Date", Context.getDateFormat().format(encounter.getEncounterDatetime()));
 
 			/* 
 			 * FIXME Quick hack to get a desired observation by concept. This currently 
