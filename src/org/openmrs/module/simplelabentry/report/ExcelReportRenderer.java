@@ -104,7 +104,7 @@ public class ExcelReportRenderer {
         	int startColumn = 0; 
         	int endColumn = worksheet.getRow(0).getPhysicalNumberOfCells();
         	int startRow = 0;
-        	int endRow = 1;
+        	int endRow = 0;
 	        workbook.setRepeatingRowsAndColumns(sheetIndex,startColumn,endColumn,startRow,endRow);
         }        
         workbook.write(out);
