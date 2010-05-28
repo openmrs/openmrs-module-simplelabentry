@@ -1,11 +1,14 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 <%@ taglib prefix="simplelabentry" uri="/WEB-INF/view/module/simplelabentry/resources/simplelabentry.tld" %>
 
+<openmrs:htmlInclude file="/scripts/jquery/jquery-1.3.2.min.js" />
+<script type="text/javascript">
+	var $j = jQuery.noConflict();
+</script>
 <openmrs:htmlInclude file="/dwr/interface/LabPatientListItem.js" />
 <openmrs:htmlInclude file="/dwr/interface/LabResultListItem.js" />
 <openmrs:htmlInclude file="/dwr/interface/DWRPatientService.js" />
 <openmrs:htmlInclude file="/dwr/interface/DWRSimpleLabEntryService.js" />
-<openmrs:htmlInclude file="/moduleResources/simplelabentry/jquery-1.2.6.min.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
 <openmrs:htmlInclude file="/scripts/dojoConfig.js" />
 <openmrs:htmlInclude file="/scripts/dojo/dojo.js" />
@@ -17,8 +20,6 @@
 <openmrs:globalProperty key="simplelabentry.workflowToDisplay" var="workflowToDisplay" />
 
 <script type="text/javascript">
-
-	var $j = jQuery.noConflict();
 
 	<c:if test="${model.allowAdd == 'true'}">
 		dojo.require("dojo.widget.openmrs.PatientSearch");
@@ -239,7 +240,7 @@
 			$j(".orderDetailSection input[name='accessionNumber']").val(order.accessionNumber);
 			$j(".labResultDetail input[name='discontinuedDate']").val(order.discontinuedDateString);
 			for (i=0; i<order.labResults.length; i++) {
-				$j("[@name='resultValue."+order.conceptId+"."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
+				$j("[name='resultValue."+order.conceptId+"."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
 			}
 			$j(".labResultSection"+order.conceptId).show();
 		});
@@ -340,9 +341,9 @@
 		$j(".labResultConcept").each( function(i) {
 			var cIdsToSplit = $j(this).text();
 			var cId = cIdsToSplit.split(".",2)[1];
-			var resultStr = $j("[@name='resultValue."+cIdsToSplit + "']").val();
+			var resultStr = $j("[name='resultValue."+cIdsToSplit + "']").val();
 			if (resultStr != null && resultStr != '') {
-				var r = new LabResultListItem();
+				var r = new Object();
 				r.conceptId = cId;
 				r.result = resultStr;
 				labResultMap[cId] = r;
@@ -365,9 +366,8 @@
 		if (confirm("Are you sure you want to delete this order?")) {
 			DWRSimpleLabEntryService.deleteLabOrderAndEncounter(orderId, reason, { 
 				callback:function() {location.reload();},
-				errorHandler:function(errorString, exception) { alert(errorString); }
+				errorHandler:function(errorString, exception) { alert(errorString); location.reload(); }
 	   		});
-	   		location.reload();
 		}
 	}
 
@@ -563,7 +563,7 @@
 							<c:choose>
 								<c:when test="${model.allowDelete == 'false'}">&nbsp;</c:when>
 								<c:when test="${model.allowDelete == 'nonResults' && !empty order.encounter.obs}">&nbsp;</c:when>
-								<c:otherwise><a href="javascript:deleteOrder('${order.orderId}', '');"><small>Delete</small></a></c:otherwise>
+								<c:otherwise><a href="javascript:deleteOrder('${order.orderId}', 'SimpleLabEntry: delete clicked');"><small>Delete</small></a></c:otherwise>
 							</c:choose>
 						</td>
 					</tr>

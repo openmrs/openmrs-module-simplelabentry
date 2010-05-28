@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
@@ -656,6 +657,13 @@ public class DWRSimpleLabEntryService {
 			}
 	
 			labOrderListItems.add(new LabOrderListItem(o));
+		}
+		// MLH FIXME TODO HACK Make sure each Obs has a UUID before calling save 
+		// on the Encounter.  See: http://dev.openmrs.org/ticket/2357
+		for(Obs o : e.getAllObs()) {
+			if(o.getUuid() == null) {
+				o.setUuid(UUID.randomUUID().toString());
+			}
 		}
 		Context.getEncounterService().saveEncounter(e);
 		return labOrderListItems;
