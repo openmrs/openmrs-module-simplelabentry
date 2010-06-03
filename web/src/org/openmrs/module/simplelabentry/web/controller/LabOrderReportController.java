@@ -102,6 +102,7 @@ public class LabOrderReportController {
 
     	} catch (IOException e) { 
     		log.error("Unable to run and render the lab order report between " + startDate + " and end date " + endDate);
+    		e.printStackTrace(System.out);
     	}    	
     } 
         	

@@ -22,7 +22,13 @@
 				<bean class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 					<property name="transactionManager"><ref bean="transactionManager"/></property>
 					<property name="target">
-						<bean class="org.openmrs.module.simplelabentry.impl.SimpleLabEntryServiceImpl" />
+						<bean class="org.openmrs.module.simplelabentry.impl.SimpleLabEntryServiceImpl" >
+							<property name="dao">
+								<bean class="org.openmrs.module.simplelabentry.db.hibernate.HibernateSimpleLabEntryDAO">
+									<property name="sessionFactory"><ref bean="sessionFactory"/></property>	
+								</bean>
+							</property>	
+						</bean>
 					</property>
 					<property name="preInterceptors">
 						<list>

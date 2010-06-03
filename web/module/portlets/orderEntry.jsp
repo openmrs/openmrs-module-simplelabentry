@@ -10,6 +10,7 @@
 <openmrs:htmlInclude file="/dwr/interface/DWRPatientService.js" />
 <openmrs:htmlInclude file="/dwr/interface/DWRSimpleLabEntryService.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
+
 <openmrs:htmlInclude file="/scripts/dojoConfig.js" />
 <openmrs:htmlInclude file="/scripts/dojo/dojo.js" />
 <openmrs:htmlInclude file="/scripts/easyAjax.js" />
@@ -34,7 +35,6 @@
 				function(msg) {
 					if (msg.objs[0].patientId) {
 						var patient = msg.objs[0];
-	
 						DWRSimpleLabEntryService.getPatient(patient.patientId, function(labPatient) { loadPatient(labPatient) });
 						clearPatientAndSearchFields(false);
 						_selectedPatientId = patient.patientId;
@@ -51,16 +51,16 @@
 					searchWidget.selectPatient(searchWidget.patientId);
 				}
 				else if (searchWidget.searchPhrase) {
-					DWRSimpleLabEntryService.findPatients(searchWidget.simpleClosure(searchWidget, "doObjectsFound"), searchWidget.searchPhrase);
+					DWRSimpleLabEntryService.findPatients(searchWidget.searchPhrase, searchWidget.simpleClosure(searchWidget, "doObjectsFound"));
 				}
 			};
 
 			searchWidget.selectPatient = function(patientId) {
-				DWRSimpleLabEntryService.getPatient(searchWidget.simpleClosure(searchWidget, "select"), patientId);
+				DWRSimpleLabEntryService.getPatient(patientId, searchWidget.simpleClosure(searchWidget, "select"));
 			};
 			
 			searchWidget.doFindObjects = function(text) {
-				DWRSimpleLabEntryService.findPatients(searchWidget.simpleClosure(searchWidget, "doObjectsFound"), text);
+				DWRSimpleLabEntryService.findPatients(text, searchWidget.simpleClosure(searchWidget, "doObjectsFound"));
 				return false;
 			};
 

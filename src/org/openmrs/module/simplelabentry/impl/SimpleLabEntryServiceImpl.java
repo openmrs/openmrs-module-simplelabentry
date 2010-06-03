@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,31 +18,28 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
-import org.openmrs.ConceptSet;
 import org.openmrs.Encounter;
-import org.openmrs.EncounterType;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifierType;
-import org.openmrs.PatientProgram;
-import org.openmrs.PatientState;
-import org.openmrs.PersonAttributeType;
-import org.openmrs.Program;
-import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.APIException;
 import org.openmrs.api.OrderService.ORDER_STATUS;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.simplelabentry.SimpleLabEntryService;
+import org.openmrs.module.simplelabentry.db.SimpleLabEntryDAO;
 import org.openmrs.module.simplelabentry.report.ConceptColumn;
 import org.openmrs.module.simplelabentry.report.DataSet;
 import org.openmrs.module.simplelabentry.report.ExcelReportRenderer;
 import org.openmrs.module.simplelabentry.report.LabOrderReport;
 import org.openmrs.module.simplelabentry.util.DateUtil;
 import org.openmrs.module.simplelabentry.util.SimpleLabEntryUtil;
+import org.openmrs.report.DataSetDefinition;
+import org.openmrs.report.EvaluationContext;
+import org.openmrs.util.OpenmrsUtil;
 
 /**
  * Default implementation of the SimpleLabEntry-related services class.
@@ -58,7 +55,18 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 	
 	protected static final Log log = LogFactory.getLog(SimpleLabEntryServiceImpl.class);
 	
-	/**
+	protected SimpleLabEntryDAO dao;
+
+    public void setDao(SimpleLabEntryDAO dao) {
+        this.dao = dao;
+    }
+
+    
+    public List<Order> getOrders(List<Concept> concepts, OrderType orderType,List<Patient> patientList, Location location, Date orderDate){
+        return dao.getOrders(concepts, orderType, patientList, location, orderDate);
+    }
+    
+    /**
      * @see org.openmrs.module.simplelabentry.SimpleLabEntryService#getOrders(OrderType, Concept, Location, Date, ORDER_STATUS, List<Patient>)
      */
 	public List<Order> getLabOrders(Concept concept, Location location, Date orderDate, ORDER_STATUS status, List<Patient> patients) {
@@ -85,25 +93,28 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		Date now = new Date();
 		
 		// Retrieve matching orders
-		List<Order> ordersMatch = Context.getOrderService().getOrders(Order.class, patients, conceptList, status, null, null, Arrays.asList(orderType));
+		//we need to speed this up:
+		List<Order> ordersMatch = getOrders(conceptList, orderType, patients, location, orderDate);
+		
 		for (Order o : ordersMatch) {
-			Encounter e = o.getEncounter();
-			if (location != null && !location.equals(e.getLocation())) {
-				continue; // Order Location Does Not Match
-			}
+		    //moved to SQL
+//			Encounter e = o.getEncounter();
+//			if (location != null && !location.equals(e.getLocation())) {
+//				continue; // Order Location Does Not Match
+//			}
 			// TODO: This shouldn't be necessary, but it seems like the OrderService does not do it correctly?
 			if (status != null) {
 				if ( (status == ORDER_STATUS.CURRENT && o.isDiscontinued(now)) || (status == ORDER_STATUS.COMPLETE && o.isCurrent()) ) {
 					continue;
 				}
 			}
-			if (orderDate != null) {
-				Date orderStartDate = o.getStartDate() != null ? o.getStartDate() : e.getEncounterDatetime();
-				if (orderStartDate == null || (!Context.getDateFormat().format(orderDate).equals(Context.getDateFormat().format(orderStartDate)))) {
-					continue; // Order Start Date Does Not Match
-				}
-			}
-			log.debug("Adding lab order: " + o);
+//			if (orderDate != null) {
+//				Date orderStartDate = o.getStartDate() != null ? o.getStartDate() : e.getEncounterDatetime();
+//				if (orderStartDate == null || (!Context.getDateFormat().format(orderDate).equals(Context.getDateFormat().format(orderStartDate)))) {
+//					continue; // Order Start Date Does Not Match
+//				}
+//			}
+//			log.debug("Adding lab order: " + o);
 			orderList.add(o);
 		}
 		
@@ -194,7 +205,8 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		
 			LabOrderReport report = runLabOrderReport(location, startDate,endDate);
 			ExcelReportRenderer renderer = new ExcelReportRenderer();
-			File file = new File("lab-order-report.xls");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ssZ");
+			File file = new File(OpenmrsUtil.getDirectoryInApplicationDataDirectory("SimpleLabEntry"), "lab-order-report" + sdf.format(new Date()) + ".xls");
 			fos = new FileOutputStream(file);
 			renderer.render(report, fos);
 			return file;
@@ -218,10 +230,10 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 				
 		List<Map<String,String>> dataset = new ArrayList<Map<String,String>>();
 				
-		log.info("Location=" + location + ", startDate=" + startDate  + ", endDate=" + endDate);
+		//log.info("Location=" + location + ", startDate=" + startDate  + ", endDate=" + endDate);
 		
 		List<Encounter> encounters = getLabOrderEncounters(location, startDate, endDate);
-		log.info("Encounters found: " + encounters.size());
+		//log.info("Encounters found: " + encounters.size());
 		
 		PatientIdentifierType identifierType = SimpleLabEntryUtil.getPatientIdentifierType();
 		
@@ -249,7 +261,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		}
 
 		for (Encounter encounter : mergedEncounters.values()) {			
-			log.info("Encounter for " + encounter.getPatient() + " on " + encounter.getEncounterDatetime());
+			//log.info("Encounter for " + encounter.getPatient() + " on " + encounter.getEncounterDatetime());
 			Map<String,String> row = new LinkedHashMap<String,String>();
 			row.put("Patient ID", encounter.getPatient().getPatientId().toString());						
 			row.put("IMB ID", encounter.getPatient().getPatientIdentifier(identifierType).getIdentifier());
