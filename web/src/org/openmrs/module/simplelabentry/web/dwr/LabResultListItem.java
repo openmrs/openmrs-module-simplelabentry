@@ -29,6 +29,7 @@ public class LabResultListItem {
 	private Integer obsId;
 	private Integer conceptId;
 	private String result;
+	private Integer testFailureCode = 0; //0 = no failure, 1 = railed re-order, 2 = failed no re-order, 3 = order closed
 	
 	public LabResultListItem() { }
 	
@@ -37,10 +38,24 @@ public class LabResultListItem {
 		obsId = obs.getObsId();
 		conceptId = obs.getConcept().getConceptId();
 		result = getValueStringFromObs(obs);
+		if (obs.getComment() != null && obs.getComment().contains("Failed")){
+		    testFailureCode = 2;
+		} else if (obs.getComment() != null && obs.getComment().contains("Re-Order")){
+		    testFailureCode = 1;
+		} else if (obs.getComment() != null && obs.getComment().contains("Closed")){
+            testFailureCode = 3;
+        }
 	}
 	
 	public String toString() {
-		return "result: " + orderId + "," + obsId + "," + conceptId + "," + result;
+	    String ret = "result: " + orderId + "," + obsId + "," + conceptId + "," + result ;
+	    if (this.testFailureCode.equals(1))
+	        ret += "Failed: Re-Order";
+	    if (this.testFailureCode.equals(2))
+            ret += "Failed: No Re-Order";
+	    if (this.testFailureCode.equals(3))
+            ret += "Re-Ordered and Closed";
+		return ret;
 	}
 	
 	public static String getValueStringFromObs(Obs obs) {
@@ -64,7 +79,7 @@ public class LabResultListItem {
 		return result;
 	}
 	
-	public static void setObsFromValueString(Obs obs, String value) {
+	public static void setObsFromValueString(Obs obs, String value, String failureCode) {
 		ConceptDatatype dt = obs.getConcept().getDatatype();
 		if (dt.isBoolean() || dt.isNumeric()) {
 			obs.setValueNumeric(value == null ? null : Double.valueOf(value));
@@ -86,7 +101,40 @@ public class LabResultListItem {
 		else {
 			throw new RuntimeException("Unable to set value of " + value + " for obs: " + obs);
 		}
+		
+		if (failureCode.equals("1"))
+		    obs.setComment("Re-Order");
+		else if (failureCode.equals("2"))
+            obs.setComment("Failed");
+		if (failureCode.equals("3"))
+            obs.setComment("Closed");
 	}
+	
+	public static String getFailureCodeStringFromObs(Obs o){
+	    if (o.getComment() == null)
+	        return "0";
+	    else if (o.getComment().equals("Re-Order"))
+	        return "1";
+	    else if (o.getComment().equals("Failed"))
+	        return "2";
+	    else if (o.getComment().equals("Closed"))
+            return "3";
+	    else
+	        return null;
+	}
+	
+	public static String getReadibleFailureStringFromObs(Obs o){
+        if (o.getComment() == null)
+            return "";
+        else if (o.getComment().equals("Re-Order"))
+            return "Re-Order";
+        else if (o.getComment().equals("Failed"))
+            return "Failed, Do Not Reorder";
+        else if (o.getComment().equals("Closed"))
+            return "Test Re-Ordered, Order Closed";
+        else
+            return "";
+    }
 
 	public boolean equals(Object obj) {
 		if (obj instanceof LabResultListItem) {
@@ -136,4 +184,13 @@ public class LabResultListItem {
 	public void setResult(String result) {
 		this.result = result;
 	}
+
+    public Integer getTestFailureCode() {
+        return testFailureCode;
+    }
+
+    public void setTestFailureCode(Integer testFailureCode) {
+        this.testFailureCode = testFailureCode;
+    }
+	
 }

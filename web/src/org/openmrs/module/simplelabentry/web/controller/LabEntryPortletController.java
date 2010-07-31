@@ -55,7 +55,17 @@ public class LabEntryPortletController extends PortletController {
 		model.put("orderTypeId", orderTypeId);
 		
 		log.debug("Retrieving orders for: location="+orderLocationId+",concept="+orderSetConceptId+"," +"date="+orderDateStr+",type="+orderTypeId+",limit="+limit);
-
+		
+		
+		String identifierTypeIdString = Context.getAdministrationService().getGlobalProperty("simplelabentry.patientIdentifierType");
+        try {
+            Integer i = Integer.valueOf(identifierTypeIdString);
+        } catch (Exception ex){
+            throw new RuntimeException("Please set global property simplelabentry.patientIdentifierType to a valid patient identifier id.");
+        }
+        model.put("patientIdentifierType", Context.getPatientService().getPatientIdentifierType(Integer.valueOf(identifierTypeIdString)));
+        
+        
 		List<Order> labOrderList = new ArrayList<Order>();
 		try {
 			Concept concept = StringUtils.hasText(orderSetConceptId) ? Context.getConceptService().getConcept(Integer.parseInt(orderSetConceptId)) : null;

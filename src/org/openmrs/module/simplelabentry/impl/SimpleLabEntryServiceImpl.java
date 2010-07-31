@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
@@ -24,6 +26,7 @@ import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.api.APIException;
 import org.openmrs.api.OrderService.ORDER_STATUS;
@@ -37,6 +40,7 @@ import org.openmrs.module.simplelabentry.report.ExcelReportRenderer;
 import org.openmrs.module.simplelabentry.report.LabOrderReport;
 import org.openmrs.module.simplelabentry.util.DateUtil;
 import org.openmrs.module.simplelabentry.util.SimpleLabEntryUtil;
+import org.openmrs.module.simplelabentry.web.dwr.LabResultListItem;
 import org.openmrs.report.DataSetDefinition;
 import org.openmrs.report.EvaluationContext;
 import org.openmrs.util.OpenmrsUtil;
@@ -263,8 +267,33 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 		for (Encounter encounter : mergedEncounters.values()) {			
 			//log.info("Encounter for " + encounter.getPatient() + " on " + encounter.getEncounterDatetime());
 			Map<String,String> row = new LinkedHashMap<String,String>();
-			row.put("Patient ID", encounter.getPatient().getPatientId().toString());						
-			row.put("IMB ID", encounter.getPatient().getPatientIdentifier(identifierType).getIdentifier());
+			row.put("Patient ID", encounter.getPatient().getPatientId().toString());	
+			
+
+			PatientIdentifier pi = encounter.getPatient().getPatientIdentifier(identifierType);
+			if (pi == null){
+			    List<Integer> idTypeList = new ArrayList<Integer>();
+			    String gpList = Context.getAdministrationService().getGlobalProperty("simplelabentry.patientIdentifierTypesToSearch");
+		        for (StringTokenizer st = new StringTokenizer(gpList, ","); st.hasMoreTokens(); ) {
+		            String s = st.nextToken().trim();
+		            try {
+		                idTypeList.add(Context.getPatientService().getPatientIdentifierType(Integer.valueOf(s)).getPatientIdentifierTypeId());
+		            } catch (Exception ex){
+		                log.error("Could not load identifier type " + s + ".  Check the global property simplelabentry.patientIdentifierTypesToSearch");
+		            }
+		        }
+		        for (PatientIdentifier idTmp : encounter.getPatient().getIdentifiers()){
+                    if (idTypeList.contains(idTmp.getIdentifierType().getPatientIdentifierTypeId())){
+                        pi = idTmp;
+                        break;
+                    }
+                }
+			}
+			if (pi != null)
+			    row.put("Patient Identifier", pi.getIdentifier());
+			else
+			    row.put("Patient Identifier", "");
+			
 			row.put("Family Name", encounter.getPatient().getFamilyName());
 			row.put("Given", encounter.getPatient().getGivenName());
 			row.put("Age", DateUtil.getTimespan(new Date(), encounter.getPatient().getBirthdate()));
@@ -272,6 +301,13 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			row.put("Group", treatmentGroups.get(encounter.getPatientId()));
 			row.put("Location", encounter.getLocation().getName());				
 			row.put("Sample Date", Context.getDateFormat().format(encounter.getEncounterDatetime()));
+			
+			Set<Order> oSet = encounter.getOrders();
+			for (Order o:oSet){
+			    row.put("Order ID", o.getAccessionNumber());
+			    break;
+			}
+			
 
 			/* 
 			 * FIXME Quick hack to get a desired observation by concept. This currently 
@@ -311,6 +347,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 					value = obs.getValueAsString(Context.getLocale());
 				}
 				row.put(conceptColumn.getDisplayName(), value);
+				row.put(conceptColumn.getDisplayName()+ " FAILURE", LabResultListItem.getReadibleFailureStringFromObs(obs));
 			}			
 			// Add row to dataset
 			dataset.add(row);

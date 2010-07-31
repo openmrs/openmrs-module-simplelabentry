@@ -241,6 +241,7 @@
 			$j(".labResultDetail input[name='discontinuedDate']").val(order.discontinuedDateString);
 			for (i=0; i<order.labResults.length; i++) {
 				$j("[name='resultValue."+order.conceptId+"."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
+				$j("[name='didTestFail_"+order.conceptId+"."+order.labResults[i].conceptId+"']").val(order.labResults[i].testFailureCode);
 			}
 			$j(".labResultSection"+order.conceptId).show();
 		});
@@ -349,8 +350,19 @@
 				labResultMap[cId] = r;
 			}
 		});
-
-		DWRSimpleLabEntryService.saveLabOrders(_selectedOrderId, _selectedPatientId, orderConceptIds, orderLoc, orderDate, accessionNum, discontinuedDate, labResultMap,
+		var resultFailureMap = {};
+		$j(".labResultConcept").each( function(i) {
+			var cIdsToSplit = $j(this).text();
+			var cId = cIdsToSplit.split(".",2)[1];
+			var resultStr = $j("[name='didTestFail_" + cIdsToSplit + "']").val();
+			if (resultStr != null && resultStr != '') {
+				var r = new Object();
+				r.conceptId = cId;
+				r.result = resultStr;
+				resultFailureMap[cId] = r;
+			}
+		});
+		DWRSimpleLabEntryService.saveLabOrders(_selectedOrderId, _selectedPatientId, orderConceptIds, orderLoc, orderDate, accessionNum, discontinuedDate, labResultMap, resultFailureMap,
 				{ 	callback:function(createdOrder) {
 						clearFormFields();
 						location.reload();
@@ -401,7 +413,7 @@
 <div style="align:left;" class="box" >	
 
 <c:if test="${model.allowAdd == 'true'}">
-		Enter IMB ID: 
+		Enter ${model.patientIdentifierType}: 
 		<input type="text" id="patientIdentifier" class="orderField" name="patientIdentifier" />
 		<input type="button" value="Search" id="SearchByIdButton" onclick="matchPatientById('${patientIdType}',$('patientIdentifier').value);" />
 		<input type="button" value="Clear" onclick="clearFormFields();" />
@@ -415,7 +427,7 @@
 			</span>
 			<table id="matchedPatientTable">
 				<tr>
-					<th>IMB ID</th>
+					<th>Patient ID</th>
 					<th>Given Name / Family Name</th>
 					<th>Group</th>
 					<th>Sex</th>
@@ -508,13 +520,15 @@
 				<c:when test="${model.limit=='closed'}">Closed Orders</c:when>
 				<c:otherwise>All Orders</c:otherwise>
 			</c:choose>
-		</b>
-		<table style="width:100%;">
+		</b> 
+		<table style="width:100%;"> 
 			<tr style="background-color:#CCCCCC;">
 				<th></th>
 				<th>Date</th>
 				<th>Lab ID</th>
-				<th>IMB ID</th>
+				<th>
+					Patient ID
+				</th>
 				<th>Given Name / Family Name</th>
 				<th>Sex</th>
 				<th>Age</th>
@@ -537,7 +551,19 @@
 						</td>
 						<td><openmrs:formatDate date="${order.encounter.encounterDatetime}" /></td>
 						<td>${order.accessionNumber}</td>
-						<td>${order.patient.patientIdentifier}</td>
+						<td>
+							<c:set var="idFound" value="0" />
+							<c:forEach items="${order.patient.identifiers}" var="id" varStatus="varStatus">
+								<c:if test="${id.identifierType.patientIdentifierTypeId == patientIdType}">
+									<c:set var="idFound" value="1" />
+									${id.identifier}
+								</c:if>
+							</c:forEach>
+							<c:if test="${idFound == 0}">
+								${order.patient.patientIdentifier}
+							</c:if>
+							
+						</td>
 						<td>
 							<a href="${pageContext.request.contextPath}/admin/patients/patient.form?patientId=${order.patient.patientId}" target="_blank">
 								${order.patient.personName.givenName} ${order.patient.personName.familyName}
@@ -622,6 +648,13 @@
 										<td class="labResultTemplateCell">
 											<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${record.conceptId}</span>
 											<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${record.conceptId}" size="5" />
+											&nbsp;&nbsp;&nbsp;If the test failed: 
+										<select name="didTestFail_${labConcept.conceptId}.${labConcept.conceptId}">
+											<option value="0"></option>
+											<option value="1">clinician needs to reorder the test</option>
+											<!--<option value="2">test failed, but do not re-order</option>-->
+											<option value="3">test re-ordered, close this order</option>
+										</select>
 										</td>
 									</openmrs:forEachRecord>
 								</c:when>
@@ -629,6 +662,13 @@
 									<td class="labResultTemplateCell">
 										<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${labConcept.conceptId}</span>
 										<openmrs_tag:obsValueField conceptId="${labConcept.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${labConcept.conceptId}" size="5" />
+										&nbsp;&nbsp;&nbsp;If the test failed: 
+										<select name="didTestFail_${labConcept.conceptId}.${labConcept.conceptId}">
+											<option value="0"></option>
+											<option value="1">clinician needs to reorder the test</option>
+											<option value="2">test failed, but do not re-order</option>
+											<option value="3">test re-ordered, close this order</option>
+										</select>	
 									</td>
 								</c:otherwise>
 							</c:choose>
@@ -636,8 +676,8 @@
 					</table>
 				</div>
 			</c:forEach>
-	 		<div class="labResultDetailTemplate">
-				<b style="padding-left:10px;">Date of Result:</b> <input type="text" name="discontinuedDate" size="10" onFocus="showCalendar(this);" />
+	 		<div class="labResultDetailTemplate"> 
+				<b style="padding-left:10px;">Date of Result or Test Failure:</b> <input type="text" name="discontinuedDate" size="10" onFocus="showCalendar(this);" />
 			</div>
 		</div>
 		<br/>

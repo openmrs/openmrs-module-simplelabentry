@@ -61,7 +61,10 @@ public class ConceptColumn {
 	
 	public Boolean isPrecise() { 
 		if (isNumeric()) { 
-			return ((ConceptNumeric) concept).getPrecise();
+		    //hack alert:  this fails:
+			//return ((ConceptNumeric) concept).getPrecise();
+		    ConceptNumeric cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
+		    return cn.isPrecise();
 		}
 		return false;
 	}

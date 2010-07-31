@@ -6,7 +6,7 @@
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
 	<name>Simple Lab Entry</name>
-	<version>1.6.5</version>
+	<version>1.6.7</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>PIH</author>
 	<description>Lab Order and Result Entry</description>
@@ -58,6 +58,13 @@
 		</description>
 	</globalProperty>
 	<globalProperty>
+		<property>@MODULE_ID@.patientIdentifierTypesToSearch</property>
+		<defaultValue></defaultValue>
+		<description>
+			Other patient identifier types to include when searching for a patient by ID.  Comma delimited set of patient identifier type IDs.
+		</description>
+	</globalProperty>
+	<globalProperty>
 		<property>@MODULE_ID@.patientHealthCenterAttributeType</property>
 		<defaultValue></defaultValue>
 		<description>The PersonAttributeTypeId for the PersonAttributeType representing the Patient's Health Center</description>
@@ -79,6 +86,11 @@
 			This is used in conjunction with the "programToDisplay" property.  This should be the name of the workflow, not the id.
 			For example, "ANTIRETROVIRAL TREATMENT GROUP"
 		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.labReportConcepts</property>
+		<defaultValue>5497,730,653,654,790,1015,21,1017,678,3059,3060,952,1021,729,856</defaultValue>
+		<description>The list of concepts that you want to see in the lab report, in column order.  comma-delimited concept ids.</description>
 	</globalProperty>
 	<!-- /Required Global Properties -->
 	<!-- DWR -->

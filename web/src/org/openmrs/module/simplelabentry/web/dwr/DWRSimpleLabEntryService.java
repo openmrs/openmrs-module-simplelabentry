@@ -8,6 +8,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -114,9 +117,19 @@ public class DWRSimpleLabEntryService {
 	 * @return LabPatientListItem - The LabPatientListItem for the patient that matches the given identifier / type combination
 	 */	
 	public LabPatientListItem getPatientByIdentifier(Integer patientIdentifierTypeId, String patientIdentifier) {
+	    //TODO: add secondary identifier types to this module, same as primary care.
 		PatientService ps = Context.getPatientService();
 		PatientIdentifierType idType = ps.getPatientIdentifierType(patientIdentifierTypeId);
 		List<PatientIdentifierType> idTypeList = new java.util.ArrayList<PatientIdentifierType>();
+		String gpList = Context.getAdministrationService().getGlobalProperty("simplelabentry.patientIdentifierTypesToSearch");
+		for (StringTokenizer st = new StringTokenizer(gpList, ","); st.hasMoreTokens(); ) {
+            String s = st.nextToken().trim();
+            try {
+                idTypeList.add(Context.getPatientService().getPatientIdentifierType(Integer.valueOf(s)));
+            } catch (Exception ex){
+                log.error("Could not load identifier type " + s + ".  Check the global property simplelabentry.patientIdentifierTypesToSearch");
+            }
+		}
 		idTypeList.add(idType);
 		log.debug("Looking for patient with Identifier: " + idType.getName() + ": " + patientIdentifier);
 		List<Patient> patList = ps.getPatients(null, patientIdentifier, idTypeList, true);
@@ -388,10 +401,11 @@ public class DWRSimpleLabEntryService {
 	 * @param accessionNumber  The accession number for the Order
 	 * @param discontinuedDateStr - A String containing the Order Discontinued Date
 	 * @param labResults - Map<String, LabResultListItem> containing a Map of concept string to LabResultListItem to save
+	 * @param resultFailureMap - Map<String, LabResultListItem> containing a Map of concept string to LabResultListItem to save
 	 * 
 	 * @return List<LabOrderListItem> - The saved LabOrders
 	 */
-	public List<LabOrderListItem> saveLabOrders(Integer orderId, Integer patientId, List<Integer> orderConceptIds, String orderLocationStr, String orderDateStr, String accessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults) {
+	public List<LabOrderListItem> saveLabOrders(Integer orderId, Integer patientId, List<Integer> orderConceptIds, String orderLocationStr, String orderDateStr, String accessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults, Map<String, LabResultListItem> resultFailureMap) {
 		
 		log.debug("Saving LabOrder with params: " + orderId + ", " + patientId + ", " + orderConceptIds + ", " + orderLocationStr + ", " + orderDateStr + ", " + accessionNumber + ", " + discontinuedDateStr + ", " + labResults);
 		Patient patient = null;
@@ -402,7 +416,9 @@ public class DWRSimpleLabEntryService {
 		OrderType orderType = null;
 		Date discontinuedDate = null;
 		Date today = new Date();
-		
+		Set<String> concepts = new TreeSet<String>();
+        concepts.addAll(labResults.keySet());
+        concepts.addAll(resultFailureMap.keySet());
 		List<String> errors = new ArrayList<String>();
 		
 		// Validate input
@@ -546,6 +562,16 @@ public class DWRSimpleLabEntryService {
 				}
 			}
 		}
+		//check for test failure
+        if (!hasLabResults){
+                for (String resultConcept : resultFailureMap.keySet()){
+                LabResultListItem fli = resultFailureMap.get(resultConcept);
+                if (fli != null && fli.getResult().equals("1") || fli.getResult().equals("2") || fli.getResult().equals("3")){
+                    hasLabResults = true;
+                }    
+            }
+        }
+        
 		if (!hasLabResults && discontinuedDate != null) {
 			errors.add("You cannot enter a result date if no results have been entered.");
 		}
@@ -622,19 +648,30 @@ public class DWRSimpleLabEntryService {
 				o.setDiscontinuedBy(null);
 			}
 			
+			
+			
 			// Lab Results
-			for (String resultConcept : labResults.keySet()) {
+			
+			for (String resultConcept : concepts) {
 				LabResultListItem rli = labResults.get(resultConcept);
+				LabResultListItem fli = resultFailureMap.get(resultConcept);
 				boolean needToAdd = true;
 				for (Obs obs : e.getObs()) {
 					if (obs.getConcept().getConceptId().toString().equals(resultConcept)) {
 						String previousResult = LabResultListItem.getValueStringFromObs(obs);
-						if (previousResult != null && previousResult.equals(rli.getResult())) {
+						String previousFailureResult = LabResultListItem.getFailureCodeStringFromObs(obs);
+						//if there's no difference in test result
+						if (rli != null && OpenmrsUtil.nullSafeEquals(previousResult, rli.getResult()) && (fli != null && OpenmrsUtil.nullSafeEquals(previousFailureResult, fli.getResult()) || fli == null)) {
 							log.debug("Concept: " + obs.getConcept().getName() + ", value: " + rli.getResult() + " has not changed.");
 							needToAdd = false;
+ 
+						//of there's no result but a failureCode	
+						} else if (rli == null && fli != null && OpenmrsUtil.nullSafeEquals(previousFailureResult, fli.getResult())){
+						     needToAdd = false;
 						}
 						else {
-							log.debug("Concept: " + obs.getConcept().getName() + " has changed value from: " + previousResult + " to: " + rli.getResult());
+						    if (rli != null)
+						        log.debug("Concept: " + obs.getConcept().getName() + " has changed value from: " + previousResult + " to: " + rli.getResult());
 							obs.setVoided(true);
 							obs.setVoidedBy(user);
 						}
@@ -647,7 +684,7 @@ public class DWRSimpleLabEntryService {
 					newObs.setObsDatetime(e.getEncounterDatetime());
 					newObs.setOrder(o);
 					newObs.setPerson(e.getPatient());
-					LabResultListItem.setObsFromValueString(newObs, rli.getResult());
+					LabResultListItem.setObsFromValueString(newObs, rli == null ? null : rli.getResult(), fli == null ?  null : fli.getResult());
 					newObs.setAccessionNumber(accessionNumber);
 					newObs.setCreator(user);
 					newObs.setDateCreated(now);

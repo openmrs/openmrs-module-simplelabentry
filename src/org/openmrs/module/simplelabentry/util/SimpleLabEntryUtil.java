@@ -1,11 +1,13 @@
 package org.openmrs.module.simplelabentry.util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,6 +22,7 @@ import org.openmrs.PatientState;
 import org.openmrs.PersonAttributeType;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.simplelabentry.SimpleLabEntryService;
 import org.openmrs.module.simplelabentry.report.DataSet;
@@ -130,28 +133,40 @@ public class SimpleLabEntryUtil {
 	
 	/**
 	 * This is required because columns need to be in a specific order.
-	 * TODO Move this to a global property at some point
 	 * @return
 	 */
 	public static List<Concept> getLabReportConcepts() { 
-		List<Concept> concepts = new LinkedList<Concept>();
-		concepts.add(Context.getConceptService().getConceptNumeric(5497)); // CD4 (5497)
-		concepts.add(Context.getConceptService().getConceptNumeric(730)); // CD4% (730)
-		concepts.add(Context.getConceptService().getConceptNumeric(653)); // SGOT (653)
-		concepts.add(Context.getConceptService().getConceptNumeric(654)); // SGPT (654)
-		concepts.add(Context.getConceptService().getConceptNumeric(790)); // Cr (790)
-		concepts.add(Context.getConceptService().getConceptNumeric(1015)); // HCT (1015)
-		concepts.add(Context.getConceptService().getConceptNumeric(21)); // HB (21))
-		concepts.add(Context.getConceptService().getConceptNumeric(1017)); // MCHC (1017)
-		concepts.add(Context.getConceptService().getConceptNumeric(678)); // WBC (678)
-		concepts.add(Context.getConceptService().getConceptNumeric(3059)); // Gr (3059)
-		concepts.add(Context.getConceptService().getConceptNumeric(3060)); // Gr% (3060)
-		concepts.add(Context.getConceptService().getConceptNumeric(952)); // ALC (952)
-		concepts.add(Context.getConceptService().getConceptNumeric(1021)); // Ly% (1021)
-		concepts.add(Context.getConceptService().getConceptNumeric(729)); // PLTS (729)
-		concepts.add(Context.getConceptService().getConceptNumeric(856)); // Viral Load (856)		
-		//concepts.add(Context.getConceptService().getConcept(3055)); // Ur (3055)
-		return concepts;
+	    //5497,730,653,654,790,1015,21,1017,678,3059,3060,952,1021,729,856
+//		List<Concept> concepts = new LinkedList<Concept>();
+//		concepts.add(Context.getConceptService().getConceptNumeric(5497)); // CD4 (5497)
+//		concepts.add(Context.getConceptService().getConceptNumeric(730)); // CD4% (730)
+//		concepts.add(Context.getConceptService().getConceptNumeric(653)); // SGOT (653)
+//		concepts.add(Context.getConceptService().getConceptNumeric(654)); // SGPT (654)
+//		concepts.add(Context.getConceptService().getConceptNumeric(790)); // Cr (790)
+//		concepts.add(Context.getConceptService().getConceptNumeric(1015)); // HCT (1015)
+//		concepts.add(Context.getConceptService().getConceptNumeric(21)); // HB (21))
+//		concepts.add(Context.getConceptService().getConceptNumeric(1017)); // MCHC (1017)
+//		concepts.add(Context.getConceptService().getConceptNumeric(678)); // WBC (678)
+//		concepts.add(Context.getConceptService().getConceptNumeric(3059)); // Gr (3059)
+//		concepts.add(Context.getConceptService().getConceptNumeric(3060)); // Gr% (3060)
+//		concepts.add(Context.getConceptService().getConceptNumeric(952)); // ALC (952)
+//		concepts.add(Context.getConceptService().getConceptNumeric(1021)); // Ly% (1021)
+//		concepts.add(Context.getConceptService().getConceptNumeric(729)); // PLTS (729)
+//		concepts.add(Context.getConceptService().getConceptNumeric(856)); // Viral Load (856)		
+//		//concepts.add(Context.getConceptService().getConcept(3055)); // Ur (3055)
+	    
+	    
+	    List<Concept> ret = new ArrayList<Concept>();
+	    String conceptList = Context.getAdministrationService().getGlobalProperty("simplelabentry.labReportConcepts");
+	    if (conceptList == null)
+	        throw new RuntimeException("Please set the global property simplelabentry.labReportConcepts");
+	    ConceptService cs = Context.getConceptService();
+	    for (StringTokenizer st = new StringTokenizer(conceptList, ","); st.hasMoreTokens(); ) {
+            String s = st.nextToken().trim();
+            Concept c = cs.getConcept(Integer.valueOf(s));
+            ret.add(c);
+	    }    
+		return ret;
 	}
 	
 	/**
