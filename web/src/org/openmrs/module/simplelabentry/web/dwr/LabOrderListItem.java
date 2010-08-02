@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.simplelabentry.util.SimpleLabEntryUtil;
 
 public class LabOrderListItem {
 	
@@ -36,7 +37,9 @@ public class LabOrderListItem {
 	private String locationName;
 	private String discontinuedDateString;
 	private String accessionNumber;
+	private String instructions;
 	private List<LabResultListItem> labResults = new ArrayList<LabResultListItem>();
+	private List<String> labOrderIdsForPatient = new ArrayList<String>();
 
 	public LabOrderListItem() { }
 	
@@ -51,10 +54,11 @@ public class LabOrderListItem {
 		locationName = order.getEncounter().getLocation().getName();
 		discontinuedDateString = order.getDiscontinuedDate() == null ? null : Context.getDateFormat().format(order.getDiscontinuedDate());
 		accessionNumber = order.getAccessionNumber();
-
+		instructions = order.getInstructions();
 		for (Obs o : order.getEncounter().getObs()) {
 			labResults.add(new LabResultListItem(o));
 		}
+		labOrderIdsForPatient = SimpleLabEntryUtil.getLabOrderIDsByPatient(order.getPatient(), 6);
 	}
 
 	public boolean equals(Object obj) {
@@ -165,4 +169,24 @@ public class LabOrderListItem {
 	public void addLabResult(LabResultListItem labResult) {
 		this.labResults.add(labResult);
 	}
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
+    }
+
+    public List<String> getLabOrderIdsForPatient() {
+        return labOrderIdsForPatient;
+    }
+
+    public void setLabOrderIdsForPatient(List<String> labOrderIdsForPatient) {
+        this.labOrderIdsForPatient = labOrderIdsForPatient;
+    }
+
+    public Log getLog() {
+        return log;
+    }
 }

@@ -1,8 +1,10 @@
 package org.openmrs.module.simplelabentry.util;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +17,9 @@ import org.openmrs.Cohort;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
+import org.openmrs.Order;
 import org.openmrs.OrderType;
+import org.openmrs.Patient;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
@@ -304,6 +308,29 @@ public class SimpleLabEntryUtil {
 		}		
 		return groupedDataSets;
 	}	
+	
+	
+	/**
+	 * 
+	 * Returns a list of orders from the last X months by patient.
+	 * 
+	 * @param p, lastNMonths
+	 * @return
+	 */
+	public static List<String> getLabOrderIDsByPatient(Patient p, Integer lastNMonths){
+	    String orderTypeProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.labOrderType");
+        OrderType orderType = Context.getOrderService().getOrderType(Integer.valueOf(orderTypeProp));
+        List<Order> oList = Context.getOrderService().getOrders(Order.class, Collections.singletonList(p), null, null, null, null, Collections.singletonList(orderType));
+        List<String> ret = new ArrayList<String>();
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.MONTH, -lastNMonths);
+        for (Order o:oList){
+            if (o.getStartDate().after(c.getTime()) && o.getAccessionNumber() != null && !o.getAccessionNumber().equals(""))
+                ret.add(o.getAccessionNumber());
+        }
+        return ret;
+	}
 	
 	
 	

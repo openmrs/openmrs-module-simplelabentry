@@ -247,24 +247,25 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 
 		// Merge any encounters that have the same patient id, sample date and location
 		// NOTE: This does not work if there is more than one obs of a type per day.
-		Map<String, Encounter> mergedEncounters = new HashMap<String, Encounter>();
-		for (Encounter encounter : encounters) {
-			String key = encounter.getPatientId().toString() + Context.getDateFormat().format(encounter.getEncounterDatetime()) +
-				encounter.getLocation().getName();
-			Encounter mergedEncounter = mergedEncounters.get(key);
-			if(mergedEncounter == null)
-				mergedEncounters.put(key, encounter);
-			else {
-				for (Obs currentObs : encounter.getObs()) {
-					if(currentObs.isVoided())
-						continue;
-					
-					mergedEncounter.addObs(currentObs);
-				}
-			}
-		}
+		
+//		Map<String, Encounter> mergedEncounters = new HashMap<String, Encounter>();
+//		for (Encounter encounter : encounters) {
+//			String key = encounter.getPatientId().toString() + Context.getDateFormat().format(encounter.getEncounterDatetime()) +
+//				encounter.getLocation().getName();
+//			Encounter mergedEncounter = mergedEncounters.get(key);
+//			if(mergedEncounter == null)
+//				mergedEncounters.put(key, encounter);
+//			else {
+//				for (Obs currentObs : encounter.getObs()) {
+//					if(currentObs.isVoided())
+//						continue;
+//					
+//					mergedEncounter.addObs(currentObs);
+//				}
+//			}
+//		}
 
-		for (Encounter encounter : mergedEncounters.values()) {			
+		for (Encounter encounter : encounters) { //used to be mergedEncounters.value			
 			//log.info("Encounter for " + encounter.getPatient() + " on " + encounter.getEncounterDatetime());
 			Map<String,String> row = new LinkedHashMap<String,String>();
 			row.put("Patient ID", encounter.getPatient().getPatientId().toString());	
@@ -305,6 +306,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements Sim
 			Set<Order> oSet = encounter.getOrders();
 			for (Order o:oSet){
 			    row.put("Order ID", o.getAccessionNumber());
+			    row.put("Re-Ordered From", o.getInstructions());
 			    break;
 			}
 			

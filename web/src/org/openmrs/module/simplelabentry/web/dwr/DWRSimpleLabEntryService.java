@@ -405,7 +405,7 @@ public class DWRSimpleLabEntryService {
 	 * 
 	 * @return List<LabOrderListItem> - The saved LabOrders
 	 */
-	public List<LabOrderListItem> saveLabOrders(Integer orderId, Integer patientId, List<Integer> orderConceptIds, String orderLocationStr, String orderDateStr, String accessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults, Map<String, LabResultListItem> resultFailureMap) {
+	public List<LabOrderListItem> saveLabOrders(Integer orderId, Integer patientId, List<Integer> orderConceptIds, String orderLocationStr, String orderDateStr, String accessionNumber, String previousAccessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults, Map<String, LabResultListItem> resultFailureMap) {
 		
 		log.debug("Saving LabOrder with params: " + orderId + ", " + patientId + ", " + orderConceptIds + ", " + orderLocationStr + ", " + orderDateStr + ", " + accessionNumber + ", " + discontinuedDateStr + ", " + labResults);
 		Patient patient = null;
@@ -637,6 +637,8 @@ public class DWRSimpleLabEntryService {
 			o.setOrderType(orderType);
 			o.setConcept(orderConcept);
 			o.setAccessionNumber(accessionNumber);
+			if (previousAccessionNumber != null && !previousAccessionNumber.equals(""))
+			o.setInstructions(previousAccessionNumber);
 			o.setStartDate(orderDate); // TODO: Confirm this
 			o.setDiscontinuedDate(discontinuedDate);
 			if (discontinuedDate != null) {

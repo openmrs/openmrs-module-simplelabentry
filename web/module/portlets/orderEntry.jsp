@@ -236,8 +236,13 @@
 			$j(".orderDetailSection input[name='startDate']").val(order.startDateString);
 			$j(".orderDetailSection select[name='location']").val(order.locationId);
 			$j(".orderDetailSection select[name='concept']").val(order.conceptId);
+			for (var i = 0; i < order.labOrderIdsForPatient.length; i++){
+				var optionVal = order.labOrderIdsForPatient[i];
+				$j(".orderDetailSection select[name='previousAccessionNumber']").append(new Option(optionVal, optionVal));
+			}
 			enableDisableOrderFields();
 			$j(".orderDetailSection input[name='accessionNumber']").val(order.accessionNumber);
+			$j(".orderDetailSection select[name='previousAccessionNumber']").val(order.instructions);
 			$j(".labResultDetail input[name='discontinuedDate']").val(order.discontinuedDateString);
 			for (i=0; i<order.labResults.length; i++) {
 				$j("[name='resultValue."+order.conceptId+"."+order.labResults[i].conceptId+"']").val(order.labResults[i].result);
@@ -322,6 +327,7 @@
 		var orderLoc = $j(".orderDetailSection select[name='location']").val();
 		var orderDate = $j(".orderDetailSection input[name='startDate']").val();
 		var accessionNum = $j(".orderDetailSection input[name='accessionNumber']").val();
+		var previousAccessionNum = $j(".orderDetailSection select[name='previousAccessionNumber']").val();
 		var discontinuedDate = $j(".labResultDetail input[name='discontinuedDate']").val();
 		var orderConceptIds = [];
 
@@ -362,7 +368,7 @@
 				resultFailureMap[cId] = r;
 			}
 		});
-		DWRSimpleLabEntryService.saveLabOrders(_selectedOrderId, _selectedPatientId, orderConceptIds, orderLoc, orderDate, accessionNum, discontinuedDate, labResultMap, resultFailureMap,
+		DWRSimpleLabEntryService.saveLabOrders(_selectedOrderId, _selectedPatientId, orderConceptIds, orderLoc, orderDate, accessionNum, previousAccessionNum, discontinuedDate, labResultMap, resultFailureMap,
 				{ 	callback:function(createdOrder) {
 						clearFormFields();
 						location.reload();
@@ -526,6 +532,7 @@
 				<th></th>
 				<th>Date</th>
 				<th>Lab ID</th>
+				<th>Re-Order From</th>
 				<th>
 					Patient ID
 				</th>
@@ -551,6 +558,7 @@
 						</td>
 						<td><openmrs:formatDate date="${order.encounter.encounterDatetime}" /></td>
 						<td>${order.accessionNumber}</td>
+						<td>${order.instructions}</td>
 						<td>
 							<c:set var="idFound" value="0" />
 							<c:forEach items="${order.patient.identifiers}" var="id" varStatus="varStatus">
@@ -610,6 +618,10 @@
 				<td><openmrs_tag:locationField formFieldName="location" /></td>
 				<th><spring:message code="simplelabentry.orderDate" />: </th>
 				<td><input type="text" name="startDate" size="10" readonly="readonly"/></td> <!-- onFocus="showCalendar(this)"  --> 
+			</tr>
+			<tr>
+				<th>If this is a re-order, what was the original Lab ID?</th>
+				<td colspan="5"><select class="previousAccessionNumber" name="previousAccessionNumber" id="previousAccessionNumber"><option value=""></option></select></td>
 			</tr>
 			<tr>
 				<th><spring:message code="simplelabentry.orderType" />:</th>
