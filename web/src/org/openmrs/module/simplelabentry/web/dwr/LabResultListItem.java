@@ -113,14 +113,13 @@ public class LabResultListItem {
 	public static String getFailureCodeStringFromObs(Obs o){
 	    if (o.getComment() == null)
 	        return "0";
-	    else if (o.getComment().equals("Re-Order"))
+	    if (o.getComment().equals("Re-Order"))
 	        return "1";
 	    else if (o.getComment().equals("Failed"))
 	        return "2";
 	    else if (o.getComment().equals("Closed"))
             return "3";
-	    else
-	        return null;
+	    else return "0";
 	}
 	
 	public static String getReadibleFailureStringFromObs(Obs o){

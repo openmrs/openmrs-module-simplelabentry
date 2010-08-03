@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.simplelabentry.web.dwr;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.openmrs.PersonAddress;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.simplelabentry.util.SimpleLabEntryUtil;
 import org.openmrs.web.dwr.PatientListItem;
 import org.springframework.util.StringUtils;
 
@@ -43,8 +45,17 @@ public class LabPatientListItem extends PatientListItem {
 	private String neighborhoodCell = "";
 	private String programState = "";
 	private String lastObs = "";
+	private List<String> labOrderIdsForPatient = new ArrayList<String>();
 	
-	public LabPatientListItem() { }
+	public List<String> getLabOrderIdsForPatient() {
+        return labOrderIdsForPatient;
+    }
+
+    public void setLabOrderIdsForPatient(List<String> labOrderIdsForPatient) {
+        this.labOrderIdsForPatient = labOrderIdsForPatient;
+    }
+
+    public LabPatientListItem() { }
 
 	public LabPatientListItem(Patient patient) {
 		super(patient);
@@ -138,6 +149,7 @@ public class LabPatientListItem extends PatientListItem {
 				setCityVillage(address.getCityVillage());
 				setNeighborhoodCell(address.getNeighborhoodCell());
 			}
+			labOrderIdsForPatient = SimpleLabEntryUtil.getLabOrderIDsByPatient(patient, 6);
 		}
 	}
 	

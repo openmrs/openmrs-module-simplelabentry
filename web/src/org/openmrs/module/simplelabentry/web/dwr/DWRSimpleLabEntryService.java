@@ -37,6 +37,7 @@ import org.openmrs.api.PatientIdentifierException;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.simplelabentry.SimpleLabEntryService;
+import org.openmrs.module.simplelabentry.util.SimpleLabEntryUtil;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.validator.PatientIdentifierValidator;
 import org.openmrs.web.dwr.DWRPatientService;
@@ -660,21 +661,12 @@ public class DWRSimpleLabEntryService {
 				boolean needToAdd = true;
 				for (Obs obs : e.getObs()) {
 					if (obs.getConcept().getConceptId().toString().equals(resultConcept)) {
-						String previousResult = LabResultListItem.getValueStringFromObs(obs);
-						String previousFailureResult = LabResultListItem.getFailureCodeStringFromObs(obs);
-						//if there's no difference in test result
-						if (rli != null && OpenmrsUtil.nullSafeEquals(previousResult, rli.getResult()) && (fli != null && OpenmrsUtil.nullSafeEquals(previousFailureResult, fli.getResult()) || fli == null)) {
-							log.debug("Concept: " + obs.getConcept().getName() + ", value: " + rli.getResult() + " has not changed.");
-							needToAdd = false;
- 
-						//of there's no result but a failureCode	
-						} else if (rli == null && fli != null && OpenmrsUtil.nullSafeEquals(previousFailureResult, fli.getResult())){
-						     needToAdd = false;
-						}
-						else {
-						    if (rli != null)
-						        log.debug("Concept: " + obs.getConcept().getName() + " has changed value from: " + previousResult + " to: " + rli.getResult());
-							obs.setVoided(true);
+						String previousResult = LabResultListItem.getValueStringFromObs(obs);  //can return a null value
+						String previousFailureResult = LabResultListItem.getFailureCodeStringFromObs(obs);  //can't return a null value only 0,1,2,3
+						if (OpenmrsUtil.nullSafeEquals(previousResult, rli == null ? null : rli.getResult()) && OpenmrsUtil.nullSafeEquals(previousFailureResult, fli == null ? "0" : fli.getResult())) {
+							needToAdd = false;	
+						} else {
+						    obs.setVoided(true);
 							obs.setVoidedBy(user);
 						}
 					}
@@ -690,6 +682,7 @@ public class DWRSimpleLabEntryService {
 					newObs.setAccessionNumber(accessionNumber);
 					newObs.setCreator(user);
 					newObs.setDateCreated(now);
+					newObs.setUuid(UUID.randomUUID().toString());
 					e.addObs(newObs);
 					log.debug("Added obs: " + newObs);
 				}
@@ -724,5 +717,13 @@ public class DWRSimpleLabEntryService {
 		Context.getOrderService().voidOrder(o, reason);
 		if(voidContext)
 			Context.getEncounterService().voidEncounter(o.getEncounter(), reason);
+	}
+	
+	
+	public LabOrderListItem getPreviousOrders(Integer patientId){
+	    LabOrderListItem ret = new LabOrderListItem();
+	    ret.setPatientId(patientId);
+	    ret.setLabOrderIdsForPatient(SimpleLabEntryUtil.getLabOrderIDsByPatient(Context.getPatientService().getPatient(patientId), 6));
+	    return ret;
 	}
 }

@@ -214,7 +214,7 @@
 		
 		$j(".orderDetailSection input[name='startDate']").val('${model.orderDate}');
 		$j(".orderDetailSection select[name='location']").val('${model.orderLocation}');
-		$j(".orderDetailSection select[name='concept']").val('${model.orderConcept}');
+		$j(".orderDetailSection select[name='concept']").val('${model.orderConcept}');	
 		enableDisableOrderFields();
 		$j(".orderDetailSection :button[name='CreateOrderButton']").click( function() { createOrder(); } );
 	}
@@ -238,7 +238,9 @@
 			$j(".orderDetailSection select[name='concept']").val(order.conceptId);
 			for (var i = 0; i < order.labOrderIdsForPatient.length; i++){
 				var optionVal = order.labOrderIdsForPatient[i];
-				$j(".orderDetailSection select[name='previousAccessionNumber']").append(new Option(optionVal, optionVal));
+				if (optionVal != order.accessionNumber){
+					$j(".orderDetailSection select[name='previousAccessionNumber']").append(new Option(optionVal, optionVal));
+				}
 			}
 			enableDisableOrderFields();
 			$j(".orderDetailSection input[name='accessionNumber']").val(order.accessionNumber);
@@ -275,6 +277,11 @@
 				$j("#newOrderSection").show();
 				showNewOrder();
 				$('newPatientIdentifier').innerHTML = patId;
+				for (var i = 0; i < patient.labOrderIdsForPatient.length; i++){
+						var optionVal = patient.labOrderIdsForPatient[i];
+						$j(".orderDetailSection select[name='previousAccessionNumber']").append(new Option(optionVal, optionVal));
+				}
+
 			}	
 		});
 	}
