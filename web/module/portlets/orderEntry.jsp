@@ -2,6 +2,7 @@
 <%@ taglib prefix="simplelabentry" uri="/WEB-INF/view/module/simplelabentry/resources/simplelabentry.tld" %>
 
 <openmrs:htmlInclude file="/scripts/jquery/jquery-1.3.2.min.js" />
+
 <script type="text/javascript">
 	var $j = jQuery.noConflict();
 </script>
@@ -10,6 +11,7 @@
 <openmrs:htmlInclude file="/dwr/interface/DWRPatientService.js" />
 <openmrs:htmlInclude file="/dwr/interface/DWRSimpleLabEntryService.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
+<openmrs:htmlInclude file="/moduleResources/simplelabentry/simplelabentry.js" />
 
 <openmrs:htmlInclude file="/scripts/dojoConfig.js" />
 <openmrs:htmlInclude file="/scripts/dojo/dojo.js" />
@@ -19,9 +21,8 @@
 <openmrs:globalProperty key="simplelabentry.patientIdentifierType" var="patientIdType" />
 <openmrs:globalProperty key="simplelabentry.programToDisplay" var="programToDisplay" />
 <openmrs:globalProperty key="simplelabentry.workflowToDisplay" var="workflowToDisplay" />
-
 <script type="text/javascript">
-
+	var contextPath = "${pageContext.request.contextPath}";
 	<c:if test="${model.allowAdd == 'true'}">
 		dojo.require("dojo.widget.openmrs.PatientSearch");
 	
@@ -438,7 +439,7 @@
 				<span style="display:none;" class="nameMatch">You have selected the following patient.</span> 
 				<span style="display:none;" class="createdPatientMatch">The following patient has been created.</span> 
 			</span>
-			<table id="matchedPatientTable">
+			<table id="matchedPatientTable" class="addressTable">
 				<tr>
 					<th>Patient ID</th>
 					<th>Given Name / Family Name</th>
@@ -492,13 +493,13 @@
 					<th>Family Name</th>
 					<th>Sex</th>
 					<th>Age</th>
-					<th>Province</th>
-					<th>District</th>
-					<th>Sector</th>
-					<th>Cellule</th>
-					<th>Umudugudu</th>
+					<th>Address</th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
 				</tr>
-				<tr>
+				<tr style="vertical-align:top">
 					<td id="newPatientIdentifier"></td>
 					<td><input type="text" class="orderField" id="newFirstName" name="newFirstName" size="10" /></td>
 					<td><input type="text" class="orderField" id="newLastName" name="newLastName" size="10" /></td>
@@ -512,11 +513,34 @@
 						<input type="text" class="orderField" id="newAgeY" name="newAgeY" size="3" />y
 						<input type="text" class="orderField" id="newAgeM" name="newAgeM" size="3" />m
 					</td>
-					<td><input type="text" class="orderField" id="newProvince" name="newProvince" size="10" /></td>
-					<td><input type="text" class="orderField" id="newCountyDistrict" name="newCountyDistrict" size="10" /></td>
-					<td><input type="text" class="orderField" id="newCityVillage" name="newCityVillage" size="10" /></td>
-					<td><input type="text" class="orderField" id="newNeighborhoodCell" name="newNeighborhoodCell" size="10" /></td>
-					<td><input type="text" class="orderField" id="newAddress1" name="newAddress1" size="10" /></td>
+					<td colspan="5" style="padding: 0px 0px 0px 0px; margin:0px 0px 0px 0px;">
+						<table style="padding: 0px 0px 0px 0px; margin:0px 0px 0px 0px;">
+							<tr><td>Country</td><td nowrap>
+							<input type="text" class="orderField countrySaveClass" id="newCountry" name="newCountry"/>
+							<select name="countryselect" class="countryClass">
+							</td></tr>
+							<tr><td>Province</td><td nowrap>
+							<input type="text" class="orderField provinceSaveClass" id="newProvince" name="newProvince" size="10" />
+							<select name="sateProvinceselect" class="provinceClass" />
+							</td></tr>
+							<tr><td>District</td><td nowrap>
+							<input type="text" class="orderField districtSaveClass" id="newCountyDistrict" name="newCountyDistrict" size="10" />
+							<select name="countryDistrictselect" class="districtClass" />
+							</td></tr>
+							<tr><td>Sector</td><td nowrap>
+							<input type="text" class="orderField sectorSaveClass" id="newCityVillage" name="newCityVillage" size="10" />
+							<select name="cityVillageselect" class="sectorClass" />
+							</td></tr>
+							<tr><td>Cell</td><td nowrap>
+							<input type="text" class="orderField cellSaveClass" id="newNeighborhoodCell" name="newNeighborhoodCell" size="10" />
+							<select name="neighborhoodCellselect" class="cellClass" />
+							</td></tr>
+							<tr><td>Umudugudu</td><td nowrap>
+							<input type="text" class="orderField address1SaveClass" id="newAddress1" name="newAddress1" size="10" />
+							<select name="address1select" class="address1Class" />
+							</td></tr>
+						</table>
+					</td>
 					<td>
 						<input type="button" value="Create Patient" id="CreatePatientButton" onclick="createPatient();" />
 						<input type="button" value="Cancel" onclick="clearFormFields();">

@@ -15,9 +15,11 @@ package org.openmrs.module.simplelabentry.web.taglib;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.jsp.tagext.TagSupport;
 
@@ -50,23 +52,26 @@ public class GroupedOrderTag extends TagSupport {
 			ORDER_STATUS status = "open".equals(limit) ? ORDER_STATUS.CURRENT : "closed".equals(limit) ? ORDER_STATUS.COMPLETE : ORDER_STATUS.NOTVOIDED;
 	    	List<Order> openOrders = ls.getLabOrders(null, null, null, status, null);
 	    	
-	    	log.debug("Found " + openOrders.size() + " open orders.");
+	    	log.warn("Found " + openOrders.size() + " open orders.");
 	    	
 	    	Map<String, Integer> numVal = new HashMap<String, Integer>();
-	    	Map<String, String> groupNameVal = new TreeMap<String, String>();
+	    	Map<String, String> groupNameVal = new LinkedHashMap<String, String>();
+	    	Set<String> locations = new TreeSet<String>();
 	    	
 	    	for (Order o : openOrders) {
+	    	    log.warn(o.getStartDate());
 	    		StringBuffer groupName = new StringBuffer();
 	    		groupName.append(ObjectUtils.toString(o.getEncounter().getLocation().getName(), "?") + " ");
 	    		groupName.append(Context.getDateFormat().format(o.getStartDate() != null ? o.getStartDate() : o.getEncounter().getEncounterDatetime()) + " ");
 	    		groupName.append(StringUtils.isBlank(o.getConcept().getName().getShortName()) ?o.getConcept().getName().getName() : o.getConcept().getName().getShortName());
-	    		
+	    		locations.add(o.getEncounter().getLocation().getName());
 	    		StringBuffer groupVal = new StringBuffer();
 	    		groupVal.append(ObjectUtils.toString(o.getEncounter().getLocation().getLocationId(), "?") + ".");
 	    		groupVal.append(Context.getDateFormat().format(o.getStartDate() != null ? o.getStartDate() : o.getEncounter().getEncounterDatetime()) + ".");
 	    		groupVal.append(o.getConcept().getConceptId());
 	    		
-	    		groupNameVal.put(groupName.toString(), groupVal.toString());
+	    		if (!groupNameVal.containsKey(groupName.toString()))
+	    		    groupNameVal.put(groupName.toString(), groupVal.toString());
 	    		
 	    		Integer orderCount = numVal.get(groupName.toString());
 	    		if (orderCount == null) {
@@ -78,10 +83,14 @@ public class GroupedOrderTag extends TagSupport {
 			
 	    	sb.append("<select name=\"" + name + "\" " + javascript + "\">");
 			sb.append("<option value=\"\"></option>");
-			for (String name : groupNameVal.keySet()) {
-				String val = groupNameVal.get(name);
-				Integer count = numVal.get(name);
-				sb.append("<option value=\"" + val + "\"" + (val.equals(defaultValue) ? " selected" : "") + ">" + name + " (" + count + ")" + "</option>");
+			for (String loc : locations){
+			    for (String name : groupNameVal.keySet()) {
+			        if (name.contains(loc)){
+			            String val = groupNameVal.get(name);
+			            Integer count = numVal.get(name);
+			            sb.append("<option value=\"" + val + "\"" + (val.equals(defaultValue) ? " selected" : "") + ">" + name + " (" + count + ")" + "</option>");
+			        }
+			   }
 			}
 			sb.append("</select>");
 		}

@@ -61,6 +61,8 @@ protected static final Log log = LogFactory.getLog(HibernateSimpleLabEntryDAO.cl
             hql += " ((o.startDate is null and o.encounter.encounterDatetime = '" +sdf.format(orderStartDate)+ "') OR (    o.startDate is not null and  o.startDate =   '" +sdf.format(orderStartDate)+ "'     )  )";
         }
         
+        hql += " order by o.startDate desc";
+        
         Query query = sessionFactory.getCurrentSession().createQuery(hql);
         if (concepts != null && concepts.size() > 0){
             query.setParameterList("conceptIds", concepts);

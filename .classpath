@@ -42,5 +42,6 @@
 	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.6.1.12909-.jar"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.6.1.12909-.jar" sourcepath="/openmrs-1.6.x"/>
 	<classpathentry kind="lib" path="lib/poi-3.2-FINAL-20081019.jar"/>
+	<classpathentry kind="lib" path="lib-common/addresshierarchyrwanda-1.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
