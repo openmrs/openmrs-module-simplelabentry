@@ -691,7 +691,7 @@
 										<td class="labResultTemplateCell">
 											<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${record.conceptId}</span>
 											<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${record.conceptId}" size="5" />
-											&nbsp;&nbsp;&nbsp;If the test failed: 
+											<br/>or, if the test failed: <br/>
 										<select name="didTestFail_${labConcept.conceptId}.${labConcept.conceptId}">
 											<option value="0"></option>
 											<option value="1">clinician needs to reorder the test</option>
@@ -705,7 +705,7 @@
 									<td class="labResultTemplateCell">
 										<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${labConcept.conceptId}</span>
 										<openmrs_tag:obsValueField conceptId="${labConcept.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${labConcept.conceptId}" size="5" />
-										&nbsp;&nbsp;&nbsp;If the test failed: 
+										<br/>or, if the test failed: <br/>
 										<select name="didTestFail_${labConcept.conceptId}.${labConcept.conceptId}">
 											<option value="0"></option>
 											<option value="1">clinician needs to reorder the test</option>
