@@ -101,13 +101,14 @@ public class LabResultListItem {
 		else {
 			throw new RuntimeException("Unable to set value of " + value + " for obs: " + obs);
 		}
-		
-		if (failureCode.equals("1"))
-		    obs.setComment("Re-Order");
-		else if (failureCode.equals("2"))
-            obs.setComment("Failed");
-		if (failureCode.equals("3"))
-            obs.setComment("Closed");
+		if (failureCode != null){
+    		if (failureCode.equals("1"))
+    		    obs.setComment("Re-Order");
+    		else if (failureCode.equals("2"))
+                obs.setComment("Failed");
+    		if (failureCode.equals("3"))
+                obs.setComment("Closed");
+		}
 	}
 	
 	public static String getFailureCodeStringFromObs(Obs o){
