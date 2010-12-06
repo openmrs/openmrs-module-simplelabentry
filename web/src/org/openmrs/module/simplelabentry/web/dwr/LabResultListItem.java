@@ -129,7 +129,7 @@ public class LabResultListItem {
         else if (o.getComment().equals("Re-Order"))
             return "Re-Order";
         else if (o.getComment().equals("Failed"))
-            return "Failed, Do Not Reorder";
+            return "Failed";
         else if (o.getComment().equals("Closed"))
             return "Test Re-Ordered, Order Closed";
         else

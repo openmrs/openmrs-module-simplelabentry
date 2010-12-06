@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -331,6 +333,68 @@ public class SimpleLabEntryUtil {
         }
         return ret;
 	}
+	
+	public static String getTestFailureConcept(String groupId) {
+        String testProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.testFailureConcepts");
+        if (testProp != null) {         
+            for (String s : testProp.split(",")) {
+                
+                if(s.indexOf(groupId + ".") > -1)
+                {
+                    return s.substring(s.indexOf(".") + 1);
+                }
+            }
+        }
+        return null;
+	}
+	
+	   /**
+	    * This method returns a list of columns in which no data is found for that dataSet. This can be 
+	    * used to remove redundant columns from reports.
+	    * 
+	    * @param dataSet
+	    * @return List<String>
+	    */
+	   public static List<String> getRedundantColumns(DataSet dataSet) { 
+	       
+	       List<String> redundantColumns = new ArrayList<String>();
+	       for (String columnName : dataSet.firstRow().getColumns()) {             
+	           boolean retain = false;
+	           
+	           for (DataSetRow dataRow : dataSet)  {       
+	               Object value = dataRow.get(columnName);
+	               
+	               if(value != null && !"".equals(value))
+	               {
+	                   retain = true;
+	                   break;
+	               }       
+	            }
+	           
+	           if(!retain)
+	           {
+	               redundantColumns.add(columnName);
+	           }
+	        }          
+	       return redundantColumns;
+	   }
+	
+	 public static Set<Integer> getConceptIdsInLabSetsThatAreNotTests(){
+	     Set<Integer> ret = new HashSet<Integer>();
+	     String idList = Context.getAdministrationService().getGlobalProperty("simplelabentry.conceptsInLabSetsThatAreNotTests");
+	     if (!idList.equals("")){
+	         for (StringTokenizer st = new StringTokenizer(idList, ","); st.hasMoreTokens(); ) {
+	             String s = st.nextToken().trim();
+	             try {
+	                 ret.add(Integer.valueOf(s));
+	             } catch (Exception ex){
+	                 throw new RuntimeException("Please enter a valid values for global property simplelabentry.conceptsInLabSetsThatAreNotTests.");
+	             }
+	         }    
+	     }
+	     return ret;
+	 }
+	
 	
 	
 	

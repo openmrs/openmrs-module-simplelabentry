@@ -63,7 +63,7 @@ public interface SimpleLabEntryService {
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)	
 	public List<Order> getLabOrdersBetweenDates(Location location, Date startDate, Date endDate);
 
-	//@Authorized(OpenmrsConstants.PRIV_VIEW_ORDER_TYPES)	
-	//public OrderType getLabOrderType();
+//	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDER_TYPES)	
+//	public OrderType getLabOrderType();
 	
 }

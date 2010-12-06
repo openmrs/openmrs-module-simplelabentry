@@ -153,7 +153,7 @@ public class DWRSimpleLabEntryService {
 		Patient patient = null;
 		PatientIdentifierType identifierType = null;
 		Location identifierLocation = null;
-		
+        
 		// Validate input
 		List<String> errors = new ArrayList<String>();
 		
@@ -176,6 +176,14 @@ public class DWRSimpleLabEntryService {
 			errors.add("Identifier and Identifier Type are required. Passed values are [" + identifier + ","+ identifierTypeStr + "," + identifierLocationStr + "]");
 		}
 		else {
+		    //if patient already has this identifier but with another identiferType, don't recreate
+	        //just in case dojo patient search found patient through an identifer of another identifier type.
+	        //for example, if we find a patient through primaryCareId "I77", we don't want to 
+	        //create a local IMB ID of "I77"
+	        for (PatientIdentifier pi : patient.getActiveIdentifiers()){
+	            if (pi.getIdentifier().equals(identifier))
+	                return new LabPatientListItem(patient);
+	        }
 			try {
 				identifierType = Context.getPatientService().getPatientIdentifierType(Integer.valueOf(identifierTypeStr));
 				if (identifierType == null) {
@@ -683,7 +691,9 @@ public class DWRSimpleLabEntryService {
 					newObs.setCreator(user);
 					newObs.setDateCreated(now);
 					newObs.setUuid(UUID.randomUUID().toString());
-					e.addObs(newObs);
+					//only add obs if either value is set, or failure recorded in comment:
+					if (newObs.getComment() != null || !newObs.getValueAsString(Context.getLocale()).equals("") || newObs.getValueModifier() != null)
+					    e.addObs(newObs);
 					log.debug("Added obs: " + newObs);
 				}
 			}

@@ -3,6 +3,7 @@ package org.openmrs.module.simplelabentry.report;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -63,11 +64,12 @@ public class ExcelReportRenderer {
 
 	       	// Sort the dataset 
 	       	SimpleLabEntryUtil.sortDataSet(dataSet);
+	       	List<String> redundantColumns = SimpleLabEntryUtil.getRedundantColumns(dataSet);
 	        
 	        // Display top header
 	        int columnIndex = 0;
 	        for (String columnName : dataSet.firstRow().getColumns()) {	        	
-	        	if (!EXCLUDE_COLUMNS.contains(columnName)) { 
+	        	if (!EXCLUDE_COLUMNS.contains(columnName) && !redundantColumns.contains(columnName)) { 
 		        	HSSFCellStyle cellStyle = styleHelper.getStyle("bold,border=bottom,size=10");		        		
 		        	// 'true' tells the helper to rotate the text
 		        	worksheetHelper.addCell(columnName, cellStyle, true);
@@ -79,7 +81,7 @@ public class ExcelReportRenderer {
 	        for (DataSetRow dataRow : dataSet)	{       
 	        	worksheetHelper.nextRow();
 	            for (String columnName : dataRow.getColumns()) {
-	            	if (!EXCLUDE_COLUMNS.contains(columnName)) { 
+	            	if (!EXCLUDE_COLUMNS.contains(columnName) && !redundantColumns.contains(columnName)) { 
 		            	Object value = dataRow.get(columnName);
 		                if (value instanceof Date) 
 		                	worksheetHelper.addCell(value, styleHelper.getStyle("date"));

@@ -6,7 +6,7 @@
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
 	<name>Simple Lab Entry</name>
-	<version>1.6.8</version>
+	<version>1.6.9</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>PIH</author>
 	<description>Lab Order and Result Entry</description>
@@ -38,6 +38,20 @@
 			this set would represent the individual Results (ie. Hematocrit, Hemoglobin, etc.).
 			If only a single Test with a single result is desired, then a Concept of class Test may be added to the list directly.
 		</description>
+	</globalProperty>
+	<!-- TODO:  active test failure reason -->
+	<!-- <globalProperty>
+		<property>@MODULE_ID@.testFailureConcepts</property>
+		<defaultValue></defaultValue>
+		<description>
+			This should be a comma-separated string of Test Failure Concept IDs defined for the Lab Tests supported by this system. Each entry 
+			should be in the form of (labTestSetConceptId).(testFailureConceptId)
+		</description> 
+	</globalProperty>-->
+	<globalProperty>
+		<property>@MODULE_ID@.conceptsInLabSetsThatAreNotTests</property>
+		<defaultValue></defaultValue>
+		<description>This should be the OrderTypeId of the OrderType that represents a Lab Test Order.  Comma delimited list of conceptIds.</description>
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.labOrderType</property>
@@ -89,7 +103,7 @@
 	</globalProperty>
 	<globalProperty>
 		<property>@MODULE_ID@.labReportConcepts</property>
-		<defaultValue>5497,730,653,654,790,1015,21,1017,678,3059,3060,952,1021,729,856</defaultValue>
+		<defaultValue></defaultValue>
 		<description>The list of concepts that you want to see in the lab report, in column order.  comma-delimited concept ids.</description>
 	</globalProperty>
 	<!-- /Required Global Properties -->

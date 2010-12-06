@@ -1,9 +1,9 @@
 package org.openmrs.module.simplelabentry.web.controller;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +16,7 @@ import org.openmrs.Patient;
 import org.openmrs.api.OrderService.ORDER_STATUS;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.simplelabentry.SimpleLabEntryService;
+import org.openmrs.module.simplelabentry.util.SimpleLabEntryUtil;
 import org.openmrs.web.controller.PortletController;
 import org.springframework.util.StringUtils;
 
@@ -45,9 +46,10 @@ public class LabEntryPortletController extends PortletController {
 	    	orderSetConceptId = split.length >= 3 ? split[2] : "";
 	    	
 	    	// Make sure the concept ID is set in the model.  Used by orderEntry.jsp to set the right checkbox
-			model.put("groupConceptId", orderSetConceptId);	    	
+	    	model.put("groupConceptId", orderSetConceptId);	    	
     	}
 		
+    	model.put("failureConceptId", SimpleLabEntryUtil.getTestFailureConcept((String)model.get("groupConceptId")));
 		String limit = (String)model.get("limit");
 		
 		// Retrieve global properties
@@ -101,5 +103,6 @@ public class LabEntryPortletController extends PortletController {
 			throw new RuntimeException("Server Error: Unable to load order list.", e);
 		}
 		model.put("labOrders", labOrderList);
+		model.put("notTests", SimpleLabEntryUtil.getConceptIdsInLabSetsThatAreNotTests());
 	}
 }

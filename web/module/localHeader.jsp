@@ -3,7 +3,7 @@
 <openmrs:require privilege="View Orders" otherwise="/login.htm" redirect="/module/simplelabentry/index.htm" />
 
 <c:if test='<%= !request.getRequestURI().contains("configureProperties") %>'>
-	<simplelabentry:requireConfiguration propertyPrefix="simplelabentry." configurationPage="/module/simplelabentry/configureProperties.htm" />
+	<simplelabentry:requireConfiguration propertyPrefix="simplelabentry." configurationPage="/module/simplelabentry/configureProperties.htm" ignoreList="simplelabentry.conceptsInLabSetsThatAreNotTests"/>
 </c:if>
 
 <%@ include file="/WEB-INF/template/header.jsp"%>

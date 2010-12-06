@@ -406,6 +406,13 @@
 					{ 	callback:function(revisedPatient) {
 							loadPatient(revisedPatient);
 							showNewOrder();
+							
+							
+							for (var i = 0; i < revisedPatient.labOrderIdsForPatient.length; i++){
+								var optionVal = revisedPatient.labOrderIdsForPatient[i];
+								$j(".orderDetailSection select[name='previousAccessionNumber']").append(new Option(optionVal, optionVal));
+							}
+
 						},
 						errorHandler:function(errorString, exception) {
 							alert(errorString);
@@ -466,10 +473,10 @@
 			<b class="nameMatch" id="newIdentifierAddSection">
 				<br/>
 				Are you certain that this is the same person who had the lab test ordered?<br/>
-				Adding ID '<span style="color:blue;" id="otherIdentifier"></span>' to the wrong patient's file will cause serious problems.
+				If this patient does not already have ID '<span style="color:blue;" id="otherIdentifier"></span>' it will be created.  <br/>Adding this Id to the wrong patient's file will cause serious problems.
 				<br/><br/>
-				<input type="button" id="AddIdentifierButton" value="Yes, this is the same person - add ID and continue order" />
-				<input type="button" id="NoIdentifierCancelButton" value="No, return to search" onclick="returnToSearch();" />
+				<input type="button" id="AddIdentifierButton" value="YES, this is the same person" />
+				<input type="button" id="NoIdentifierCancelButton" value="NO, return to search" onclick="returnToSearch();" />
 				<br/>
 			</b>
 			<br/>
@@ -691,13 +698,17 @@
 										<td class="labResultTemplateCell">
 											<span class="labResultTemplateConcept" style="display:none;">${labConcept.conceptId}.${record.conceptId}</span>
 											<openmrs_tag:obsValueField conceptId="${record.conceptId}" formFieldName="resultValue.${labConcept.conceptId}.${record.conceptId}" size="5" />
-											<br/>or, if the test failed: <br/>
-										<select name="didTestFail_${labConcept.conceptId}.${record.conceptId}">
-											<option value="0"></option>
-											<option value="1">clinician needs to reorder the test</option>
-											<!--<option value="2">test failed, but do not re-order</option>-->
-											<option value="3">test re-ordered, close this order</option>
-										</select>
+											
+											<!-- Hide failure field according to GP -->
+											<span <c:if test="${fn:contains(model.notTests, record.conceptId)}"> style="display:none;" </c:if>>
+													<br/>or, if the test failed: <br/>		
+													<select name="didTestFail_${labConcept.conceptId}.${record.conceptId}">
+														<option value="0"></option>
+														<option value="1">clinician needs to reorder the test</option>
+														<option value="2">test failed, but do not re-order.</option>
+														<option value="3">test re-ordered, close this order</option>
+													</select>
+											</span>
 										</td>
 									</openmrs:forEachRecord>
 								</c:when>
