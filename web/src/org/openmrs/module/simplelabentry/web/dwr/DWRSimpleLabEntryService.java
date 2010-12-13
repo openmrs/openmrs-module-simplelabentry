@@ -673,7 +673,7 @@ public class DWRSimpleLabEntryService {
 						String previousFailureResult = LabResultListItem.getFailureCodeStringFromObs(obs);  //can't return a null value only 0,1,2,3
 						if (OpenmrsUtil.nullSafeEquals(previousResult, rli == null ? null : rli.getResult()) && OpenmrsUtil.nullSafeEquals(previousFailureResult, fli == null ? "0" : fli.getResult())) {
 							needToAdd = false;	
-						} else {
+						} else if (obs.getOrder() != null && OpenmrsUtil.nullSafeEquals(obs.getOrder(), o)){
 						    obs.setVoided(true);
 							obs.setVoidedBy(user);
 						}
