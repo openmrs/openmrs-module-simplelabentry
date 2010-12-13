@@ -676,6 +676,8 @@ public class DWRSimpleLabEntryService {
 						} else if (obs.getOrder() != null && OpenmrsUtil.nullSafeEquals(obs.getOrder(), o)){
 						    obs.setVoided(true);
 							obs.setVoidedBy(user);
+							obs.setDateVoided(new Date());
+							obs.setVoidReason("SLE updated this value");
 						}
 					}
 				}
