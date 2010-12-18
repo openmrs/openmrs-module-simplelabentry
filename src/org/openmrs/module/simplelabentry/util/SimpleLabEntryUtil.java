@@ -1,5 +1,6 @@
 package org.openmrs.module.simplelabentry.util;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -17,8 +18,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
+import org.openmrs.ConceptNumeric;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
+import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
@@ -112,11 +115,20 @@ public class SimpleLabEntryUtil {
 			else if ("simplelabentry.workflowToDisplay".equals(property)) { 
 				object = (ProgramWorkflow) SimpleLabEntryUtil.getProgram().getWorkflowByName(identifier);
 			}
+			else if ("simplelabentry.cd4ConceptId".equals(property)) { 
+			        Concept c =  Context.getConceptService().getConcept(Integer.valueOf(identifier));
+			        if (c != null){
+			            object = (Concept) c;
+			        } else {
+			            object = (Concept) Context.getConceptService().getConceptByUuid(identifier);
+			        }    
+            }
 						
 		}
 		catch (Exception e) {
+		    
 			log.error("error: ", e);
-			
+			e.printStackTrace();
 		}
 			
 		if (object == null) {
@@ -394,9 +406,5 @@ public class SimpleLabEntryUtil {
 	     }
 	     return ret;
 	 }
-	
-	
-	
-	
-	
+
 }

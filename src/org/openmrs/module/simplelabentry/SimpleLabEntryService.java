@@ -10,7 +10,6 @@ import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Order;
-import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OrderService.ORDER_STATUS;
@@ -63,6 +62,9 @@ public interface SimpleLabEntryService {
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)	
 	public List<Order> getLabOrdersBetweenDates(Location location, Date startDate, Date endDate);
 
+	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	public File runAndRenderCD4Report(Location location) throws IOException;
+	
 //	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDER_TYPES)	
 //	public OrderType getLabOrderType();
 	

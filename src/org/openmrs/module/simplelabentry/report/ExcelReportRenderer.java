@@ -43,9 +43,16 @@ public class ExcelReportRenderer {
 	        worksheet.setMargin(HSSFSheet.RightMargin, 0);
         	worksheet.createFreezePane( 0, 1, 0, 1 );
 	        
-	        worksheet.getHeader().setCenter( "Lab Order Results for " + location + " between " + 
-	        		Context.getDateFormat().format((Date)report.getParameters().get("startDate")) + " and " + 
-	        		Context.getDateFormat().format((Date)report.getParameters().get("endDate")) );
+        	String centerString = "Lab Order Results for " + location;
+        	if ( report.getParameters().get("startDate") != null && !report.getParameters().get("startDate").equals("")
+        	        && report.getParameters().get("endDate") != null && !report.getParameters().get("endDate").equals("")){
+        	    centerString += " between " + 
+                Context.getDateFormat().format((Date)report.getParameters().get("startDate")) + " and " + 
+                Context.getDateFormat().format((Date)report.getParameters().get("endDate")) ;
+        	    
+        	}
+        	
+	        worksheet.getHeader().setCenter( centerString );
 	        worksheet.getFooter().setCenter( "Page " + HSSFFooter.page() + " of " + HSSFFooter.numPages() );
 
 	        // Configure the printer settings for each worksheet
@@ -108,7 +115,7 @@ public class ExcelReportRenderer {
         	int startRow = 0;
         	int endRow = 0;
 	        workbook.setRepeatingRowsAndColumns(sheetIndex,startColumn,endColumn,startRow,endRow);
-        }        
+        }       
         workbook.write(out);
     }
 }

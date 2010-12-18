@@ -6,7 +6,7 @@
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
 	<name>Simple Lab Entry</name>
-	<version>1.7.0</version>
+	<version>1.7.1</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>PIH</author>
 	<description>Lab Order and Result Entry</description>
@@ -105,6 +105,11 @@
 		<property>@MODULE_ID@.labReportConcepts</property>
 		<defaultValue></defaultValue>
 		<description>The list of concepts that you want to see in the lab report, in column order.  comma-delimited concept ids.</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.cd4ConceptId</property>
+		<defaultValue></defaultValue>
+		<description>The local conceptId of the CD4 concept.</description>
 	</globalProperty>
 	<!-- /Required Global Properties -->
 	<!-- DWR -->

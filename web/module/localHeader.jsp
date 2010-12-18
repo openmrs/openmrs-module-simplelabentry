@@ -38,6 +38,11 @@
 				<a href="labOrderReport.form">View Weekly Report</a>
 			</li>
 		</openmrs:hasPrivilege>
+		<openmrs:hasPrivilege privilege="Manage Reports">
+			<li <c:if test='<%= request.getRequestURI().contains("DecliningCD4Report") %>'>class="active"</c:if>>
+				<a href="DecliningCD4Report.form">Declining CD4 Report</a>
+			</li>
+		</openmrs:hasPrivilege>
 		
 		<openmrs:extensionPoint pointId="org.openmrs.module.simplelabentry.localHeader" type="html">
 				<c:forEach items="${extension.links}" var="link">
