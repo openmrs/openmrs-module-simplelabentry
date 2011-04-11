@@ -83,7 +83,7 @@ protected static final Log log = LogFactory.getLog(HibernateSimpleLabEntryDAO.cl
     @SuppressWarnings("unchecked")
     public List<Encounter> getEncountersWithNonNullResult(List<Concept> concepts, EncounterType encounterType, Location location, Date encounterStartDate, Date encounterEndDate) {
         
-        String hql = "SELECT e.* from Encounter as e, Obs as o where o.voided = 0 and e.voided = 0 and e.encounter_id = o.encounter_id and (o.value_numeric is not null OR o.value_text is not null OR o.value_coded is not null) and  ";
+        String hql = "SELECT e.* from encounter as e, obs as o, person as p where o.voided = 0 and e.voided = 0 and e.encounter_id = o.encounter_id and (o.value_numeric is not null OR o.value_text is not null OR o.value_coded is not null) and e.patient_id = p.person_id and p.voided = 0 and p.dead = 0 and  ";
         
         
         if (concepts != null && concepts.size() > 0){

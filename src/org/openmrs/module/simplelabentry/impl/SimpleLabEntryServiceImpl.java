@@ -584,11 +584,6 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
         List<Encounter> encounters = dao.getEncountersWithNonNullResult(Collections
                 .singletonList(c), et, location, cal.getTime(), new Date());
 
-        // clear out dead people
-        for (Encounter e : encounters) {
-            if (e.getPatient().isDead())
-                encounters.remove(e);
-        }
         Cohort patients = SimpleLabEntryUtil.getCohort(encounters);
         Map<Integer, String> treatmentGroups = SimpleLabEntryUtil
                 .getTreatmentGroupCache(patients);
