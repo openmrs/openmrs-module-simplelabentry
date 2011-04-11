@@ -52,14 +52,14 @@ public class GroupedOrderTag extends TagSupport {
 			ORDER_STATUS status = "open".equals(limit) ? ORDER_STATUS.CURRENT : "closed".equals(limit) ? ORDER_STATUS.COMPLETE : ORDER_STATUS.NOTVOIDED;
 	    	List<Order> openOrders = ls.getLabOrders(null, null, null, status, null);
 	    	
-	    	log.warn("Found " + openOrders.size() + " open orders.");
+	    	log.debug("Found " + openOrders.size() + " open orders.");
 	    	
 	    	Map<String, Integer> numVal = new HashMap<String, Integer>();
 	    	Map<String, String> groupNameVal = new LinkedHashMap<String, String>();
 	    	Set<String> locations = new TreeSet<String>();
 	    	
 	    	for (Order o : openOrders) {
-	    	    log.warn(o.getStartDate());
+	    	    log.debug(o.getStartDate());
 	    		StringBuffer groupName = new StringBuffer();
 	    		groupName.append(ObjectUtils.toString(o.getEncounter().getLocation().getName(), "?") + " ");
 	    		groupName.append(Context.getDateFormat().format(o.getStartDate() != null ? o.getStartDate() : o.getEncounter().getEncounterDatetime()) + " ");
