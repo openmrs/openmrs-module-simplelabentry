@@ -14,8 +14,8 @@
 	
 		<div align="center">
 		<c:choose>		
-			<!-- If all fields are not selected, display them as editable -->
 			<c:when test="${!selectedAllFields}">
+				<!-- If all fields are not selected, display them as editable -->
 				<form action="orderEntry.htm" method="get">
 				
 						<spring:message code="simplelabentry.orderLocation" />: 
@@ -29,8 +29,8 @@
 					
 				</form>				
 			</c:when>
-			<!-- Otherwise, display fields as readonly so we don't confuse the user -->
 			<c:otherwise>
+				<!-- Otherwise, display fields as readonly so we don't confuse the user -->
 				<spring:message code="simplelabentry.orderLocation" />: 
 
 				<select name="orderLocation" id="orderLocation" disabled>
