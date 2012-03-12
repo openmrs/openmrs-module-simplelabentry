@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
@@ -394,7 +395,7 @@ public class SimpleLabEntryUtil {
 	 public static Set<Integer> getConceptIdsInLabSetsThatAreNotTests(){
 	     Set<Integer> ret = new HashSet<Integer>();
 	     String idList = Context.getAdministrationService().getGlobalProperty("simplelabentry.conceptsInLabSetsThatAreNotTests");
-	     if (!idList.equals("")){
+	     if (StringUtils.isNotBlank("")){
 	         for (StringTokenizer st = new StringTokenizer(idList, ","); st.hasMoreTokens(); ) {
 	             String s = st.nextToken().trim();
 	             try {

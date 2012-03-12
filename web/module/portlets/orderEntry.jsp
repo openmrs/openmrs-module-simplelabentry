@@ -194,19 +194,6 @@
 		// Start date and location are never editable
 		$j(".orderDetailSection input[name='startDate']").attr("disabled","true").css("color","blue");
 		$j(".orderDetailSection select[name='location']").attr("disabled","true").css("color","blue");
-		
-//		<c:choose>
-//			<c:when test="${model.allowCategoryEdit == 'false'}">
-//				$j(".orderDetailSection input[name='startDate']").attr("disabled","true").css("color","blue");
-//				$j(".orderDetailSection select[name='location']").attr("disabled","true").css("color","blue");
-//				$j(".orderDetailSection select[name='concept']").attr("disabled","true").css("color","blue");
-//			</c:when>
-//			<c:otherwise>
-//				$j(".orderDetailSection input[name='startDate']").removeAttr("disabled").css("color","black");
-//				$j(".orderDetailSection select[name='location']").removeAttr("disabled").css("color","black");
-//				$j(".orderDetailSection select[name='concept']").removeAttr("disabled").css("color","black");
-//			</c:otherwise>
-//		</c:choose>
 	}
 
 	function showNewOrder() {
