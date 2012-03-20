@@ -18,9 +18,11 @@
 <openmrs:htmlInclude file="/scripts/easyAjax.js" />
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 
-<openmrs:globalProperty key="simplelabentry.patientIdentifierType" var="patientIdType" />
-<openmrs:globalProperty key="simplelabentry.programToDisplay" var="programToDisplay" />
-<openmrs:globalProperty key="simplelabentry.workflowToDisplay" var="workflowToDisplay" />
+<c:set var="patientIdType" value="${model.patientIdentifierType}"/>
+<c:set var="programToDisplay" value="${model.programToDisplay}" />
+<c:set var="workflowToDisplay" value="${model.workflowToDisplay}" />
+
+
 <script type="text/javascript">
 	var contextPath = "${pageContext.request.contextPath}";
 	<c:if test="${model.allowAdd == 'true'}">
@@ -276,11 +278,11 @@
 
 	function createPatient() {
 		var newIdent = $j('#newPatientIdentifier').text();
-		var newIdentType = '${patientIdType}';
+		var newIdentType = '${patientIdType.patientIdentifierTypeId}';
 		var selectedLocation = '${param.orderLocation}';
 		var newFirstName = $('newFirstName').value;
 		var newLastName = $('newLastName').value;
-		var newGender = $j("input[name='newGender']:checked").val();
+		var newGender = $j('input:radio[name=newGender]:checked').val();
 		var newAgeY = $('newAgeY').value;
 		var newAgeM = $('newAgeM').value;
 		var newProvince = $('newProvince').value;
@@ -387,7 +389,7 @@
 	$j(document).ready(function(){
 		$j("#AddIdentifierButton").click( function() {
 			var ident = $j("#otherIdentifier").text();
-			var identType = '${patientIdType}';
+			var identType = '${patientIdType.patientIdentifierTypeId}';
 			var identLoc = '${model.orderLocation}';
 			DWRSimpleLabEntryService.addPatientIdentifier(_selectedPatientId, ident, identType, identLoc, 
 					{ 	callback:function(revisedPatient) {
@@ -423,7 +425,7 @@
 <c:if test="${model.allowAdd == 'true'}">
 		Enter ${model.patientIdentifierType}: 
 		<input type="text" id="patientIdentifier" class="orderField" name="patientIdentifier" />
-		<input type="button" value="Search" id="SearchByIdButton" onclick="matchPatientById('${patientIdType}',$('patientIdentifier').value);" />
+		<input type="button" value="Search" id="SearchByIdButton" onclick="matchPatientById('${patientIdType.patientIdentifierTypeId}',$('patientIdentifier').value);" />
 		<input type="button" value="Clear" onclick="clearFormFields();" />
 		<br/><br/>
 	
@@ -587,7 +589,7 @@
 						<td>
 							<c:set var="idFound" value="0" />
 							<c:forEach items="${order.patient.identifiers}" var="id" varStatus="varStatus">
-								<c:if test="${id.identifierType.patientIdentifierTypeId == patientIdType}">
+								<c:if test="${id.identifierType.patientIdentifierTypeId == patientIdType.patientIdentifierTypeId}">
 									<c:set var="idFound" value="1" />
 									${id.identifier}
 								</c:if>

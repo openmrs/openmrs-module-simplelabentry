@@ -12,7 +12,9 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Location;
 import org.openmrs.Order;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifierType;
 import org.openmrs.api.OrderService.ORDER_STATUS;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.simplelabentry.SimpleLabEntryService;
@@ -48,24 +50,23 @@ public class LabEntryPortletController extends PortletController {
 	    	// Make sure the concept ID is set in the model.  Used by orderEntry.jsp to set the right checkbox
 	    	model.put("groupConceptId", orderSetConceptId);	    	
     	}
-		
-    	model.put("failureConceptId", SimpleLabEntryUtil.getTestFailureConcept((String)model.get("groupConceptId")));
+		//This is a TODO
+    	//model.put("failureConceptId", SimpleLabEntryUtil.getTestFailureConcept((String) model.get("groupConceptId")));
 		String limit = (String)model.get("limit");
 		
 		// Retrieve global properties
-		String orderTypeId = Context.getAdministrationService().getGlobalProperty("simplelabentry.labOrderType");
+		OrderType ot = (OrderType) SimpleLabEntryUtil.getLabOrderType();
+		if (ot == null)
+			throw new RuntimeException("Please set the global property simplelabentry.labOrderType correctly.");
+		String orderTypeId = ot.getOrderTypeId().toString();
 		model.put("orderTypeId", orderTypeId);
 		
 		log.debug("Retrieving orders for: location="+orderLocationId+",concept="+orderSetConceptId+"," +"date="+orderDateStr+",type="+orderTypeId+",limit="+limit);
 		
-		
-		String identifierTypeIdString = Context.getAdministrationService().getGlobalProperty("simplelabentry.patientIdentifierType");
-        try {
-            Integer i = Integer.valueOf(identifierTypeIdString);
-        } catch (Exception ex){
-            throw new RuntimeException("Please set global property simplelabentry.patientIdentifierType to a valid patient identifier id.");
-        }
-        model.put("patientIdentifierType", Context.getPatientService().getPatientIdentifierType(Integer.valueOf(identifierTypeIdString)));
+		PatientIdentifierType pit = (PatientIdentifierType) SimpleLabEntryUtil.getPatientIdentifierType();
+		if (pit == null)
+			throw new RuntimeException("Please set the global property simplelabentry.patientIdentifierType correctly.");
+        model.put("patientIdentifierType", pit);
         
         
 		List<Order> labOrderList = new ArrayList<Order>();
@@ -104,5 +105,8 @@ public class LabEntryPortletController extends PortletController {
 		}
 		model.put("labOrders", labOrderList);
 		model.put("notTests", SimpleLabEntryUtil.getConceptIdsInLabSetsThatAreNotTests());
+		model.put("patientIdentifierType", SimpleLabEntryUtil.getPatientIdentifierType());
+		model.put("programToDisplay", SimpleLabEntryUtil.getProgram().getName());
+		model.put("workflowToDisplay", SimpleLabEntryUtil.getWorkflow().getName());
 	}
 }

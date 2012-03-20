@@ -26,6 +26,7 @@ import org.openmrs.ConceptName;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientIdentifierType;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.PersonAddress;
@@ -61,11 +62,11 @@ public class LabPatientListItem extends PatientListItem {
 		super(patient);
 		if (patient != null) {
 			// Handle patient identifiers
-			Integer idOfInterest = Integer.valueOf(Context.getAdministrationService().getGlobalProperty("simplelabentry.patientIdentifierType"));
+			PatientIdentifierType pit = (PatientIdentifierType) SimpleLabEntryUtil.getPatientIdentifierType();
 			setIdentifier("");
 			Set<String> otherIds = new HashSet<String>();
 			for (PatientIdentifier pi : patient.getIdentifiers()) {
-				if (pi.getIdentifierType().getPatientIdentifierTypeId().equals(idOfInterest)) {
+				if (pi.getIdentifierType().getPatientIdentifierTypeId().equals(pit.getPatientIdentifierTypeId())) {
 					if (pi.isPreferred()) {
 						setIdentifier(pi.getIdentifier());
 					}
@@ -81,26 +82,17 @@ public class LabPatientListItem extends PatientListItem {
 			setOtherIdentifiers(StringUtils.collectionToDelimitedString(otherIds, ", "));
 			
 			// Handle PatientProgram Current WorkFlow State
-			Program program = null;
 			ProgramWorkflow workflow = null;
-			String programPropToDisplay = Context.getAdministrationService().getGlobalProperty("simplelabentry.programToDisplay");
-			String workflowPropToDisplay = Context.getAdministrationService().getGlobalProperty("simplelabentry.workflowToDisplay");
-			try {
-				Integer programId = Integer.valueOf(programPropToDisplay);
-				program = Context.getProgramWorkflowService().getProgram(programId);
-			}
-			catch (Exception e) {}
-			if (program == null) {
-				program = Context.getProgramWorkflowService().getProgramByName(programPropToDisplay);
-			}
+			Program program = SimpleLabEntryUtil.getProgram();
+			ProgramWorkflow progWorkflowToDisplay = SimpleLabEntryUtil.getWorkflow();
 			if (program != null) {
 				for (ProgramWorkflow wf : program.getAllWorkflows()) {
-					if (wf.getProgramWorkflowId().toString().equals(workflowPropToDisplay)) {
+					if (wf.getProgramWorkflowId().toString().equals(progWorkflowToDisplay.getName())) {
 						workflow = wf;
 					}
 					else {
 						for (ConceptName n : wf.getConcept().getNames()) {
-							if (n.getName().equals(workflowPropToDisplay)) {
+							if (n.getName().equals(progWorkflowToDisplay.getName())) {
 								workflow = wf;
 							}
 						}
@@ -123,8 +115,11 @@ public class LabPatientListItem extends PatientListItem {
 			// Handle Last Obs
 			Concept obsConcept = null;
 			String obsConceptProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.obsConceptIdToDisplay");
+			
 			try {
-				obsConcept = Context.getConceptService().getConcept(Integer.valueOf(obsConceptProp));
+				obsConcept = Context.getConceptService().getConceptByUuid(obsConceptProp);
+				if (obsConcept == null)
+					obsConcept = Context.getConceptService().getConcept(Integer.valueOf(obsConceptProp));
 			}
 			catch (Exception e) {}
 			if (obsConcept != null) {

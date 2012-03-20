@@ -118,23 +118,19 @@ public class DWRSimpleLabEntryService {
 	 * @return LabPatientListItem - The LabPatientListItem for the patient that matches the given identifier / type combination
 	 */	
 	public LabPatientListItem getPatientByIdentifier(Integer patientIdentifierTypeId, String patientIdentifier) {
-	    //TODO: add secondary identifier types to this module, same as primary care.
+		
 		PatientService ps = Context.getPatientService();
 		PatientIdentifierType idType = ps.getPatientIdentifierType(patientIdentifierTypeId);
-		List<PatientIdentifierType> idTypeList = new java.util.ArrayList<PatientIdentifierType>();
-		String gpList = Context.getAdministrationService().getGlobalProperty("simplelabentry.patientIdentifierTypesToSearch");
-		for (StringTokenizer st = new StringTokenizer(gpList, ","); st.hasMoreTokens(); ) {
-            String s = st.nextToken().trim();
-            try {
-                idTypeList.add(Context.getPatientService().getPatientIdentifierType(Integer.valueOf(s)));
-            } catch (Exception ex){
-                log.error("Could not load identifier type " + s + ".  Check the global property simplelabentry.patientIdentifierTypesToSearch");
-            }
-		}
+		
+		List<PatientIdentifierType> idTypeList = SimpleLabEntryUtil.getPatientIdentifierTypesToSearch();
+		//add the primary identifier type
 		idTypeList.add(idType);
 		log.debug("Looking for patient with Identifier: " + idType.getName() + ": " + patientIdentifier);
+		
+		
 		List<Patient> patList = ps.getPatients(null, patientIdentifier, idTypeList, true);
 		log.debug("Found " + patList.size() + " patients: " + patList);
+		
 		Patient p = (patList == null || patList.isEmpty() ? null : patList.get(0));
 		LabPatientListItem pli = new LabPatientListItem(p);
 		return pli;
@@ -290,8 +286,7 @@ public class DWRSimpleLabEntryService {
 			}
 			
 			try {
-				String attTypeProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.patientHealthCenterAttributeType");
-				hcType = Context.getPersonService().getPersonAttributeType(Integer.valueOf(attTypeProp));
+				hcType = (PersonAttributeType) SimpleLabEntryUtil.getGlobalPropertyValue("simplelabentry.patientHealthCenterAttributeType");
 				if (hcType == null) {
 					errors.add("Invalid Configuration of Patient Health Center Attribute Type");
 				}
@@ -485,8 +480,7 @@ public class DWRSimpleLabEntryService {
 		}
 		
 		try {
-			String encounterTypeProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.labTestEncounterType");
-			encounterType = Context.getEncounterService().getEncounterType(Integer.valueOf(encounterTypeProp));
+			encounterType = (EncounterType) SimpleLabEntryUtil.getGlobalPropertyValue("simplelabentry.labTestEncounterType");
 			if (encounterType == null) { 
 				errors.add("Encounter Type is required");
 			}
@@ -496,8 +490,8 @@ public class DWRSimpleLabEntryService {
 		}
 		
 		try {
-			String orderTypeProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.labOrderType");
-			orderType = Context.getOrderService().getOrderType(Integer.valueOf(orderTypeProp));
+	
+			orderType = SimpleLabEntryUtil.getLabOrderType();
 			if (orderType == null) { 
 				errors.add("Order Type is required");
 			}

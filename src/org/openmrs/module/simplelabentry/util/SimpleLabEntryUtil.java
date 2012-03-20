@@ -1,6 +1,5 @@
 package org.openmrs.module.simplelabentry.util;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -19,10 +18,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
-import org.openmrs.ConceptNumeric;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
-import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
@@ -89,45 +86,44 @@ public class SimpleLabEntryUtil {
 		
 		// Retrieve proper OrderType for Lab Orders
 		Object object = null;
-		String identifier = 
-			Context.getAdministrationService().getGlobalProperty(property);
+		String identifier = Context.getAdministrationService().getGlobalProperty(property);
 
 		try { 
 			if ("simplelabentry.labOrderType".equals(property)) { 
-				object = (OrderType)
-					Context.getOrderService().getOrderType(Integer.valueOf(identifier));
+				object = (OrderType) Context.getOrderService().getOrderTypeByUuid(identifier);
+				if (object == null)
+					object = (OrderType) Context.getOrderService().getOrderType(Integer.valueOf(identifier));
 			}
 			else if ("simplelabentry.programToDisplay".equals(property)) { 
-				object = (Program)
-					Context.getProgramWorkflowService().getProgramByName(identifier);
+				object = (Program) Context.getProgramWorkflowService().getProgramByUuid(identifier);
+				if (object == null)
+					object = (Program) Context.getProgramWorkflowService().getProgramByName(identifier);
 			}
 			else if ("simplelabentry.labTestEncounterType".equals(property)) { 
-				object = (EncounterType)
-					Context.getEncounterService().getEncounterType(Integer.valueOf(identifier));
+				object = (EncounterType) Context.getEncounterService().getEncounterTypeByUuid(identifier);
+				if (object == null)
+					object = (EncounterType) Context.getEncounterService().getEncounterType(Integer.valueOf(identifier));
 			}
 			else if ("simplelabentry.patientHealthCenterAttributeType".equals(property)) { 
-				object = (PersonAttributeType)
-					Context.getPersonService().getPersonAttributeType(Integer.valueOf(identifier));
+				object = (PersonAttributeType) Context.getPersonService().getPersonAttributeTypeByUuid(identifier);
+				if (object == null)
+					object = (PersonAttributeType) Context.getPersonService().getPersonAttributeType(Integer.valueOf(identifier));
 			}
 			else if ("simplelabentry.patientIdentifierType".equals(property)) { 
-				object = (PatientIdentifierType)
-					Context.getPatientService().getPatientIdentifierType(Integer.valueOf(identifier));
+				object = (PatientIdentifierType) Context.getPatientService().getPatientIdentifierTypeByUuid(identifier);
+				if (object == null)
+					object = (PatientIdentifierType) Context.getPatientService().getPatientIdentifierType(Integer.valueOf(identifier));
 			}
 			else if ("simplelabentry.workflowToDisplay".equals(property)) { 
-				object = (ProgramWorkflow) SimpleLabEntryUtil.getProgram().getWorkflowByName(identifier);
+				object = (ProgramWorkflow) SimpleLabEntryUtil.getProgram().getWorkflowByName(identifier); //this looks OK, looks up program by global property, then grabs workflow by name
 			}
-			else if ("simplelabentry.cd4ConceptId".equals(property)) { 
-			        Concept c =  Context.getConceptService().getConcept(Integer.valueOf(identifier));
-			        if (c != null){
-			            object = (Concept) c;
-			        } else {
-			            object = (Concept) Context.getConceptService().getConceptByUuid(identifier);
-			        }    
-            }
-						
+			else if ("simplelabentry.cd4ConceptId".equals(property) || "simplelabentry.obsConceptIdToDisplay".equals(property)) { 
+				    object = Context.getConceptService().getConceptByUuid(identifier);
+				    if (object == null)
+				    	object =  Context.getConceptService().getConcept(Integer.valueOf(identifier));
+            }		
 		}
-		catch (Exception e) {
-		    
+		catch (Exception e) {  
 			log.error("error: ", e);
 			e.printStackTrace();
 		}
@@ -182,7 +178,9 @@ public class SimpleLabEntryUtil {
 	    ConceptService cs = Context.getConceptService();
 	    for (StringTokenizer st = new StringTokenizer(conceptList, ","); st.hasMoreTokens(); ) {
             String s = st.nextToken().trim();
-            Concept c = cs.getConcept(Integer.valueOf(s));
+            Concept c = cs.getConceptByUuid(s);
+            if (c == null)
+            	c = cs.getConcept(Integer.valueOf(s));
             ret.add(c);
 	    }    
 		return ret;
@@ -333,8 +331,7 @@ public class SimpleLabEntryUtil {
 	 * @return
 	 */
 	public static List<String> getLabOrderIDsByPatient(Patient p, Integer lastNMonths){
-	    String orderTypeProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.labOrderType");
-        OrderType orderType = Context.getOrderService().getOrderType(Integer.valueOf(orderTypeProp));
+	    OrderType orderType = getLabOrderType();
         List<Order> oList = Context.getOrderService().getOrders(Order.class, Collections.singletonList(p), null, null, null, null, Collections.singletonList(orderType));
         List<String> ret = new ArrayList<String>();
         Calendar c = Calendar.getInstance();
@@ -347,6 +344,7 @@ public class SimpleLabEntryUtil {
         return ret;
 	}
 	
+	//TODO: not activated in module yet...
 	public static String getTestFailureConcept(String groupId) {
         String testProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.testFailureConcepts");
         if (testProp != null) {         
@@ -392,6 +390,7 @@ public class SimpleLabEntryUtil {
 	       return redundantColumns;
 	   }
 	
+
 	 public static Set<Integer> getConceptIdsInLabSetsThatAreNotTests(){
 	     Set<Integer> ret = new HashSet<Integer>();
 	     String idList = Context.getAdministrationService().getGlobalProperty("simplelabentry.conceptsInLabSetsThatAreNotTests");
@@ -399,13 +398,42 @@ public class SimpleLabEntryUtil {
 	         for (StringTokenizer st = new StringTokenizer(idList, ","); st.hasMoreTokens(); ) {
 	             String s = st.nextToken().trim();
 	             try {
-	                 ret.add(Integer.valueOf(s));
+	            	 Concept c = Context.getConceptService().getConceptByUuid(s);
+	            	 if (c == null)
+	            		 c = Context.getConceptService().getConcept(Integer.valueOf(s));
+	            	 if (c != null)
+	            		 ret.add(Integer.valueOf(c.getConceptId()));
 	             } catch (Exception ex){
 	                 throw new RuntimeException("Please enter a valid values for global property simplelabentry.conceptsInLabSetsThatAreNotTests.");
 	             }
 	         }    
 	     }
 	     return ret;
+	 }
+	 
+	 public static List<PatientIdentifierType> getPatientIdentifierTypesToSearch(){
+		 List<PatientIdentifierType> ret = new ArrayList<PatientIdentifierType>();
+		 String gpList = Context.getAdministrationService().getGlobalProperty("simplelabentry.patientIdentifierTypesToSearch");
+		for (StringTokenizer st = new StringTokenizer(gpList, ","); st.hasMoreTokens(); ) {
+            String s = st.nextToken().trim();
+            try {
+            	PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierTypeByUuid(s);
+            	if (pit == null)
+            		pit = Context.getPatientService().getPatientIdentifierType(Integer.valueOf(s));
+            	if (pit != null)
+            		ret.add(pit);
+            } catch (Exception ex){
+                log.error("Could not load identifier type " + s + ".  Check the global property simplelabentry.patientIdentifierTypesToSearch");
+            }
+		}
+		 return ret;
+	 }
+	 
+	 public static List<Integer> getPatientIdentifierTypeIdsToSearch(){
+		 List<Integer> ret = new ArrayList<Integer>();
+		 for (PatientIdentifierType pit : getPatientIdentifierTypesToSearch())
+			 ret.add(pit.getPatientIdentifierTypeId());
+		 return ret;
 	 }
 
 }

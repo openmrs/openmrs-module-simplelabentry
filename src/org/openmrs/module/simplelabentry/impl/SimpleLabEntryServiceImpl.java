@@ -147,14 +147,14 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
      */
     public List<Concept> getSupportedLabSets() {
         List<Concept> ret = new ArrayList<Concept>();
-        String testProp = Context.getAdministrationService().getGlobalProperty(
-                "simplelabentry.supportedTests");
+        String testProp = Context.getAdministrationService().getGlobalProperty("simplelabentry.supportedTests");
         if (testProp != null) {
             for (String s : testProp.split(",")) {
                 Concept foundConcept = null;
                 try {
-                    foundConcept = Context.getConceptService().getConcept(
-                            Integer.valueOf(s));
+                	foundConcept = Context.getConceptService().getConceptByUuid(s);
+                	if (foundConcept == null)
+                		foundConcept = Context.getConceptService().getConcept(Integer.valueOf(s));
                 } catch (Exception e) {
                 }
                 if (foundConcept == null) {
@@ -314,25 +314,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
             PatientIdentifier pi = encounter.getPatient().getPatientIdentifier(
                     identifierType);
             if (pi == null) {
-                List<Integer> idTypeList = new ArrayList<Integer>();
-                String gpList = Context
-                        .getAdministrationService()
-                        .getGlobalProperty(
-                                "simplelabentry.patientIdentifierTypesToSearch");
-                for (StringTokenizer st = new StringTokenizer(gpList, ","); st
-                        .hasMoreTokens();) {
-                    String s = st.nextToken().trim();
-                    try {
-                        idTypeList.add(Context.getPatientService()
-                                .getPatientIdentifierType(Integer.valueOf(s))
-                                .getPatientIdentifierTypeId());
-                    } catch (Exception ex) {
-                        log
-                                .error("Could not load identifier type "
-                                        + s
-                                        + ".  Check the global property simplelabentry.patientIdentifierTypesToSearch");
-                    }
-                }
+                List<Integer> idTypeList = SimpleLabEntryUtil.getPatientIdentifierTypeIdsToSearch();
                 for (PatientIdentifier idTmp : encounter.getPatient()
                         .getIdentifiers()) {
                     if (idTypeList.contains(idTmp.getIdentifierType()
@@ -574,10 +556,8 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
         cal.setTime(new Date());
         // let's look through the last 6 months for the last 2 or 3 CD4 counts
         cal.add(Calendar.YEAR, -2);
-        EncounterType et = (EncounterType) SimpleLabEntryUtil
-                .getGlobalPropertyValue("simplelabentry.labTestEncounterType");
-        Concept c = (Concept) SimpleLabEntryUtil
-                .getGlobalPropertyValue("simplelabentry.cd4ConceptId");
+        EncounterType et = (EncounterType) SimpleLabEntryUtil.getGlobalPropertyValue("simplelabentry.labTestEncounterType");
+        Concept c = (Concept) SimpleLabEntryUtil.getGlobalPropertyValue("simplelabentry.cd4ConceptId");
         ConceptNumeric cn = Context.getConceptService().getConceptNumeric(
                 c.getConceptId());
         // THESE are in descending order by encounterDatetime
@@ -636,26 +616,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
                         PatientIdentifier pi = enc.getPatient()
                                 .getPatientIdentifier(identifierType);
                         if (pi == null) {
-                            List<Integer> idTypeList = new ArrayList<Integer>();
-                            String gpList = Context
-                                    .getAdministrationService()
-                                    .getGlobalProperty(
-                                            "simplelabentry.patientIdentifierTypesToSearch");
-                            for (StringTokenizer st = new StringTokenizer(
-                                    gpList, ","); st.hasMoreTokens();) {
-                                String s = st.nextToken().trim();
-                                try {
-                                    idTypeList.add(Context.getPatientService()
-                                            .getPatientIdentifierType(
-                                                    Integer.valueOf(s))
-                                            .getPatientIdentifierTypeId());
-                                } catch (Exception ex) {
-                                    log
-                                            .error("Could not load identifier type "
-                                                    + s
-                                                    + ".  Check the global property simplelabentry.patientIdentifierTypesToSearch");
-                                }
-                            }
+                            List<Integer> idTypeList = SimpleLabEntryUtil.getPatientIdentifierTypeIdsToSearch();
                             for (PatientIdentifier idTmp : enc.getPatient()
                                     .getIdentifiers()) {
                                 if (idTypeList.contains(idTmp
