@@ -5,7 +5,7 @@
 	
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
-	<name>Simple Lab Entry</name>
+	<name>simplelabentry</name>
 	<version>1.7.4</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>PIH</author>

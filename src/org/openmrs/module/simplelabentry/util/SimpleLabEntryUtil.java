@@ -65,20 +65,9 @@ public class SimpleLabEntryUtil {
 		return (ProgramWorkflow) getGlobalPropertyValue("simplelabentry.workflowToDisplay");
 	}
 	
-	public static List<Program> getLabReportPrograms() { 
-		List<Program> programs = new LinkedList<Program>();		
-		programs.add(Context.getProgramWorkflowService().getProgramByName("HIV PROGRAM"));
-		//programs.add(Context.getProgramWorkflowService().getProgramByName("PMTCT PROGRAM"));
-		programs.add(Context.getProgramWorkflowService().getProgramByName("PEDIATRIC HIV PROGRAM"));
-		//programs.add(Context.getProgramWorkflowService().getProgramByName("TUBERCULOSIS PROGRAM"));	
-		return programs;
-	}	
-	
 	/**
 	 * Gets the lab order type associated with the underlying lab order type global property.
 	 * 
-	 * FIXME Obviously this is a hack, but it's better than having the code to get these properties
-	 * copied in different locations.
 	 * 
 	 * @return
 	 */
@@ -188,6 +177,36 @@ public class SimpleLabEntryUtil {
 		return ret;
 	}
 	
+	
+	/**
+	 * TODO:  move this to a global property...  
+	 * @return
+	 */
+	public static List<Program> getLabReportPrograms() { 
+		List<Program> programs = new LinkedList<Program>();		
+		programs.add(getProgram());
+		
+		if (Context.getProgramWorkflowService().getProgramByName("HIV PROGRAM") != null){
+			programs.add(Context.getProgramWorkflowService().getProgramByName("HIV PROGRAM"));
+		}
+		if (Context.getProgramWorkflowService().getProgramByName("PMTCT Pregnancy PROGRAM") != null){
+			programs.add(Context.getProgramWorkflowService().getProgramByName("PMTCT Pregnancy PROGRAM"));
+		}
+		if (Context.getProgramWorkflowService().getProgramByName("PMTCT Pregnancy PROGRAM") != null){
+			programs.add(Context.getProgramWorkflowService().getProgramByName("PMTCT Pregnancy PROGRAM"));
+		}
+		if (Context.getProgramWorkflowService().getProgramByName("PMTCT Combined Clinic - Mother") != null){
+			programs.add(Context.getProgramWorkflowService().getProgramByName("PMTCT Combined Clinic - Mother"));
+		}
+		if (Context.getProgramWorkflowService().getProgramByName("PMTCT PROGRAM") != null){
+			programs.add(Context.getProgramWorkflowService().getProgramByName("PMTCT PROGRAM"));
+		}
+		if (Context.getProgramWorkflowService().getProgramByName("PEDIATRIC HIV PROGRAM") != null){
+			programs.add(Context.getProgramWorkflowService().getProgramByName("PEDIATRIC HIV PROGRAM"));
+		}
+		return programs;
+	}	
+	
 	/**
 	 * 
 	 * @param encounters
@@ -197,7 +216,7 @@ public class SimpleLabEntryUtil {
 		Map<Integer, String> treatmentGroupCache = new HashMap<Integer, String>();
 		
 		if (!patients.isEmpty()) { 		
-			// Loop over every program - does not do PMTCT PROGRAM because  
+			// Loop over every program
 			for (Program program : SimpleLabEntryUtil.getLabReportPrograms()) { 
 				// Get patient programs / treatment groups for all patients
 				Map<Integer, PatientProgram> patientPrograms = 
@@ -213,7 +232,7 @@ public class SimpleLabEntryUtil {
 					if (treatmentGroup == null) { 
 						// FIXME Hack to get the treatment group for either HIV PROGRAM, PEDIATRIC PROGRAM, or TUBERCULOSIS PROGRAM
 						ProgramWorkflow workflow = program.getWorkflowByName("TREATMENT GROUP");
-						if (workflow == null) workflow = program.getWorkflowByName("TUBERCULOSIS TREATMENT GROUP");
+						//if (workflow == null) workflow = program.getWorkflowByName("TUBERCULOSIS TREATMENT GROUP");
 						if (workflow == null) continue;	// if we can't find a workflow at this point we just move to the next patient
 						
 						// Get the patient's current state based 						

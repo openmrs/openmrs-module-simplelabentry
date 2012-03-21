@@ -68,25 +68,25 @@ public class SimpleLabEntryServiceTest extends BaseModuleContextSensitiveTest {
 		
 	}
 	
-	@Test 
-	public void shouldGetLabReportPrograms() throws Exception { 
-		List<Program> programs = SimpleLabEntryUtil.getLabReportPrograms();
-		Assert.assertEquals(2, programs.size());
-	}
-	
-	@Test
-	public void shouldGetTreatmentGroupCache() throws Exception { 
-		Cohort patients = Context.getPatientSetService().getAllPatients();		
-		Assert.assertNotNull(patients);
-				
-		Map<Integer, String> treatmentGroupCache = SimpleLabEntryUtil.getTreatmentGroupCache(patients);		
-		Assert.assertEquals(treatmentGroupCache.keySet().size(), 598);
-				
-		log.warn("treatment group cache " + treatmentGroupCache);
-		for (Integer patientId : treatmentGroupCache.keySet()) { 			
-			log.info(patientId + " = " + treatmentGroupCache.get(patientId));			
-		}		
-	}
+//	@Test 
+//	public void shouldGetLabReportPrograms() throws Exception { 
+//		List<Program> programs = SimpleLabEntryUtil.getLabReportPrograms();
+//		Assert.assertEquals(2, programs.size());
+//	}
+//	
+//	@Test
+//	public void shouldGetTreatmentGroupCache() throws Exception { 
+//		Cohort patients = Context.getPatientSetService().getAllPatients();		
+//		Assert.assertNotNull(patients);
+//				
+//		Map<Integer, String> treatmentGroupCache = SimpleLabEntryUtil.getTreatmentGroupCache(patients);		
+//		Assert.assertEquals(treatmentGroupCache.keySet().size(), 598);
+//				
+//		log.warn("treatment group cache " + treatmentGroupCache);
+//		for (Integer patientId : treatmentGroupCache.keySet()) { 			
+//			log.info(patientId + " = " + treatmentGroupCache.get(patientId));			
+//		}		
+//	}
 	
 	@Test 
 	public void shouldGetObsBetweenDates() throws Exception {

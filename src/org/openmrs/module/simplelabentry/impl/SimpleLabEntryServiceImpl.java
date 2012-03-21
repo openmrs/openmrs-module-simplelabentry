@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
@@ -279,34 +278,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
         Map<Integer, String> treatmentGroups = SimpleLabEntryUtil
                 .getTreatmentGroupCache(patients);
 
-        // Merge any encounters that have the same patient id, sample date and
-        // location
-        // NOTE: This does not work if there is more than one obs of a type per
-        // day.
-
-        // Map<String, Encounter> mergedEncounters = new HashMap<String,
-        // Encounter>();
-        // for (Encounter encounter : encounters) {
-        // String key = encounter.getPatientId().toString() +
-        // Context.getDateFormat().format(encounter.getEncounterDatetime()) +
-        // encounter.getLocation().getName();
-        // Encounter mergedEncounter = mergedEncounters.get(key);
-        // if(mergedEncounter == null)
-        // mergedEncounters.put(key, encounter);
-        // else {
-        // for (Obs currentObs : encounter.getObs()) {
-        // if(currentObs.isVoided())
-        // continue;
-        //					
-        // mergedEncounter.addObs(currentObs);
-        // }
-        // }
-        // }
-
-        for (Encounter encounter : encounters) { // used to be
-                                                    // mergedEncounters.value
-            // log.info("Encounter for " + encounter.getPatient() + " on " +
-            // encounter.getEncounterDatetime());
+        for (Encounter encounter : encounters) {
             Map<String, String> row = new LinkedHashMap<String, String>();
             row.put("Patient ID", encounter.getPatient().getPatientId()
                     .toString());
@@ -334,7 +306,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
             row.put("Age", DateUtil.getTimespan(new Date(), encounter
                     .getPatient().getBirthdate()));
             row.put("Gender", encounter.getPatient().getGender());
-            row.put("Group", treatmentGroups.get(encounter.getPatientId()));
+            row.put("Group", treatmentGroups.get(encounter.getPatientId()) != null ? treatmentGroups.get(encounter.getPatientId()) : "");
             row.put("Location", encounter.getLocation().getName());
             row.put("Sample Date", Context.getDateFormat().format(
                     encounter.getEncounterDatetime()));
@@ -639,8 +611,7 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
                         row.put("Age", DateUtil.getTimespan(new Date(), enc
                                 .getPatient().getBirthdate()));
                         row.put("Gender", enc.getPatient().getGender());
-                        row.put("Group", treatmentGroups
-                                .get(enc.getPatientId()));
+                        row.put("Group", treatmentGroups.get(enc.getPatientId()) != null ? treatmentGroups.get(enc.getPatientId()) : "");
                         row.put("Location", enc.getLocation().getName());
 
                         // add the cd4 values
