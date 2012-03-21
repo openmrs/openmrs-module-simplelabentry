@@ -98,6 +98,8 @@ public class SimpleLabEntryUtil {
 				object = (Program) Context.getProgramWorkflowService().getProgramByUuid(identifier);
 				if (object == null)
 					object = (Program) Context.getProgramWorkflowService().getProgramByName(identifier);
+				if (object == null)
+					object = (Program) Context.getProgramWorkflowService().getProgram(Integer.valueOf(identifier));
 			}
 			else if ("simplelabentry.labTestEncounterType".equals(property)) { 
 				object = (EncounterType) Context.getEncounterService().getEncounterTypeByUuid(identifier);
