@@ -106,7 +106,7 @@ public class LabEntryPortletController extends PortletController {
 		model.put("labOrders", labOrderList);
 		model.put("notTests", SimpleLabEntryUtil.getConceptIdsInLabSetsThatAreNotTests());
 		model.put("patientIdentifierType", SimpleLabEntryUtil.getPatientIdentifierType());
-		model.put("programToDisplay", SimpleLabEntryUtil.getProgram().getName());
+		model.put("programToDisplay", SimpleLabEntryUtil.getProgram().getProgramId());
 		model.put("workflowToDisplay", SimpleLabEntryUtil.getWorkflow().getName());
 	}
 }
