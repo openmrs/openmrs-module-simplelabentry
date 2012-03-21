@@ -91,9 +91,31 @@ public class DWRSimpleLabEntryService {
 	 * @param patientIdentifier - The identifier string to validate against  
 	 * @throws PatientIdentifierException if a validation error occurs
 	 */	
-	public void checkPatientIdentifier(Integer patientIdentifierTypeId, String patientIdentifier) throws PatientIdentifierException {
+	public Integer checkPatientIdentifier(Integer patientIdentifierTypeId, String patientIdentifier) throws PatientIdentifierException {
 		PatientIdentifierType type = Context.getPatientService().getPatientIdentifierType(patientIdentifierTypeId);
-		PatientIdentifierValidator.validateIdentifier(patientIdentifier, type);
+		try {
+			PatientIdentifierValidator.validateIdentifier(patientIdentifier, type);
+			return type.getPatientIdentifierTypeId();
+		} catch (Exception ex){
+			//if the default validator fails
+			List<PatientIdentifierType> pits = SimpleLabEntryUtil.getPatientIdentifierTypesToSearch();
+			if (pits != null){
+				for (PatientIdentifierType pit : pits){
+					try {
+						// if any of our search types pass validation, return the identifier type with no error.
+						if (!pit.getPatientIdentifierTypeId().equals(type.getPatientIdentifierTypeId())){
+							PatientIdentifierValidator.validateIdentifier(patientIdentifier, pit);
+							return pit.getPatientIdentifierTypeId();
+						}
+					} catch (Exception exInner){
+						//pass
+					}	
+				}
+			}
+			ex.printStackTrace();
+			throw new PatientIdentifierException(ex.getMessage());
+		} 
+
 	}
 	
 	/**
@@ -193,6 +215,9 @@ public class DWRSimpleLabEntryService {
 				errors.add("Invalid Patient Identifier Type.");
 			}
 			
+			//adjustment if needed against rwandaprimarycare (safe for everyone else)
+			identifierType = adjustIdentifierTypeForPrimaryCareRegistration(identifier, identifierType);
+			
 			try {
 				identifierLocation = Context.getLocationService().getLocation(Integer.valueOf(identifierLocationStr));
 			}
@@ -274,6 +299,9 @@ public class DWRSimpleLabEntryService {
 			catch (Exception e) {
 				errors.add("Invalid Patient Identifier Type.");
 			}
+			//adjustment if needed against rwandaprimarycare (safe for everyone else)
+			identifierType = adjustIdentifierTypeForPrimaryCareRegistration(identifier, identifierType);
+			
 			
 			try {
 				location = Context.getLocationService().getLocation(Integer.valueOf(locationStr));
@@ -731,5 +759,79 @@ public class DWRSimpleLabEntryService {
 	    ret.setPatientId(patientId);
 	    ret.setLabOrderIdsForPatient(SimpleLabEntryUtil.getLabOrderIDsByPatient(Context.getPatientService().getPatient(patientId), 6));
 	    return ret;
+	}
+	
+	
+	/**
+	 * This checks for a primary care registration identifier type from the rwandaprimarycare module, and tries to determine if the ID is actually from the identifier type from this module.
+	 * @param identifier
+	 * @param pit
+	 * @return
+	 */
+	private PatientIdentifierType adjustIdentifierTypeForPrimaryCareRegistration(String identifier, PatientIdentifierType pit){
+		 String registrationIdTypeStr = Context.getAdministrationService().getGlobalProperty("registration.rwandaLocationCodes");
+		 
+		 // if the global property isn't found, everything's fine.  No adjustment needed.
+		 if (registrationIdTypeStr != null && !registrationIdTypeStr.equals("")){
+			 // get possible prefixes
+			 List<String> possiblePrefixes = getRegistrationIdentifierPrefixes();
+			 
+			 //now, check against registration identifier type
+			String regIdStr = Context.getAdministrationService().getGlobalProperty("registration.primaryIdentifierType");  
+			if (regIdStr != null && !regIdStr.equals("")){
+				//get the registration identifier type
+				PatientIdentifierType pitReg = Context.getPatientService().getPatientIdentifierTypeByUuid(regIdStr);
+				if (pitReg == null)
+					pitReg = Context.getPatientService().getPatientIdentifierTypeByName(regIdStr);
+				if (pitReg == null){
+					try {
+						pitReg = Context.getPatientService().getPatientIdentifierType(Integer.valueOf(regIdStr));
+					} catch (Exception ex){
+						//not going to be found... can't continue
+						return pit;
+					}
+				}
+				if (pitReg != null){
+					for (PatientIdentifierType pitTest : SimpleLabEntryUtil.getPatientIdentifierTypesToSearch()){
+						if (pitReg.getPatientIdentifierTypeId().equals(pitTest.getPatientIdentifierTypeId())){ //ensures that registration id type is valid with SimpleLabEntry search types
+							//now, test that identifier starts with identifier prefix
+							for (String prefix : possiblePrefixes){
+								if (identifier.startsWith(prefix)){
+									//and test that id validates against pitReg
+									try {
+										PatientIdentifierValidator.validateIdentifier(identifier, pitTest);
+										return pitTest;
+									} catch (Exception ex){
+										//pass... move onto the next prefix
+									}
+								}
+							}		
+						}
+					}
+				}	
+			}	
+		 }
+		 return pit;
+	}
+	
+	private List<String> getRegistrationIdentifierPrefixes(){
+	    	
+	    	List<String> ret = new ArrayList<String>();
+	    	String gp = Context.getAdministrationService().getGlobalProperty("registration.rwandaLocationCodes");	
+			 if (gp.contains("|")){
+				 for (StringTokenizer st = new StringTokenizer(gp, "|"); st.hasMoreTokens(); ) {
+		             String str = st.nextToken().trim();
+		             if (str.contains(":")){
+		                 String[] stArr = str.split(":");
+		                 ret.add(stArr[1]);
+		             } 
+				 }    
+			 } else { //single
+				 if (gp.contains(":")){
+		             String[] stArr = gp.split(":");
+		             ret.add(stArr[1]);
+		         } 
+			 }
+			 return ret;
 	}
 }

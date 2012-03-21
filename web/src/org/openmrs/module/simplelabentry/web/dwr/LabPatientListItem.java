@@ -78,6 +78,23 @@ public class LabPatientListItem extends PatientListItem {
 					}
 				}
 			}
+			// show one of the extra patient id search type IDs, this is purely for display
+			if (getIdentifier().equals("")){
+				boolean matched = false;
+				for (PatientIdentifierType pitExtra : SimpleLabEntryUtil.getPatientIdentifierTypesToSearch()){
+					if (!pitExtra.getPatientIdentifierTypeId().equals(pit.getPatientIdentifierTypeId())){
+						for (PatientIdentifier pi : patient.getIdentifiers()) {
+							if (pi.getIdentifierType().getPatientIdentifierTypeId().equals(pitExtra.getPatientIdentifierTypeId())){
+								matched = true;
+								setIdentifier(pi.getIdentifier());
+								break;
+							}
+						}
+						if (matched)
+							break;
+					}	
+				}	
+			}
 			otherIds.remove(getIdentifier());
 			setOtherIdentifiers(StringUtils.collectionToDelimitedString(otherIds, ", "));
 			

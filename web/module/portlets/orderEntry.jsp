@@ -25,6 +25,7 @@
 
 <script type="text/javascript">
 	var contextPath = "${pageContext.request.contextPath}";
+	var pageScopeidentifierTypeId = "${model.patientIdentifierType.patientIdentifierTypeId}";
 	<c:if test="${model.allowAdd == 'true'}">
 		dojo.require("dojo.widget.openmrs.PatientSearch");
 	
@@ -246,11 +247,13 @@
 	}
 
 	function matchPatientById(patIdType, patId) {
+		pageScopeidentifierTypeId = patIdType; //reset page identifier type to default type
 		clearPatientAndSearchFields(false);
 		DWRSimpleLabEntryService.getPatientByIdentifier(patIdType, patId, function(patient) {
 			if (patient.patientId == null) {
 				DWRSimpleLabEntryService.checkPatientIdentifier(patIdType, patId, { 
 					callback:function(createdOrder) {
+						pageScopeidentifierTypeId = createdOrder;  //if we've run into an alternate, but OK type, set page identifier type to this type
 						$j("#nameMatchSection").show();
 						$('newPatientIdentifier').innerHTML = patId;
 					},
@@ -278,7 +281,7 @@
 
 	function createPatient() {
 		var newIdent = $j('#newPatientIdentifier').text();
-		var newIdentType = '${patientIdType.patientIdentifierTypeId}';
+		var newIdentType = pageScopeidentifierTypeId;
 		var selectedLocation = '${param.orderLocation}';
 		var newFirstName = $('newFirstName').value;
 		var newLastName = $('newLastName').value;
@@ -389,7 +392,7 @@
 	$j(document).ready(function(){
 		$j("#AddIdentifierButton").click( function() {
 			var ident = $j("#otherIdentifier").text();
-			var identType = '${patientIdType.patientIdentifierTypeId}';
+			var identType = pageScopeidentifierTypeId;
 			var identLoc = '${model.orderLocation}';
 			DWRSimpleLabEntryService.addPatientIdentifier(_selectedPatientId, ident, identType, identLoc, 
 					{ 	callback:function(revisedPatient) {
@@ -423,7 +426,7 @@
 <div style="align:left;" class="box" >	
 
 <c:if test="${model.allowAdd == 'true'}">
-		Enter ${model.patientIdentifierType}: 
+		Enter the ID for this Patient: 
 		<input type="text" id="patientIdentifier" class="orderField" name="patientIdentifier" />
 		<input type="button" value="Search" id="SearchByIdButton" onclick="matchPatientById('${patientIdType.patientIdentifierTypeId}',$('patientIdentifier').value);" />
 		<input type="button" value="Clear" onclick="clearFormFields();" />

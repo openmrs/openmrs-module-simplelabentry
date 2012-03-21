@@ -1,0 +1,25 @@
+I.  ADD ORDERS SECTION ID/IdentifierType
+	a.  choose a location and a date.  Step 2 should show up.
+	b.  Enter an ID:
+		case 1:  the ID is of the default type.
+			a.  is an invalid id :  should throw some kind of invalid id error   												OK
+			b.  is valid, but person not found : should show search box         								                OK				
+				1.  person exists : should add id to person after verifying.  verify idType.                                    OK
+				2.  person doesn't exist																						OK
+			c.  person found																									OK
+		case 2:  the ID is of one of the extra search types, and someone has shown up at the lab with an alternate ID type      
+			a.  is an invalid id :  should throw some kind of invalid id error  												OK
+			b.  is valid:  should show search box																				OK
+				1.  person exists: new ID should be added to person with alternate ID type										OK
+				2.  person doesn't exist																						OK
+			c.  person found																									OK
+			d.  after testing with alternate type, switch back to default type, case b. -- the reason for this is to ensure that the javascript page-scoped 
+				identifier type of choice gets reset to the default every time.													OK
+				
+NOTE:  there's the odd case where an ID that is *meant to be a secondary type passes validation on the default type.
+If this is the case, i've added some custom pattern recognition against the rwandaprimarycare identifier type that won't 
+affect anyone else.
+
+
+				
+		
