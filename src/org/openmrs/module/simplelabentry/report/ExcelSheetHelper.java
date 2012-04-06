@@ -78,7 +78,7 @@ public class ExcelSheetHelper {
      * @param style
      */
     public void addCell(Object cellValue, HSSFCellStyle style, boolean isHeaderCell) {
-        System.out.println("Creating cell " + currentRowNum + "," + currentColNum + ": " + cellValue);
+        //System.out.println("Creating cell " + currentRowNum + "," + currentColNum + ": " + cellValue);
         if (currentRow == null) {
             currentRow = sheet.createRow(currentRowNum);
         }
