@@ -17,7 +17,7 @@ import org.openmrs.module.simplelabentry.report.LabOrderReport;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+
 public interface SimpleLabEntryService {
 	
 	/**
@@ -34,6 +34,7 @@ public interface SimpleLabEntryService {
 	 * @return list of Orders matching the parameters
 	 */
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	@Transactional
 	public List<Order> getLabOrders(Concept concept, Location location, Date orderDate, ORDER_STATUS status, List<Patient> patients);
 	
 	/**
@@ -44,25 +45,34 @@ public interface SimpleLabEntryService {
 	 * @return list of Concepts representing those
 	 */
 	@Authorized(OpenmrsConstants.PRIV_VIEW_CONCEPTS)
+	@Transactional(readOnly = true)
 	public List<Concept> getSupportedLabSets();
+	
+	@Transactional(readOnly = true)
 	public List<Concept> getSupportedLabConcepts();
 	
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	@Transactional(readOnly = true)
 	public LabOrderReport runLabOrderReport(Location location, Date startDate, Date endDate);
 	
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	@Transactional(readOnly = true)
 	public File runAndRenderLabOrderReport(Location location, Date startDate, Date endDate) throws IOException;
 	
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	@Transactional(readOnly = true)
 	public List<Map<String,String>> getLabOrderReportData(Location location, Date startDate, Date endDate);
 	
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ENCOUNTERS)	
+	@Transactional
 	public List<Encounter> getLabOrderEncounters(Location location, Date startDate, Date endDate);
 
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)	
+	@Transactional
 	public List<Order> getLabOrdersBetweenDates(Location location, Date startDate, Date endDate);
 
 	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDERS)
+	@Transactional(readOnly = true)
 	public File runAndRenderCD4Report(Location location) throws IOException;
 	
 //	@Authorized(OpenmrsConstants.PRIV_VIEW_ORDER_TYPES)	
