@@ -526,15 +526,18 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
+        // I'm taking this out so that the report looks at all encounters for cd4 results
         // let's look through the last 6 months for the last 2 or 3 CD4 counts
         cal.add(Calendar.YEAR, -2);
-        EncounterType et = (EncounterType) SimpleLabEntryUtil.getGlobalPropertyValue("simplelabentry.labTestEncounterType");
+       // EncounterType et = (EncounterType) SimpleLabEntryUtil.getGlobalPropertyValue("simplelabentry.labTestEncounterType");
         Concept c = (Concept) SimpleLabEntryUtil.getGlobalPropertyValue("simplelabentry.cd4ConceptId");
         ConceptNumeric cn = Context.getConceptService().getConceptNumeric(
                 c.getConceptId());
         // THESE are in descending order by encounterDatetime
         List<Encounter> encounters = dao.getEncountersWithNonNullResult(Collections
-                .singletonList(c), et, location, cal.getTime(), new Date());
+                .singletonList(c), null, location, cal.getTime(), new Date());
+        
+        //TODO: supress duplicate encounters?  dup = patient, encounter_datetime, obs_datetime, obs_result
 
         Cohort patients = SimpleLabEntryUtil.getCohort(encounters);
         Map<Integer, String> treatmentGroups = SimpleLabEntryUtil
@@ -543,14 +546,12 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
 
         Map<Patient, Map<String, String>> patientMap = new LinkedHashMap<Patient, Map<String, String>>();
 
-        // expected:
+        List<String> dupCheck = new ArrayList<String>(); //used to store a key -- combo of encounterDatetime, patientId, obsDatetime, cd4value;  we want this report to suppress dup CD4 entries.
         for (Encounter enc : encounters) {
 
             Map<String, String> rowTest = patientMap.get(enc.getPatient());
             if (rowTest != null && rowTest.containsKey("cd4_result3")) {
-                log
-                        .debug("HERE breaking on encounter because cd4_result3 already exists for patient "
-                                + enc.getPatient());
+                log.debug("HERE breaking on encounter because cd4_result3 already exists for patient " + enc.getPatient());
                 continue;
             }
 
@@ -568,6 +569,12 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
                     } else {
                         value = o.getValueAsString(locale);
                     }
+                    String dupKey = sdf.format(enc.getEncounterDatetime())+enc.getPatientId()+sdf.format(o.getObsDatetime())+value;
+                    if (dupCheck.contains(dupKey))
+                    	break;
+                    else
+                    	dupCheck.add(dupKey);
+                    
                     // add to patientMap
                     if (!patientMap.containsKey(enc.getPatient())) { // if
                                                                         // this
