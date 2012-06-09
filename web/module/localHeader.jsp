@@ -1,3 +1,4 @@
+
 <%@ taglib prefix="simplelabentry" uri="/WEB-INF/view/module/simplelabentry/resources/simplelabentry.tld" %>
 
 <openmrs:require privilege="View Orders" otherwise="/login.htm" redirect="/module/simplelabentry/index.htm" />

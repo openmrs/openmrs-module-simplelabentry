@@ -1,8 +1,9 @@
 package org.openmrs.module.simplelabentry.extension.html;
 
 import org.openmrs.module.Extension;
+import org.openmrs.module.web.extension.LinkExt;
 
-public class LabGutterItem extends Extension {
+public class LabGutterItem extends LinkExt {
 
 	@Override
 	public MEDIA_TYPE getMediaType() {

@@ -6,7 +6,7 @@
 	<!-- Base Module Properties -->
 	<id>simplelabentry</id>
 	<name>simplelabentry</name>
-	<version>1.7.5</version>
+	<version>1.7.6</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>PIH</author>
 	<description>Lab Order and Result Entry</description>

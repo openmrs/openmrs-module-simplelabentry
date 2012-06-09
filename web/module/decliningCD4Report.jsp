@@ -2,7 +2,6 @@
 <openmrs:require privilege="Manage Reports" otherwise="/login.htm" redirect="/module/reporting/index.htm" />
 <%@ include file="localHeader.jsp"%>
 
-<openmrs:htmlInclude file="/moduleResources/simplelabentry/jquery-1.3.2.min.js" />
 <openmrs:htmlInclude file="/scripts/easyAjax.js" />
 
 <script type="text/javascript">
