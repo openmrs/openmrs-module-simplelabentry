@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+	<global_property property="simplelabentry.cd4ConceptId" property_value="5497" uuid="5f405241-a3e9-46f8-b889-7abd46edcef6"/>
+	<global_property property="simplelabentry.conceptsInLabSetsThatAreNotTests" property_value="730" uuid="f19782d9-8d11-4c8a-9ca0-7206f2ed5491"/>
+	<global_property property="simplelabentry.labOrderType" property_value="4" uuid="6c8b5196-74f2-4ae2-a462-0cb08af7b06a"/>
+	<global_property property="simplelabentry.labReportConcepts" property_value="5497,730,653,654,856" uuid="1b6aeffa-fdec-4374-828e-637450ecfbc0"/>
+	<global_property property="simplelabentry.labTestEncounterType" property_value="9" uuid="a55e1909-9284-4b51-9178-067ec9274ed4"/>
+	<global_property property="simplelabentry.patientHealthCenterAttributeType" property_value="7" uuid="5d2ddeb8-a445-410c-8028-5afc271654c9"/>
+	<global_property property="simplelabentry.patientIdentifierType" property_value="5" uuid="3bcacbea-477f-413c-a37d-0399b2cc0fbd"/>
+	<global_property property="simplelabentry.patientIdentifierTypesToSearch" property_value="3,4,7,8" uuid="ea9f8947-b1ca-4d14-909d-993c0ef6896b"/>
+	<global_property property="simplelabentry.programToDisplay" property_value="3" uuid="56a31203-df64-47b6-ab36-9dda7962d7a8"/>
+	<global_property property="simplelabentry.supportedTests" property_value="657,6168,6167,856" uuid="aa2cbacf-2a11-4dd0-871d-98865cfa8e00"/>
+	<global_property property="simplelabentry.workflowToDisplay" property_value="TREATMENT GROUP" uuid="84b1b225-53cb-4c70-bb67-dad1b8ea35dd"/>
+	<concept concept_id="653" datatype_id="1" class_id="1" is_set="0" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="3cd275d0-26fe-102b-80cb-0017a47871b2"/>
+	<concept concept_id="654" datatype_id="1" class_id="1" is_set="0" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="3cd27760-26fe-102b-80cb-0017a47871b2"/>
+	<concept concept_id="657" datatype_id="4" class_id="8" is_set="1" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="3cd27c1a-26fe-102b-80cb-0017a47871b2"/>
+	<concept concept_id="730" datatype_id="1" class_id="1" is_set="0" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="3cd3d1be-26fe-102b-80cb-0017a47871b2"/>
+	<concept concept_id="856" datatype_id="1" class_id="1" is_set="0" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="5b1f9343-3298-4223-ae8e-5071cb07f5ad"/>
+	<concept concept_id="6167" datatype_id="4" class_id="8" is_set="1" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="bb7e59c2-7abc-47ed-af19-85d85065af62"/>
+	<concept concept_id="6168" datatype_id="4" class_id="8" is_set="1" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="52f6121a-db2b-47ec-93ba-57cc162b8ffc"/>
+	<concept_name concept_id="653" name="SERUM GLUTAMIC-OXALOACETIC TRANSAMINASE" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="667" voided="0" uuid="3e1040c6-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="653" name="SGOT" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="5444" voided="0" uuid="0b7b2e22-15f5-102d-96e4-000c29c2a5d7"/>
+	<concept_name concept_id="654" name="SERUM GLUTAMIC-PYRUVIC TRANSAMINASE" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="668" voided="0" uuid="3e104238-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="654" name="SGPT" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="5445" voided="0" uuid="0b7b2f08-15f5-102d-96e4-000c29c2a5d7"/>
+	<concept_name concept_id="657" name="CD4 PANEL" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="671" voided="0" uuid="3e1046e8-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="730" name="CD4%" locale="en" date_created="2004-04-08 06:00:00" creator="1" concept_name_id="746" voided="0" uuid="3e116082-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="856" name="HIV VIRAL LOAD" locale="en" date_created="2004-05-05 06:00:00" creator="1" concept_name_id="875" voided="0" uuid="3e129920-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="6167" name="RWANDA HEMATOLOGY SET" locale="en" date_created="2009-03-10 05:30:59" creator="1" concept_name_id="8756" voided="0" uuid="0b906652-15f5-102d-96e4-000c29c2a5d7"/>
+	<concept_name concept_id="6168" name="RWANDA BIOCHEMISTRY SET" locale="en" date_created="2009-03-10 05:33:52" creator="1" concept_name_id="8758" voided="0" uuid="0b907160-15f5-102d-96e4-000c29c2a5d7"/>
+</dataset>
+
