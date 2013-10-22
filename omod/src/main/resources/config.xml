@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module configVersion="1.2">
+	
+	<!-- Base Module Properties -->
+	<id>@MODULE_ID@</id>
+	<name>@MODULE_NAME@</name>
+	<version>@MODULE_VERSION@</version>
+	<package>@MODULE_PACKAGE@</package>
+	<author>PIH</author>
+	<description>Lab Order and Result Entry</description>
+	<activator>@MODULE_PACKAGE@.SimpleLabEntryActivator</activator>
+	<!-- /Base Module Properties -->
+	
+	<require_version>1.6.0</require_version>
+	
+	<!-- Extensions -->
+	<extension>
+		<point>org.openmrs.admin.list</point>
+		<class>@MODULE_PACKAGE@.web.extension.AdminList</class>
+	</extension>
+	<extension>
+		<point>org.openmrs.gutter.tools</point>
+		<class>@MODULE_PACKAGE@.web.extension.LabGutterItem</class>
+	</extension>
+
+	<!-- Required Global Properties -->
+	<globalProperty>
+		<property>@MODULE_ID@.supportedTests</property>
+		<defaultValue></defaultValue>
+		<description>
+			This should be a comma-separated string of Concept IDs defining the Lab Tests supported by this system.
+			These Concepts must have a ConceptClass of either LabSet or Test.  A Concept of class LabSet will support entry of all
+			Test Concepts in the LabSet together.  The LabSet would represent the type of Test (ie. Hematology) and the Tests within
+			this set would represent the individual Results (ie. Hematocrit, Hemoglobin, etc.).
+			If only a single Test with a single result is desired, then a Concept of class Test may be added to the list directly.
+		</description>
+	</globalProperty>
+	
+	<!-- TODO:  activate test failure reason -->
+	<!-- <globalProperty>
+		<property>@MODULE_ID@.testFailureConcepts</property>
+		<defaultValue></defaultValue>
+		<description>
+			This should be a comma-separated string of Test Failure Concept IDs defined for the Lab Tests supported by this system. Each entry 
+			should be in the form of (labTestSetConceptId).(testFailureConceptId)
+		</description> 
+	</globalProperty>-->
+	
+	<globalProperty>
+		<property>@MODULE_ID@.conceptsInLabSetsThatAreNotTests</property>
+		<defaultValue></defaultValue>
+		<description>This should be the OrderTypeId of the OrderType that represents a Lab Test Order.  Comma delimited list of conceptIds.</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.labOrderType</property>
+		<defaultValue></defaultValue>
+		<description>This should be the OrderTypeId of the OrderType that represents a Lab Test Order</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.labTestEncounterType</property>
+		<defaultValue></defaultValue>
+		<description>This should be the EncounterTypeId of the EncounterType that represents a Lab Test Encounter</description>
+	</globalProperty>	
+	<globalProperty>
+		<property>@MODULE_ID@.patientIdentifierType</property>
+		<defaultValue></defaultValue>
+		<description>
+			This should be the PatientIdentifierTypeId for the PatientIdentifierType 
+			that will be used for listing, searching, and creating patients
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.patientIdentifierTypesToSearch</property>
+		<defaultValue></defaultValue>
+		<description>
+			Other patient identifier types to include when searching for a patient by ID.  Comma delimited set of patient identifier type IDs.
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.patientHealthCenterAttributeType</property>
+		<defaultValue></defaultValue>
+		<description>The PersonAttributeTypeId for the PersonAttributeType representing the Patient's Health Center</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.programToDisplay</property>
+		<defaultValue></defaultValue>
+		<description>
+			In Patient Lists, we will display the Current State for the PatientProgram for the Program configured by this property.
+			This is used in conjunction with the "workflowToDisplay" property.  This should be the name of the program, not the id.
+			For example - "HIV PROGRAM"
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.workflowToDisplay</property>
+		<defaultValue></defaultValue>
+		<description>
+			In Patient Lists, we will display the Current State for the PatientProgram for the ProgramWorkflow configured by this property.
+			This is used in conjunction with the "programToDisplay" property.  This should be the name of the workflow, not the id.
+			For example, "ANTIRETROVIRAL TREATMENT GROUP"
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.labReportConcepts</property>
+		<defaultValue></defaultValue>
+		<description>The list of concepts that you want to see in the lab report, in column order.  comma-delimited concept ids.</description>
+	</globalProperty>
+	<globalProperty>
+		<property>@MODULE_ID@.cd4ConceptId</property>
+		<defaultValue></defaultValue>
+		<description>The local conceptId of the CD4 concept.</description>
+	</globalProperty>
+	<!-- /Required Global Properties -->
+	<!-- DWR -->
+	<dwr>
+		<allow>
+			<convert converter="bean" match="org.openmrs.module.simplelabentry.web.dwr.LabPatientListItem"/>
+			<convert converter="bean" match="org.openmrs.module.simplelabentry.web.dwr.LabOrderListItem"/>
+			<convert converter="bean" match="org.openmrs.module.simplelabentry.web.dwr.LabResultListItem"/>
+			<create creator="new" javascript="LabResultListItem">
+				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.LabResultListItem"/>
+			</create>
+			<create creator="new" javascript="LabPatientListItem">
+				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.LabPatientListItem"/>
+			</create>
+			<create creator="new" javascript="DWRSimpleLabEntryService">
+				<param name="class" value="org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService"/>
+				<include method="getPatient"/>
+				<include method="findPatients"/>
+				<include method="checkPatientIdentifier"/>
+				<include method="getPatientByIdentifier"/>
+				<include method="addPatientIdentifier"/>
+				<include method="createPatient"/>
+				<include method="getOrder"/>
+				<include method="saveLabOrders"/>
+				<include method="deleteLabOrderAndEncounter"/>
+			</create>
+		</allow>
+		<signatures>
+			<![CDATA[
+				import org.openmrs.module.simplelabentry.web.dwr.DWRSimpleLabEntryService;
+				import org.openmrs.module.simplelabentry.web.dwr.LabResultListItem;
+				import java.util.Map;
+				DWRSimpleLabEntryService.saveLabOrders(Integer orderId, Integer patientId, List<Integer> orderConceptIds, String orderLocationStr, String orderDateStr, String accessionNumber, String discontinuedDateStr, Map<String, LabResultListItem> labResults);
+			]]>
+		</signatures>
+	</dwr>
+
+	<!-- Internationalization -->
+	<!-- All message codes should start with @MODULE_ID@.* -->
+	<messages>
+		<lang>en</lang>
+		<file>messages.properties</file>
+	</messages>
+	<messages>
+		<lang>fr</lang>
+		<file>messages_fr.properties</file>
+	</messages>
+	<messages>
+		<lang>es</lang>
+		<file>messages_es.properties</file>
+	</messages>
+	<!-- /Internationalization -->
+	
+</module>
+
