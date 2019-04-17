@@ -59,6 +59,7 @@ public class GroupedOrderTag extends TagSupport {
 	    	Set<String> locations = new TreeSet<String>();
 	    	
 	    	for (Order o : openOrders) {
+		   if(o.getEncounter()!=null) {
 	    	    log.debug(o.getStartDate());
 	    		StringBuffer groupName = new StringBuffer();
 	    		groupName.append(ObjectUtils.toString(o.getEncounter().getLocation().getName(), "?") + " ");
@@ -78,6 +79,7 @@ public class GroupedOrderTag extends TagSupport {
 	    			orderCount = new Integer(0);
 	    		}
 	    		numVal.put(groupName.toString(), ++orderCount);
+		   }
 	    	}
 	    	log.debug("Grouped orders = " + groupNameVal);
 			
