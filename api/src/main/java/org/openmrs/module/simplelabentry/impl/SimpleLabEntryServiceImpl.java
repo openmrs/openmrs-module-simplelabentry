@@ -416,6 +416,9 @@ public class SimpleLabEntryServiceImpl extends BaseOpenmrsService implements
 
         // FIXME This should be done in the service OR dao layer
         for (Order order : getAllLabOrders()) {
+		if(order.getEncounter()==null){
+                continue;
+            }
             Encounter encounter = order.getEncounter();
             Date encounterDate = order.getEncounter().getEncounterDatetime();
 
