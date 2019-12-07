@@ -18,14 +18,14 @@
 	<concept concept_id="856" datatype_id="1" class_id="1" is_set="0" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="5b1f9343-3298-4223-ae8e-5071cb07f5ad"/>
 	<concept concept_id="6167" datatype_id="4" class_id="8" is_set="1" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="bb7e59c2-7abc-47ed-af19-85d85065af62"/>
 	<concept concept_id="6168" datatype_id="4" class_id="8" is_set="1" creator="1" retired="0" date_created="2004-01-01 07:00:00"  uuid="52f6121a-db2b-47ec-93ba-57cc162b8ffc"/>
-	<concept_name concept_id="653" name="SERUM GLUTAMIC-OXALOACETIC TRANSAMINASE" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="667" voided="0" uuid="3e1040c6-26fe-102b-80cb-0017a47871b2"/>
-	<concept_name concept_id="653" name="SGOT" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="5444" voided="0" uuid="0b7b2e22-15f5-102d-96e4-000c29c2a5d7"/>
-	<concept_name concept_id="654" name="SERUM GLUTAMIC-PYRUVIC TRANSAMINASE" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="668" voided="0" uuid="3e104238-26fe-102b-80cb-0017a47871b2"/>
-	<concept_name concept_id="654" name="SGPT" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="5445" voided="0" uuid="0b7b2f08-15f5-102d-96e4-000c29c2a5d7"/>
-	<concept_name concept_id="657" name="CD4 PANEL" locale="en" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="671" voided="0" uuid="3e1046e8-26fe-102b-80cb-0017a47871b2"/>
-	<concept_name concept_id="730" name="CD4%" locale="en" date_created="2004-04-08 06:00:00" creator="1" concept_name_id="746" voided="0" uuid="3e116082-26fe-102b-80cb-0017a47871b2"/>
-	<concept_name concept_id="856" name="HIV VIRAL LOAD" locale="en" date_created="2004-05-05 06:00:00" creator="1" concept_name_id="875" voided="0" uuid="3e129920-26fe-102b-80cb-0017a47871b2"/>
-	<concept_name concept_id="6167" name="RWANDA HEMATOLOGY SET" locale="en" date_created="2009-03-10 05:30:59" creator="1" concept_name_id="8756" voided="0" uuid="0b906652-15f5-102d-96e4-000c29c2a5d7"/>
-	<concept_name concept_id="6168" name="RWANDA BIOCHEMISTRY SET" locale="en" date_created="2009-03-10 05:33:52" creator="1" concept_name_id="8758" voided="0" uuid="0b907160-15f5-102d-96e4-000c29c2a5d7"/>
+	<concept_name concept_id="653" name="SERUM GLUTAMIC-OXALOACETIC TRANSAMINASE" locale="en" locale_preferred="true" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="667" voided="0" uuid="3e1040c6-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="653" name="SGOT" locale="en" locale_preferred="true" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="5444" voided="0" uuid="0b7b2e22-15f5-102d-96e4-000c29c2a5d7"/>
+	<concept_name concept_id="654" name="SERUM GLUTAMIC-PYRUVIC TRANSAMINASE" locale="en" locale_preferred="true" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="668" voided="0" uuid="3e104238-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="654" name="SGPT" locale="en" locale_preferred="true" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="5445" voided="0" uuid="0b7b2f08-15f5-102d-96e4-000c29c2a5d7"/>
+	<concept_name concept_id="657" name="CD4 PANEL" locale="en" locale_preferred="true" date_created="2004-01-01 07:00:00" creator="1" concept_name_id="671" voided="0" uuid="3e1046e8-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="730" name="CD4%" locale="en" locale_preferred="true" date_created="2004-04-08 06:00:00" creator="1" concept_name_id="746" voided="0" uuid="3e116082-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="856" name="HIV VIRAL LOAD" locale="en" locale_preferred="true" date_created="2004-05-05 06:00:00" creator="1" concept_name_id="875" voided="0" uuid="3e129920-26fe-102b-80cb-0017a47871b2"/>
+	<concept_name concept_id="6167" name="RWANDA HEMATOLOGY SET" locale="en" locale_preferred="true" date_created="2009-03-10 05:30:59" creator="1" concept_name_id="8756" voided="0" uuid="0b906652-15f5-102d-96e4-000c29c2a5d7"/>
+	<concept_name concept_id="6168" name="RWANDA BIOCHEMISTRY SET" locale="en" locale_preferred="true" date_created="2009-03-10 05:33:52" creator="1" concept_name_id="8758" voided="0" uuid="0b907160-15f5-102d-96e4-000c29c2a5d7"/>
 </dataset>
 
