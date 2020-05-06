@@ -16,27 +16,28 @@ package org.openmrs.module.simplelabentry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.Activator;
+import org.openmrs.module.BaseModuleActivator;
 
 /**
  * This class contains the logic that is run every time this module
  * is either started or shutdown
  */
-public class SimpleLabEntryActivator implements Activator {
+public class SimpleLabEntryActivator extends BaseModuleActivator {
 
-	private Log log = LogFactory.getLog(this.getClass());
+	protected Log log = LogFactory.getLog(this.getClass());
 
 	/**
-	 * @see org.openmrs.module.Activator#startup()
+	 * @see BaseModuleActivator#started()
 	 */
-	public void startup() {
-		log.info("Starting simplelabentry Module");
+	public void started() {
+		log.info("Simplelabentry Module started");
 	}
 	
 	/**
-	 *  @see org.openmrs.module.Activator#shutdown()
+	 *  @see BaseModuleActivator#stopped()
 	 */
-	public void shutdown() {
-		log.info("Shutting down simplelabentry Module");
+	public void stopped() {
+		log.info("Simplelabentry Module stopped");
 	}
 	
 }
