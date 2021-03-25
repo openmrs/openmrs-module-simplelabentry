@@ -3,7 +3,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>simplelabentry</artifactId>
-	<version>1.9-SNAPSHOT</version>
+	<version>1.9.0</version>
 	<packaging>pom</packaging>
 	<name>simplelabentry</name>
 	<description>Parent project for simplelabentry</description>
@@ -14,7 +14,7 @@
 		<connection>scm:git:git@github.com:openmrs/openmrs-module-simplelabentry</connection>
 		<developerConnection>scm:git:git@github.com:openmrs/openmrs-module-simplelabentry</developerConnection>
 		<url>https://github.com/openmrs/openmrs-module-simplelabentry/</url>
-	  <tag>HEAD</tag>
+	  <tag>1.9.0</tag>
   </scm>
 
 	<distributionManagement>
