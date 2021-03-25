@@ -11,8 +11,8 @@
 	<url>http://openmrs.org</url>
 
 	<scm>
-		<connection>scm:git:https://github.com/openmrs/openmrs-module-simplelabentry/</connection>
-		<developerConnection>scm:git:https://github.com/openmrs/openmrs-module-simplelabentry/</developerConnection>
+		<connection>scm:git:git@github.com:openmrs/openmrs-module-simplelabentry</connection>
+		<developerConnection>scm:git:git@github.com:openmrs/openmrs-module-simplelabentry</developerConnection>
 		<url>https://github.com/openmrs/openmrs-module-simplelabentry/</url>
 	  <tag>HEAD</tag>
   </scm>
@@ -21,12 +21,12 @@
 		<repository>
 			<id>openmrs-repo-modules</id>
 			<name>OpenMRS Modules</name>
-			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/modules</url>
+			<url>https://openmrs.jfrog.io/artifactory/modules/</url>
 		</repository>
 		<snapshotRepository>
 			<id>openmrs-repo-snapshots</id>
 			<name>OpenMRS Snapshots</name>
-			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
+			<url>https://openmrs.jfrog.io/artifactory/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -289,7 +289,7 @@
 		<repository>
 			<id>openmrs-repo</id>
 			<name>OpenMRS Nexus Repository</name>
-			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+			<url>https://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
 		</repository>
 	</repositories>
 
@@ -297,7 +297,7 @@
 		<pluginRepository>
 			<id>openmrs-repo</id>
 			<name>OpenMRS Nexus Repository</name>
-			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+			<url>https://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
