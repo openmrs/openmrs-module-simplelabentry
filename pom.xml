@@ -12,11 +12,11 @@
 	<url>http://openmrs.org</url>
 
 	<scm>
-		<connection>scm:git:https://github.com/openmrs/openmrs-module-simplelabentry/</connection>
-		<developerConnection>scm:git:https://github.com/openmrs/openmrs-module-simplelabentry/</developerConnection>
+		<connection>scm:git:git@github.com:openmrs/openmrs-module-simplelabentry.git</connection>
+		<developerConnection>scm:git:git@github.com:openmrs/openmrs-module-simplelabentry.git</developerConnection>
 		<url>https://github.com/openmrs/openmrs-module-simplelabentry/</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<distributionManagement>
 		<repository>
