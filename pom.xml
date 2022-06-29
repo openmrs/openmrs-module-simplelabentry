@@ -38,7 +38,7 @@
 
 	<properties>
 		<openMRSVersion>1.9.11</openMRSVersion>
-		<poiVersion>3.2-FINAL</poiVersion>
+		<poiVersion>4.1.1</poiVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<MODULE_ID>${project.parent.artifactId}</MODULE_ID>
 		<MODULE_NAME>simplelabentry</MODULE_NAME>
